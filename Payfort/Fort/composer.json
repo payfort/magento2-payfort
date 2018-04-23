@@ -1,0 +1,28 @@
+{
+  "name": "PayFort Fort Payment Module",
+  "description": "Use PayFort Fort module to have access to Fort payment methods.",
+  "type": "magento2-module",
+  "version": "1.3.0",
+  "license": [
+    "MIT"
+  ],
+  "require": {
+    "php": "~5.5.0|~5.6.0|~7.0.0",
+    "magento/magento-composer-installer": "*",
+    "magento/module-sales": "*",
+    "magento/module-payment": "*",
+    "magento/module-quote": "*"
+  },
+  "extra": {
+    "map": [
+      [
+        "*",
+        "Payfort/Fort"
+      ]
+    ]
+  },
+  "autoload": {
+    "psr-4": { "Payfort\\Fort\\": "" },
+    "files": [ "registration.php" ]
+  }
+}

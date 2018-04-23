@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Payfort_Fort default payment configuration
+*
+* @category    Payfort
+* @package     Payfort_Fort
+*/
+-->
+<payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
+    <groups>
+        <group id="payfort_fort">
+            <label>PayFort Payment Methods</label>
+        </group>
+    </groups>
+    <methods>
+        <method name="payfort_fort_cc">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="payfort_fort_installments">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="payfort_fort_sadad">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="payfort_fort_naps">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+    </methods>
+</payment>

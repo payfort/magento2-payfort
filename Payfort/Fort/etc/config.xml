@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Payfort_Fort default configuration
+*
+* @category    Payfort
+* @package     Payfort_Fort
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <payfort_fort>
+                <model>Payfort\Fort\Model\Payment</model>
+                <!--<title>Credit / Debit Card</title>
+                <active>0</active>
+                <order_status>pending</order_status>-->
+                <sha_type>SHA-128</sha_type>
+                <language>store</language>
+                <payment_action>sale</payment_action>
+                <allowspecific>0</allowspecific>
+                <min_order_total>0</min_order_total>
+                <order_status>payfort_fort_new</order_status>
+                <order_status_on_fail>payfort_fort_failed</order_status_on_fail>
+                <gateway_currency>base</gateway_currency>
+                <group>payfort_fort</group>
+            </payfort_fort>
+            <payfort_fort_cc>
+                <model>Payfort\Fort\Model\Method\Cc</model>
+                <active>0</active>
+                <title>Credit / Debit Card</title>
+                <integration_type>redirection</integration_type>
+                <order_status>payfort_fort_new</order_status>
+                <group>payfort_fort</group>
+                <!--<instructions>You will be redirected to the Payfort website when you place an order.</instructions>-->
+            </payfort_fort_cc>
+            <payfort_fort_installments>
+                <model>Payfort\Fort\Model\Method\Installments</model>
+                <active>0</active>
+                <title>Installments</title>
+                <order_status>payfort_fort_new</order_status>
+                <group>payfort_fort</group>
+                <!--<instructions>You will be redirected to the Payfort website when you place an order.</instructions>-->
+            </payfort_fort_installments>
+            <payfort_fort_sadad>
+                <model>Payfort\Fort\Model\Method\Sadad</model>
+                <active>0</active>
+                <title>SADAD</title>
+                <order_status>payfort_fort_new</order_status>
+                <group>payfort_fort</group>
+                <!--<instructions>You will be redirected to the Payfort website when you place an order.</instructions>-->
+            </payfort_fort_sadad>
+            <payfort_fort_naps>
+                <model>Payfort\Fort\Model\Method\Naps</model>
+                <active>0</active>
+                <title>NAPS</title>
+                <order_status>payfort_fort_new</order_status>
+                <group>payfort_fort</group>
+                <!--<instructions>You will be redirected to the Payfort website when you place an order.</instructions>-->
+            </payfort_fort_naps>
+        </payment>
+    </default>
+</config>

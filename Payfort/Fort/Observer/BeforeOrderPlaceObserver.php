@@ -9,6 +9,21 @@ use Magento\Framework\Event\ObserverInterface;
 class BeforeOrderPlaceObserver implements ObserverInterface 
 {
     /**
+     * @var \Magento\Config\Model\ResourceModel\Config
+     */
+    protected $_helper;
+    
+    /**
+     * @param \Magento\CatalogInventory\Model\ResourceModel\Stock $resourceStock
+     */
+    public function __construct(
+            \Payfort\Fort\Helper\Data $helper  
+            )
+    {
+        $this->_helper = $helper;
+    }
+    
+    /**
      * Update items stock status and low stock date.
      *
      * @param EventObserver $observer
@@ -17,6 +32,10 @@ class BeforeOrderPlaceObserver implements ObserverInterface
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
         $order = $observer->getOrder();
-        $order->setCanSendNewEmailFlag(false);
+        $paymentMethod = $order->getPayment()->getMethod();
+        if ($this->_helper->isPayfortPaymentMethod($paymentMethod)) {
+            $order->setCanSendNewEmailFlag(false);
+        }
+        
     }
 }

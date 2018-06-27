@@ -37,6 +37,9 @@ PAYFORT is here to help you accept online payments, reduce fraud, and maximize y
 
 ## Changelog
 
+`v1.3.1`
+- Fix order confirmation email is not sent issue
+
 `v1.3.0`
 - Added Installments as payment method
 

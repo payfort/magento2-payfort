@@ -98,6 +98,13 @@ class Data extends \Magento\Payment\Helper\Data
         );
     }
     
+    public function isPayfortPaymentMethod($paymentMethod) {
+        if (preg_match('#^payfort\_fort\_#', $paymentMethod)) {
+            return true;
+        }
+        return false;
+    }
+    
     public function getPaymentRequestParams($order, $integrationType = self::PAYFORT_FORT_INTEGRATION_TYPE_REDIRECTION)
     {
         $paymentMethod = $order->getPayment()->getMethod();
@@ -509,11 +516,14 @@ class Data extends \Magento\Payment\Helper\Data
             $invoice = $this->createInvoice($order, $responseParams);
             $invoice->capture();
             
-            $order->setStatus($order::STATE_PROCESSING);
-            $order->setState($order::STATE_PROCESSING);
             //$order->setExtOrderId($orderNumber);
-            $order->save();
+            $order->setState($order::STATE_PROCESSING)->save();
+            $order->setStatus($order::STATE_PROCESSING)->save();
             
+            //send order confirmation
+            $emailSender = $this->_objectManager->create('\Magento\Sales\Model\Order\Email\Sender\OrderSender');
+            $emailSender->send($order);
+
             $customerNotified = $this->sendOrderEmail($order);
             $order->addStatusToHistory( $order::STATE_PROCESSING , 'Payfort_Fort :: Order has been paid.', $customerNotified );
             $order->save();

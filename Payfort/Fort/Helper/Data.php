@@ -524,8 +524,8 @@ class Data extends \Magento\Payment\Helper\Data
             $emailSender = $this->_objectManager->create('\Magento\Sales\Model\Order\Email\Sender\OrderSender');
             $emailSender->send($order);
 
-            $customerNotified = $this->sendOrderEmail($order);
-            $order->addStatusToHistory( $order::STATE_PROCESSING , 'Payfort_Fort :: Order has been paid.', $customerNotified );
+            //$customerNotified = $this->sendOrderEmail($order);
+            $order->addStatusToHistory( $order::STATE_PROCESSING , 'Payfort_Fort :: Order has been paid.', true );
             $order->save();
             
             $this->sendInvoiceEmail($invoice);

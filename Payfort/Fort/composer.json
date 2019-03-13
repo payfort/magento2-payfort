@@ -2,7 +2,7 @@
   "name": "PayFort Fort Payment Module",
   "description": "Use PayFort Fort module to have access to Fort payment methods.",
   "type": "magento2-module",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "license": [
     "MIT"
   ],

@@ -224,6 +224,7 @@ define(
                             response.params.card_holder_name = cardInfo.holderName;
                             response.params.card_security_code = cardInfo.cvv;
                             response.params.expiry_date = cardInfo.expiryDate;
+                            response.params.form_key = "abcd";
                             $.each(response.params, function(k, v){
                                 $('<input>').attr({
                                     type: 'hidden',
@@ -232,6 +233,9 @@ define(
                                     value: v
                                 }).appendTo($('#'+formId));
                             });
+                            
+                            $('#'+formId +' input[name=form_key]').attr("disabled", "disabled");
+                            
                             $('#'+formId).attr('action', response.url);
                             $('#'+formId).submit();
                             return false;

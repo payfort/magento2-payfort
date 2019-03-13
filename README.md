@@ -37,6 +37,10 @@ PAYFORT is here to help you accept online payments, reduce fraud, and maximize y
 
 ## Changelog
 
+`v1.3.2`
+- Fix signature mismatch issue for magento 2.3
+- Support terms and conditions agreement.
+
 `v1.3.1`
 - Fix order confirmation email is not sent issue
 

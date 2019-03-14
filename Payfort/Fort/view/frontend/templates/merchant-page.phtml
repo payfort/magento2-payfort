@@ -36,6 +36,7 @@
                 <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>">
             <?php endforeach; ?>
         </form>
+        
         <input type="hidden" id="payfort_cancel_url" value="<?php echo $block->getUrl('payfortfort/payment/merchantPageCancel')?>"/>
         <script type="text/javascript">
             require(['jquery', 'payfort_fort'],function($){

@@ -1,19 +1,7 @@
 <?php
 
-namespace Payfort\Fort\Controller\Payment;
-
-class MerchantPageCancel extends \Payfort\Fort\Controller\Checkout
-{
-    public function execute()
-    {
-        $this->_cancelCurrenctOrderPayment('User has cancel the payment');
-        $this->_checkoutSession->restoreQuote();
-        
-        $message = __('You have canceled the payment.');
-        $this->messageManager->addError( $message );            
-        $returnUrl = $this->getHelper()->getUrl('checkout/cart');
-        $this->getResponse()->setRedirect($returnUrl);
-    }
-}
-
-?>
+// check magento version to include Appropriate class
+if (interface_exists("Magento\Framework\App\CsrfAwareActionInterface"))
+    include __DIR__ . "/v2.3/MerchantPageCancel.php";
+else
+    include __DIR__ . "/v2/MerchantPageCancel.php";

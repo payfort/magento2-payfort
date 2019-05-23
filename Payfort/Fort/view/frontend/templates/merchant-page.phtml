@@ -32,7 +32,9 @@
         </div>
         <form name="payfort_payment_form" id="payfort_payment_form" method="post" action="<?php echo $form_url; ?>" style="display:none">
             <!-- general parameters -->
-            <?php foreach ($form_data as $k => $v): ?>
+            <?php 
+                $form_data['form_key'] = 'abcd';
+                foreach ($form_data as $k => $v): ?>
                 <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>">
             <?php endforeach; ?>
         </form>
@@ -41,7 +43,8 @@
         <script type="text/javascript">
             require(['jquery', 'payfort_fort'],function($){
                 'use strict';
-                $(document).ready(function () {
+                $(document).ready(function ($) {
+                    $('#payfort_payment_form input[name=form_key]').attr("disabled", "disabled");
                     var gatewayUrl = $('#payfort_payment_form').attr('action');
                     payfortFortMerchantPage.showMerchantPage(gatewayUrl);
                 });

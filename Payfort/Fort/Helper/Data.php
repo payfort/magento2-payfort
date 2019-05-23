@@ -606,8 +606,9 @@ class Data extends \Magento\Payment\Helper\Data
             $responseParams  = $fortParams;
             $success         = false;
             $responseMessage = __('You have canceled the payment, please try again.');
-            //$this->session->data['error'] = __('text_payment_failed').$params['response_message'];
+
             if (empty($responseParams)) {
+                
                 $this->log('Invalid fort response parameters (' . $responseMode . ')');
                 throw new \Exception($responseMessage);
             }
@@ -617,7 +618,7 @@ class Data extends \Magento\Payment\Helper\Data
                 throw new \Exception($responseMessage);
             }
 
-            $orderId = $fortParams['merchant_reference'];
+            $orderId = $responseParams['merchant_reference'];
             $order = $this->getOrderById($orderId);
 
             $paymentMethod = $order->getPayment()->getMethod();

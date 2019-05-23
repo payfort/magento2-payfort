@@ -27,6 +27,7 @@
         <?php echo __( 'Redirecting...' );?>
         <form id="frm_payfort_fort_redirect" action="<?php echo $form_url?>" method="POST" style="display: none">
         <?php
+                $form_data['form_key'] = 'abcd';
                 foreach ($form_data as $key => $val) {
                     echo "<input type='hidden' name='{$key}' value='{$val}' />";
                 }
@@ -36,7 +37,8 @@
             require([
                 'jquery'
             ], function(jQuery) {
-                jQuery(document).ready(function () {
+                jQuery(document).ready(function ($) {
+                    $('#frm_payfort_fort_redirect input[name=form_key]').attr("disabled", "disabled");
                     jQuery('#frm_payfort_fort_redirect').submit();
                 });
             });

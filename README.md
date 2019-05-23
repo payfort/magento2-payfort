@@ -37,7 +37,7 @@ PAYFORT is here to help you accept online payments, reduce fraud, and maximize y
 
 ## Changelog
 
-`v1.4.1`
+`v1.4.0`
 - Support Magento 2.3
 
 `v1.3.1`

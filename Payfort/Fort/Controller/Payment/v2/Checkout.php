@@ -71,17 +71,6 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action
         $this->_helper = $helper;
         parent::__construct($context);
     }
-    
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-        return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
 
     /**
      * Cancel order, return quote to customer

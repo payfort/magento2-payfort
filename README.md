@@ -23,7 +23,7 @@ PAYFORT is here to help you accept online payments, reduce fraud, and maximize y
 
 ## Upgrade
 
-1. Go to [Magento2 root folder]/app/code.
+1. Go to [Magento2 root folder]/app/code
 
 2. Past Payfort folder to the previous path.
 
@@ -36,6 +36,9 @@ PAYFORT is here to help you accept online payments, reduce fraud, and maximize y
 6. Click On Flush Magento Cache.
 
 ## Changelog
+
+`v1.4.0`
+- Support Magento 2.3
 
 `v1.3.1`
 - Fix order confirmation email is not sent issue

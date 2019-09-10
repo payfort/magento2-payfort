@@ -2,6 +2,7 @@
 namespace Payfort\Fort\Helper;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Api\OrderManagementInterface;
+use Magento\CatalogInventory\Api\StockManagementInterface;
 
 /**
  * Payment module base helper
@@ -48,6 +49,31 @@ class Data extends \Magento\Payment\Helper\Data
      * @var \Magento\Framework\ObjectManagerInterface
      */
     protected $_objectManager;
+
+    /**
+     * @var \Magento\CatalogInventory\Api\StockManagementInterface
+     */
+    protected $_stockManagement;
+
+    /**
+     * @var \Magento\CatalogInventory\Model\Indexer\Stock\Processor
+     */
+    protected $_stockIndexerProcessor;
+
+    /**
+     * @var \Magento\Catalog\Model\Indexer\Product\Price\Processor
+     */
+    protected $_priceIndexer;
+
+    /**
+     * @var \Magento\CatalogInventory\Observer\ProductQty
+     */
+    protected $_productQty;
+
+    /**
+     * @var \Magento\Framework\App\ProductMetadataInterface
+     */
+    protected $_productMetadata;
         
     const PAYFORT_FORT_INTEGRATION_TYPE_REDIRECTION = 'redirection';
     const PAYFORT_FORT_INTEGRATION_TYPE_MERCAHNT_PAGE = 'merchantPage';
@@ -67,7 +93,12 @@ class Data extends \Magento\Payment\Helper\Data
         \Magento\Checkout\Model\Session $session,
         OrderManagementInterface $orderManagement,
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Magento\Framework\Locale\ResolverInterface $localeResolver
+        \Magento\Framework\Locale\ResolverInterface $localeResolver,
+        \Magento\CatalogInventory\Api\StockManagementInterface $stockManagement,
+        \Magento\CatalogInventory\Model\Indexer\Stock\Processor $stockIndexerProcessor,
+        \Magento\Catalog\Model\Indexer\Product\Price\Processor $priceIndexer,
+        \Magento\CatalogInventory\Observer\ProductQty $productQty,
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata
     ) {
         parent::__construct($context,$layoutFactory, $paymentMethodFactory, $appEmulation, $paymentConfig, $initialConfig);
         $this->_storeManager = $storeManager;
@@ -76,6 +107,11 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_localeResolver = $localeResolver;
         $this->orderManagement = $orderManagement;
         $this->_objectManager = $objectManager;
+        $this->_stockManagement = $stockManagement;
+        $this->_stockIndexerProcessor = $stockIndexerProcessor;
+        $this->_priceIndexer = $priceIndexer;
+        $this->_productQty = $productQty;
+        $this->_productMetadata = $productMetadata;
     }
     
     public function setMethodCode($code) {
@@ -441,7 +477,60 @@ class Data extends \Magento\Payment\Helper\Data
      */
     public function restoreQuote()
     {
-        return $this->session->restoreQuote();
+        $result = $this->session->restoreQuote();
+        // Versions 2.2.4 onwards need an explicit action to return items.
+        if ($result && $this->isReturnItemsToInventoryRequired()) {
+            $this->returnItemsToInventory();
+        }
+
+        return $result;
+    }
+
+    /**
+     * Checks if version requires restore quote fix.
+     *
+     * @return bool
+     */
+    private function isReturnItemsToInventoryRequired()
+    {
+        $version = $this->getMagentoVersion();
+        return version_compare($version, "2.2.4", ">=");
+    }
+
+    /**
+     * Returns items to inventory.
+     *
+     */
+    private function returnItemsToInventory()
+    {
+        // Code from \Magento\CatalogInventory\Observer\RevertQuoteInventoryObserver
+        $quote = $this->session->getQuote();
+        $items = $this->_productQty->getProductQty($quote->getAllItems());
+        $revertedItems = $this->_stockManagement->revertProductsSale($items, $quote->getStore()->getWebsiteId());
+
+        // If the Magento 2 server has multi source inventory enabled, 
+        // the revertProductsSale method is intercepted with new logic that returns a boolean.
+        // In such case, no further action is necessary.
+        if (gettype($revertedItems) === "boolean") {
+            return;
+        }
+
+        $productIds = array_keys($revertedItems);
+        if (!empty($productIds)) {
+            $this->_stockIndexerProcessor->reindexList($productIds);
+            $this->_priceIndexer->reindexList($productIds);
+        }
+        // Clear flag, so if order placement retried again with success - it will be processed
+        $quote->setInventoryProcessed(false);
+    }
+
+    /**
+     * Gets the Magento version.
+     *
+     * @return string
+     */
+    public function getMagentoVersion() {
+        return $this->_productMetadata->getVersion();
     }
     
     /**

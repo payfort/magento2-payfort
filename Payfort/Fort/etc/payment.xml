@@ -8,6 +8,12 @@
 */
 -->
 <payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
+    <credit_cards>        
+        <type id="MA" order="5">
+            <label>Mada</label>
+        </type>           
+    </credit_cards>
+    
     <groups>
         <group id="payfort_fort">
             <label>PayFort Payment Methods</label>

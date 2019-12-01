@@ -91,6 +91,12 @@ class PaymentConfigProvider implements ConfigProviderInterface
                 }
             }
         }
+	$baseCurrency                                                     = $this->pfHelper->getBaseCurrency();
+        $frontCurrency                                                    = $this->pfHelper->getFrontCurrency();
+        $fortCurrency                                                     = $this->pfHelper->getFortCurrency($baseCurrency, $frontCurrency);              
+        $config['payment']['payfortFort']['configParams']['fortCurrency'] = $fortCurrency;
+        $config['payment']['payfortFort']['configParams']['madaBranding'] = $this->pfHelper->getConfig('payment/payfort_fort_cc/mada_branding');
+
         return $config;
     }
 

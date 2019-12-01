@@ -136,6 +136,13 @@
                         <label>Sort Order</label>
                         <config_path>payment/payfort_fort_cc/sort_order</config_path>
                     </field>
+                    <field id="madaBranding" translate="label" type="select" sortOrder="37" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Mada Option</label>
+                     <source_model>Payfort\Fort\Model\Config\Source\madaBranding</source_model>
+                     <comment>Enables mada option (Will override current label)</comment>
+                    <config_path>payment/payfort_fort_cc/mada_branding</config_path>
+
+                    </field>
                     <!--<field id="instructions" translate="label" type="textarea" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Instructions</label>
                     </field>-->

@@ -60,4 +60,15 @@
             </payfort_fort_naps>
         </payment>
     </default>
+    <global>
+    	<cc>
+            <types>
+    		<MA>
+                    <code>MA</code>
+                    <name>MADA</name>
+                    <order>110</order>
+    		</MA>
+            </types>
+    	</cc>
+    </global>
 </config>

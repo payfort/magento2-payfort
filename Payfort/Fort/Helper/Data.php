@@ -49,27 +49,27 @@ class Data extends \Magento\Payment\Helper\Data
      * @var \Magento\Framework\ObjectManagerInterface
      */
     protected $_objectManager;
-
+    
     /**
      * @var \Magento\CatalogInventory\Api\StockManagementInterface
      */
     protected $_stockManagement;
-
+    
     /**
      * @var \Magento\CatalogInventory\Model\Indexer\Stock\Processor
      */
     protected $_stockIndexerProcessor;
-
+    
     /**
      * @var \Magento\Catalog\Model\Indexer\Product\Price\Processor
      */
     protected $_priceIndexer;
-
+    
     /**
      * @var \Magento\CatalogInventory\Observer\ProductQty
      */
     protected $_productQty;
-
+    
     /**
      * @var \Magento\Framework\App\ProductMetadataInterface
      */
@@ -146,7 +146,7 @@ class Data extends \Magento\Payment\Helper\Data
         $paymentMethod = $order->getPayment()->getMethod();
         $orderId = $order->getRealOrderId();        
         $language = $this->getLanguage();
-
+    
         $gatewayParams = array(
             'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
             'access_code'         => $this->getMainConfigData('access_code'),
@@ -189,7 +189,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $signature                  = $this->calculateSignature($gatewayParams, 'request');
         $gatewayParams['signature'] = $signature;
-
+     
         $gatewayUrl = $this->getGatewayUrl();
         
         $this->log("Payfort Request Params for payment method ($paymentMethod) \n\n" . print_r($gatewayParams, 1));
@@ -235,9 +235,9 @@ class Data extends \Magento\Payment\Helper\Data
     public function merchantPageNotifyFort($fortParams, $order) {
         //send host to host
         $orderId = $order->getRealOrderId();
-
+     
         $return_url = $this->getReturnUrl('payfortfort/payment/responseOnline');
-
+        
         $ip = $this->getVisitorIp();
         $baseCurrency  = $this->getBaseCurrency();
         $orderCurrency = $order->getOrderCurrency()->getCurrencyCode();
@@ -280,18 +280,18 @@ class Data extends \Magento\Payment\Helper\Data
         $this->log("Merchant Page Notify Api Request Params for payment method ($paymentMethod) : " . print_r($postData, 1));
         
         $response = $this->callApi($postData, $gatewayUrl);
-
+      
         $debugMsg = "Fort Merchant Page Notifiaction Response Parameters for payment method ($paymentMethod)"."\n".print_r($response, true);
         $this->log($debugMsg);
         
         return $response;
     }
-
+   
     public function callApi($postData, $gatewayUrl)
     {
         //open connection
         $ch = curl_init();
-
+     
         //set the url, number of POST vars, POST data
         $useragent = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0";
         curl_setopt($ch, CURLOPT_USERAGENT, $useragent);
@@ -312,13 +312,13 @@ class Data extends \Magento\Payment\Helper\Data
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 0); // The number of seconds to wait while trying to connect
         //curl_setopt($ch, CURLOPT_TIMEOUT, Yii::app()->params['apiCallTimeout']); // timeout in seconds
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
-
+      
         $response = curl_exec($ch);
-
+        
         curl_close($ch);
-
+        
         $array_result = json_decode($response, true);
-
+        
         if (!$response || empty($array_result)) {
             return false;
         }
@@ -333,7 +333,7 @@ class Data extends \Magento\Payment\Helper\Data
             $a = $om->get('Magento\Framework\HTTP\PhpEnvironment\RemoteAddress');
             return $a->getRemoteAddress();
     }
-
+   
     /**
      * calculate fort signature
      * @param array $arr_data
@@ -348,12 +348,12 @@ class Data extends \Magento\Payment\Helper\Data
         $sha_type = str_replace('-', '', $sha_type);
         
         $shaString = '';
-
+     
         ksort($arr_data);
         foreach ($arr_data as $k => $v) {
             $shaString .= "$k=$v";
         }
-
+       
         if ($sign_type == 'request') {
             $shaString = $sha_in_pass_phrase . $shaString . $sha_in_pass_phrase;
         }
@@ -361,7 +361,7 @@ class Data extends \Magento\Payment\Helper\Data
             $shaString = $sha_out_pass_phrase . $shaString . $sha_out_pass_phrase;
         }
         $signature = hash($sha_type, $shaString);
-
+      
         return $signature;
     }
     
@@ -384,7 +384,9 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $decimal_points = $this->getCurrencyDecimalPoint($currencyCode);
         $new_amount     = round($amount, $decimal_points);
-        $new_amount     = $new_amount * (pow(10, $decimal_points));
+        if($decimal_points != 0) {
+            $new_amount     = $new_amount * (pow(10, $decimal_points));
+        }
         return $new_amount;
     }
     
@@ -404,6 +406,22 @@ class Data extends \Magento\Payment\Helper\Data
             'BHD' => 3,
             'LYD' => 3,
             'IQD' => 3,
+            'CLF' => 4,
+            'BIF' => 0,
+            'DJF' => 0,
+            'GNF' => 0, 
+            'ISK' => 0,
+            'JPY' => 0,
+            'KMF' => 0,
+            'KRW' => 0,
+            'CLP' => 0,
+            'PYG' => 0,
+            'RWF' => 0,
+            'UGX' => 0,
+            'VND' => 0,
+            'VUV' => 0,
+            'XAF' => 0,
+            'BYR' => 0,
         );
         if (isset($arrCurrencies[$currency])) {
             $decimalPoint = $arrCurrencies[$currency];
@@ -482,10 +500,10 @@ class Data extends \Magento\Payment\Helper\Data
         if ($result && $this->isReturnItemsToInventoryRequired()) {
             $this->returnItemsToInventory();
         }
-
+    
         return $result;
     }
-
+    
     /**
      * Checks if version requires restore quote fix.
      *
@@ -496,7 +514,7 @@ class Data extends \Magento\Payment\Helper\Data
         $version = $this->getMagentoVersion();
         return version_compare($version, "2.2.4", ">=");
     }
-
+   
     /**
      * Returns items to inventory.
      *
@@ -507,14 +525,14 @@ class Data extends \Magento\Payment\Helper\Data
         $quote = $this->session->getQuote();
         $items = $this->_productQty->getProductQty($quote->getAllItems());
         $revertedItems = $this->_stockManagement->revertProductsSale($items, $quote->getStore()->getWebsiteId());
-
+   
         // If the Magento 2 server has multi source inventory enabled, 
         // the revertProductsSale method is intercepted with new logic that returns a boolean.
         // In such case, no further action is necessary.
         if (gettype($revertedItems) === "boolean") {
             return;
         }
-
+      
         $productIds = array_keys($revertedItems);
         if (!empty($productIds)) {
             $this->_stockIndexerProcessor->reindexList($productIds);
@@ -523,7 +541,7 @@ class Data extends \Magento\Payment\Helper\Data
         // Clear flag, so if order placement retried again with success - it will be processed
         $quote->setInventoryProcessed(false);
     }
-
+   
     /**
      * Gets the Magento version.
      *
@@ -612,7 +630,7 @@ class Data extends \Magento\Payment\Helper\Data
             //send order confirmation
             $emailSender = $this->_objectManager->create('\Magento\Sales\Model\Order\Email\Sender\OrderSender');
             $emailSender->send($order);
-
+      
             //$customerNotified = $this->sendOrderEmail($order);
             $order->addStatusToHistory( $order::STATE_PROCESSING , 'Payfort_Fort :: Order has been paid.', true );
             $order->save();
@@ -641,7 +659,7 @@ class Data extends \Magento\Payment\Helper\Data
         
         return $result;
     }
-
+   
     /**
      * @return \Magento\Sales\Model\Order\Invoice
      */
@@ -656,7 +674,7 @@ class Data extends \Magento\Payment\Helper\Data
                     return $invoice;
             }
     }
-
+  
     private function sendInvoiceEmail(\Magento\Sales\Model\Order\Invoice $invoice)
     {
         $invoiceSender = $this->_objectManager
@@ -664,7 +682,7 @@ class Data extends \Magento\Payment\Helper\Data
         $invoiceSender->send($invoice);
             
     }
-
+  
     public function getUrl($route, $params = [])
     {
         return $this->_getUrl($route, $params);
@@ -695,33 +713,33 @@ class Data extends \Magento\Payment\Helper\Data
             $responseParams  = $fortParams;
             $success         = false;
             $responseMessage = __('You have canceled the payment, please try again.');
-
+     
             if (empty($responseParams)) {
                 
                 $this->log('Invalid fort response parameters (' . $responseMode . ')');
                 throw new \Exception($responseMessage);
             }
-
+            
             if (!isset($responseParams['merchant_reference']) || empty($responseParams['merchant_reference'])) {
                 $this->log("Invalid fort response parameters. merchant_reference not found ($responseMode) \n\n" . print_r($responseParams, 1));
                 throw new \Exception($responseMessage);
             }
-
+            
             $orderId = $responseParams['merchant_reference'];
             $order = $this->getOrderById($orderId);
-
+            
             $paymentMethod = $order->getPayment()->getMethod();
             $this->log("Fort response parameters ($responseMode) for payment method ($paymentMethod) \n\n" . print_r($responseParams, 1));
-
+            
             $notIncludedParams = array('signature', 'payfort_fort', 'integration_type');
-
+            
             $responseType          = $responseParams['response_message'];
             $signature             = $responseParams['signature'];
             $responseOrderId       = $responseParams['merchant_reference'];
             $responseStatus        = isset($responseParams['status']) ? $responseParams['status'] : '';
             $responseCode          = isset($responseParams['response_code']) ? $responseParams['response_code'] : '';
             $responseStatusMessage = $responseType;
-
+            
             $responseGatewayParams = $responseParams;
             foreach ($responseGatewayParams as $k => $v) {
                 if (in_array($k, $notIncludedParams)) {
@@ -756,7 +774,7 @@ class Data extends \Magento\Payment\Helper\Data
                     $responseStatus = '10';
                 }
             }
-
+          
             if ($responseSource == 'h2h') {
                 if ($responseCode == \Payfort\Fort\Model\Payment::PAYMENT_STATUS_3DS_CHECK && isset($responseParams['3ds_url'])) {
                     if($integrationType == self::PAYFORT_FORT_INTEGRATION_TYPE_MERCAHNT_PAGE) {

@@ -21,7 +21,7 @@
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!--/ko-->
 
-        <form class="form" id="co-transparent-form" action="#" method="post" 
+        <form class="form" id="co-transparent-form" action="#" method="post"
               data-bind="mageInit: {
                     'transparent':{
                         'context': context(),
@@ -83,7 +83,7 @@
                         <span><!-- ko i18n: 'Credit Card Number'--><!-- /ko --></span>
                     </label>
                     <div class="control">
-                        <input type="tel" name="" class="input-text" value="" maxlength="19"
+                        <input type="number" name="payment[cc_number]" class="input-text" value="" maxlength="19"
                                data-bind="attr: {
                                     autocomplete: off,
                                     id: getCode() + '_cc_number',
@@ -179,10 +179,10 @@
                 <!-- /ko -->
             </fieldset>
         </form>
-        <div class="checkout-agreements-block"> 
+        <div class="checkout-agreements-block">
         <!-- ko foreach: $parent.getRegion('before-place-order') -->
         <!-- ko template: getTemplate() -->
-        <!-- /ko --> 
+        <!-- /ko -->
         <!--/ko-->
         </div>
         <div class="payment-method-content">

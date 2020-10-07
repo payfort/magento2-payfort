@@ -38,7 +38,7 @@ PAYFORT is here to help you accept online payments, reduce fraud, and maximize y
 ## Changelog
 
 `v1.4.1`
-- Return items to stock if order fails in Magento versions 2.2.4+
+- Return items to stock if order fails in Magento versions 2.2.*
 
 `v1.4.0`
 - Support Magento 2.3

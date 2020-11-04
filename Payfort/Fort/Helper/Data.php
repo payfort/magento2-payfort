@@ -821,6 +821,13 @@ class Data extends \Magento\Payment\Helper\Data
         return true;
     }
     
+     /**
+     * Retrieve if Mada Branding option has been enabled
+     */
+     public function isMadaBrandingEnabled(){
+         return  $this->getConfig('payment/payfort_fort_cc/mada_branding');
+    }
+    
     /**
      * Log the error on the disk
      */

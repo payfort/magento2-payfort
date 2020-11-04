@@ -23,4 +23,7 @@
             </argument>
         </arguments>
     </type>
+    <type name="Magento\Payment\Model\CcConfigProvider">
+        <plugin name="Fort_ccicons_plugin" type="Payfort\Fort\view\frontend\web\EnableMadaLogo" sortOrder="1" />
+    </type>
 </config>

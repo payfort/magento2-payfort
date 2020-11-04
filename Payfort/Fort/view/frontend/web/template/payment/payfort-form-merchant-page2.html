@@ -13,7 +13,13 @@
                name="payment[method]"
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <!-- ko if: (isMadaLabel())-->
+        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: $t('Credit / Debit / mada Bank Card')"></span></label>
+        <!--/ko-->
+        <!-- ko if: (!isMadaLabel())-->
         <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+        <!--/ko-->
+
     </div>
 
     <div class="payment-method-content">
@@ -54,8 +60,8 @@
                         <ul class="credit-card-types">
                             <!-- ko foreach: {data: getCcAvailableTypesValues(), as: 'item'} -->
                             <li class="item" data-bind="css: {
-                                                            _active: $parent.selectedCardType() == item.value,
-                                                            _inactive: $parent.selectedCardType() != null && $parent.selectedCardType() != item.value
+                                                            _active: true,
+                                                            _inactive: false
                                                             } ">
                                 <!--ko if: $parent.getIcons(item.value) -->
                                 <img data-bind="attr: {

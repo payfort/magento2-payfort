@@ -32,6 +32,21 @@ define(
                 isCcFormShown: true,
             },
             
+            isMadaLabel: function() {
+             if (this.isMadaBrandingEnabled() == 'Enabled' && this.getFortCurrency() == 'SAR'){
+                    return true;
+                } 
+                    return false;
+            },
+            
+            getFortCurrency: function() {
+                 return window.checkoutConfig.payment.payfortFort.configParams.fortCurrency;        
+            },
+
+            isMadaBrandingEnabled: function() {
+                return window.checkoutConfig.payment.payfortFort.configParams.madaBranding;   
+            },
+            
             getCode: function() {
                 return 'payfort_fort_cc';
             },

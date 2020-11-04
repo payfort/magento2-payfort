@@ -114,7 +114,7 @@ class Cc extends \Payfort\Fort\Model\Payment
     public function getCcAvailableTypes()
     {
         $types = $this->_paymentConfig->getCcTypes();
-        $availableTypes = 'VI,MC,OT';
+        $availableTypes = 'VI,MC,OT,MA';
         if ($availableTypes) {
             $availableTypes = explode(',', $availableTypes);
             foreach ($types as $code => $name) {

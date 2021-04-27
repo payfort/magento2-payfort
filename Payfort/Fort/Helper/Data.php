@@ -343,7 +343,7 @@ class Data extends \Magento\Payment\Helper\Data
         $sha_in_pass_phrase  = $this->getMainConfigData('sha_in_pass_phrase');
         $sha_out_pass_phrase = $this->getMainConfigData('sha_out_pass_phrase');
         $sha_type = $this->getMainConfigData('sha_type');
-        $sha_type = str_replace('-', '', $sha_type);
+        
         
         $shaString = '';
 
@@ -358,6 +358,15 @@ class Data extends \Magento\Payment\Helper\Data
         else {
             $shaString = $sha_out_pass_phrase . $shaString . $sha_out_pass_phrase;
         }
+        
+         //calculate hmac 
+        if (in_array($sha_type, array('HMAC-256', 'HMAC-512'))) {
+            $signature = $this->calculateHmac($sha_type, $shaString, $sign_type, $sha_in_pass_phrase, $sha_out_pass_phrase);
+            return $signature;
+        }
+        //calculate sha
+        
+        $sha_type = str_replace('-', '', $sha_type);
         $signature = hash($sha_type, $shaString);
 
         return $signature;
@@ -819,6 +828,33 @@ class Data extends \Magento\Payment\Helper\Data
             return false;
         }
         return true;
+    }
+    
+    /**
+     * calculate HMAC
+     * 
+     * @param type $sha_type
+     * @param type $shaString
+     * @param type $sign_type request or response
+     * @param type $sha_in_pass_phrase  request pass phrase
+     * @param type $sha_out_pass_phrase response pass phrase
+     */
+    public function calculateHmac($sha_type, $shaString, $sign_type, $sha_in_pass_phrase, $sha_out_pass_phrase)
+    {
+        if ($sign_type == 'request') {
+            $hmacSecretkey = $sha_in_pass_phrase;
+        } else {
+            $hmacSecretkey = $sha_out_pass_phrase;
+        }
+        
+        if ($sha_type == 'HMAC-256') {
+            $signature = hash_hmac('sha256', $shaString, $hmacSecretkey);
+        } else {
+            $signature = hash_hmac('sha512', $shaString, $hmacSecretkey);
+        }
+        
+        return $signature;
+        
     }
     
     /**

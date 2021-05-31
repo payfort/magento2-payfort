@@ -382,7 +382,9 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $decimal_points = $this->getCurrencyDecimalPoint($currencyCode);
         $new_amount     = round($amount, $decimal_points);
-        $new_amount     = $new_amount * (pow(10, $decimal_points));
+        if($decimal_points != 0) {
+            $new_amount     = $new_amount * (pow(10, $decimal_points));
+        }
         return $new_amount;
     }
     
@@ -402,6 +404,21 @@ class Data extends \Magento\Payment\Helper\Data
             'BHD' => 3,
             'LYD' => 3,
             'IQD' => 3,
+            'CLF' => 4,
+            'BIF' => 0,
+            'DJF' => 0,
+            'GNF' => 0, 
+            'ISK' => 0,
+            'JPY' => 0,
+            'KMF' => 0,
+            'KRW' => 0,
+            'CLP' => 0,
+            'PYG' => 0,
+            'RWF' => 0,
+            'UGX' => 0,
+            'VND' => 0,
+            'VUV' => 0,
+            'XAF' => 0,
         );
         if (isset($arrCurrencies[$currency])) {
             $decimalPoint = $arrCurrencies[$currency];

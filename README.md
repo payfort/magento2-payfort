@@ -7,7 +7,7 @@ We know that payment processing is critical to your business. With this plugin w
 
 
 ## Configuration and User Guide
-You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide.pdf).
+You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
    
 
 ## Payment Options

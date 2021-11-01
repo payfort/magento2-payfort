@@ -1,0 +1,414 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="aps_fort_group" translate="label" type="text" sortOrder="600" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label><![CDATA[<div class="aps-payment-logo"></div><div class="amazon-payment-byline">Amazon Payment Services</div>]]></label>
+                <fieldset_css>complex amazon-payment-section</fieldset_css>
+                <frontend_model>Magento\Paypal\Block\Adminhtml\System\Config\Fieldset\Payment</frontend_model>
+                <group id="aps_fort_api" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Amazon Payment Services Merchant Configurations</label>
+                    <comment>
+                        <![CDATA[<a href="https://www.payfort.com" target="_blank">Click here to sign up for Payfort account</a>]]>
+                    </comment>
+                    <field id="merchant_identifier" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant Identifier</label>
+                        <config_path>payment/aps_fort/merchant_identifier</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-20</validate>
+                    </field>
+                    <field id="access_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Access Code</label>
+                        <config_path>payment/aps_fort/access_code</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-20</validate>
+                    </field>
+                    <field id="sha_in_pass_phrase" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Request SHA phrase</label>
+                        <config_path>payment/aps_fort/sha_in_pass_phrase</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>
+                    </field>
+                    <field id="sha_out_pass_phrase" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Response SHA phrase</label>
+                        <config_path>payment/aps_fort/sha_out_pass_phrase</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>
+                    </field>
+                </group>
+                <group id="aps_fort" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Amazon Payment Services Global Configurations</label>
+                    <field id="sandbox_mode" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sandbox mode</label>
+                        <comment>Testing or live mode.</comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort/sandbox_mode</config_path>
+                    </field>
+                    <field id="command" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Command</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions</source_model>
+                        <config_path>payment/aps_fort/command</config_path>
+                    </field>
+                    <field id="sha_type" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>SHA Type</label>
+                        <comment>The SHA Type will be used.</comment>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Shaoptions</source_model>
+                        <config_path>payment/aps_fort/sha_type</config_path>
+                    </field>
+                    <field id="gateway_currency" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Gateway Currency</label>
+                        <comment>The currency that will be sent to the Fort</comment>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Gatewaycurrencyoptions</source_model>
+                        <config_path>payment/aps_fort/gateway_currency</config_path>
+                    </field>
+                    <field id="debug" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Debug</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Log file path: var/log/debug.log</comment>
+                        <config_path>payment/aps_fort/debug</config_path>
+                    </field>
+                    <field id="host_to_host_url" translate="label" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <frontend_model>Amazonpaymentservices\Fort\Block\Adminhtml\System\Config\Field\HostToHostUrl</frontend_model>
+                    </field>
+                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Applicable Countries</label>
+                        <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                        <config_path>payment/aps_fort/allowspecific</config_path>
+                    </field>
+                    <field id="specificcountry" translate="label" type="multiselect" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Specific Countries</label>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <config_path>payment/aps_fort/specificcountry</config_path>
+                    </field>
+                    <field id="cctypes" translate="label" type="multiselect" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Credit Card Types</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Adminhtml\Source\CcType</source_model>
+                        <config_path>payment/aps_fort/cctypes</config_path>
+                    </field>
+                       
+                </group>
+                <group id="aps_fort_cc" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Credit / Debit Cards</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort_cc/active</config_path>
+                    </field>
+                    <field id="integration_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Integration Type</label>
+                        <comment>Credit \ Debit Card Integration Type</comment>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Integrationtypeoptions</source_model>
+                        <config_path>payment/aps_fort_cc/integration_type</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_fort_cc/title</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_fort_cc/sort_order</config_path>
+                    </field>
+                    <field id="mada_branding" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Show mada Branding</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Madaoptions</source_model>
+                        <config_path>payment/aps_fort_cc/mada_branding</config_path>
+                    </field>
+                    <field id="meeza_branding" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Show Meeza Branding</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Meezaoptions</source_model>
+                        <config_path>payment/aps_fort_cc/meeza_branding</config_path>
+                    </field>
+                    <field id="mada_regex" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>mada Bin</label>
+                        <config_path>payment/aps_fort/mada_regex</config_path>
+                    </field>
+                    <field id="meeza_regex" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Meeza Bin</label>
+                        <config_path>payment/aps_fort/meeza_regex</config_path>
+                    </field>
+                </group>
+                <group id="aps_fort_naps" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>NAPS</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort_naps/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_fort_naps/title</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_fort_naps/sort_order</config_path>
+                    </field>
+                </group>
+                <group id="aps_knet" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>KNET</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_knet/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_knet/title</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_knet/sort_order</config_path>
+                    </field>
+                </group>
+                <group id="aps_apple" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Apple Pay</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_apple/active</config_path>
+                    </field>
+                    <field id="key_pem" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="10"
+                        showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Key Pem File</label>
+                        <config_path>payment/aps_apple/apple_key_pem</config_path>
+                        <backend_model>Magento\Config\Model\Config\Backend\File</backend_model>
+                        <upload_dir config="system">aps/certificate_keys</upload_dir>
+                        <validate>required-entry</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="cert_pem" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="10"
+                        showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Certificate Pem File</label>
+                        <config_path>payment/aps_apple/apple_certificate_pem</config_path>
+                        <backend_model>Magento\Config\Model\Config\Backend\File</backend_model>
+                        <upload_dir config="system">aps/certificate_keys</upload_dir>
+                        <validate>required-entry</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_apple/title</config_path>
+                    </field>
+                    <field id="access_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Access Code</label>
+                        <config_path>payment/aps_apple/apple_access_code</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-20</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="sha_in_pass_phrase" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Request SHA phrase</label>
+                        <config_path>payment/aps_apple/apple_sha_in_pass_phrase</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="sha_out_pass_phrase" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Response SHA phrase	</label>
+                        <config_path>payment/aps_apple/apple_sha_out_pass_phrase</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_apple/sort_order</config_path>
+                    </field>
+                    <field id="apple_sha_type" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>SHA Type</label>
+                        <comment>The SHA Type will be used.</comment>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Shaoptions</source_model>
+                        <config_path>payment/aps_apple/apple_sha_type</config_path>
+                    </field>
+                    <field id="certificate_key" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Production Key</label>
+                        <config_path>payment/aps_apple/certificate_key</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="apple_domain_name" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Domain Name Registered on Apple Pay Account</label>
+                        <config_path>payment/aps_apple/apple_domain_name</config_path>
+                        <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="apple_display_name" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Display Name on Apple Pay</label>
+                        <config_path>payment/aps_apple/apple_display_name</config_path>
+                        <validate>required-entry validate-length minimum-length-1 maximum-length-50</validate>
+                        <depends>
+                            <field id="active">1</field>
+                        </depends>
+                    </field>
+                    <field id="apple_button_types" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Apple Pay Button Types</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Applebuttontypes</source_model>
+                        <config_path>payment/aps_apple/apple_button_types</config_path>
+                    </field>
+                    <field id="apple_supported_networks" translate="label" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Apple Pay Supported Networks</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Applesupportednetworks</source_model>
+                        <config_path>payment/aps_apple/apple_supported_networks</config_path>
+                    </field>
+                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Applicable Countries</label>
+                        <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                        <config_path>payment/aps_apple/appleallowspecific</config_path>
+                    </field>
+                    <field id="specificcountry" translate="label" type="multiselect" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Specific Countries</label>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <config_path>payment/aps_apple/applespecificcountry</config_path>
+                    </field>
+                    <field id="product_button" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled Apple Pay in product page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_apple/product_button</config_path>
+                    </field>
+                    <field id="cart_button" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled Apple Pay in cart page</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_apple/cart_button</config_path>
+                    </field>
+                    
+                </group>
+                <group id="aps_installment" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Installments</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_installment/active</config_path>
+                    </field>
+                    <field id="integration_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Integration Type</label>
+                        <comment>Installment Integration Type</comment>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Installmentintegrationtype</source_model>
+                        <config_path>payment/aps_installment/integration_type</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_installment/title</config_path>
+                    </field>
+                    <field id="epg_min_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Installment Order Purchase minimum limit (EGP)</label>
+                        <config_path>payment/aps_installment/egp_min_order</config_path>
+                        <validate>validate-number validate-length minimum-length-1 maximum-length-5 validate-digits-range digits-range-1-99999</validate>
+                    </field>
+                    <field id="aed_min_order" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Installment Order Purchase minimum limit (AED)</label>
+                        <config_path>payment/aps_installment/aed_min_order</config_path>
+                        <validate>validate-number validate-length minimum-length-1 maximum-length-5 validate-digits-range digits-range-1-99999</validate>
+                    </field>
+                    <field id="sar_min_order" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Installment Order Purchase minimum limit (SAR)</label>
+                        <config_path>payment/aps_installment/sar_min_order</config_path>
+                        <validate>validate-number validate-length minimum-length-1 maximum-length-5 validate-digits-range digits-range-1-99999</validate>
+                    </field>
+                    <field id="issuer_code" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Show Issuer Code</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_installment/issuer_code</config_path>
+                    </field>
+                    <field id="bank_logo" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Show Bank Logo</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_installment/bank_logo</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_installment/sort_order</config_path>
+                    </field>
+                </group>
+                <group id="aps_fort_valu" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Valu</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort_valu/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_fort_valu/title</config_path>
+                    </field>
+                    <field id="purchase_limit" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>VALU Order Purchase minimum limit in EGP</label>
+                        <config_path>payment/aps_fort_valu/purchase_limit</config_path>
+                        <validate>required-entry validate-number validate-length minimum-length-1 maximum-length-5 validate-digits-range digits-range-1-99999</validate>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_fort_valu/sort_order</config_path>
+                    </field>
+                </group>
+                <group id="aps_fort_visacheckout" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Visa Checkout</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort_visaco/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_fort_visaco/title</config_path>
+                    </field>
+                    <field id="integration_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Integration Type</label>
+                        <comment>VISA Checkout Integration Type</comment>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\VisaCheckoutIntegrationtypeoptions</source_model>
+                        <config_path>payment/aps_fort_visaco/integration_type</config_path>
+                    </field>
+                    <field id="profile_id" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Profile ID</label>
+                        <config_path>payment/aps_fort_visaco/profile_id</config_path>
+                    </field>
+                    <field id="api_key" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Api Key</label>
+                        <config_path>payment/aps_fort_visaco/api_key</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_fort_visaco/sort_order</config_path>
+                    </field>
+                </group>
+                <group id="aps_fort_vault" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tokenization</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort_vault/active</config_path>
+                    </field>
+                </group>
+                <group id="aps_fort_cron" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cron Setup</label>
+                    <field id="cron_command" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <frontend_model>Amazonpaymentservices\Fort\Block\Adminhtml\System\Config\Field\CronCommand</frontend_model>
+                    </field>
+                    <field id="set_duration" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Set Duration</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Intervaloptions</source_model>
+                        <config_path>payment/aps_fort_cron/interval</config_path>
+                    </field>
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Event XML
+ * 
+ * @category Aps
+ * @package  Aps_Fort
+ * @author   Aps <email@example.com>
+ * @license  GNU / GPL v3
+ **/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="admin_system_config_changed_section_payment">
+        <observer name="aps_fort_admin_system_config_changed_section_payment" instance="Amazonpaymentservices\Fort\Observer\AdminSystemConfigChangedPaymentObserver"/>
+    </event>
+</config>

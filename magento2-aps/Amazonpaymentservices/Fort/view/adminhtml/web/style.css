@@ -1,0 +1,10 @@
+.complex.amazon-payment-section .aps-payment-logo{
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 20px 0 0px;
+    width: 180px;
+    height: 60px;
+    background-repeat: no-repeat, no-repeat, no-repeat;
+    background-image: url(images/APS_Secondary_Logo.png);
+    background-size: 180px 60px;
+}

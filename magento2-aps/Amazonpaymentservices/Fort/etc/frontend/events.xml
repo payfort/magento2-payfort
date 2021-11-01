@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="layout_load_before">
+        <observer name="productcustom_layout_handles" instance="Amazonpaymentservices\Fort\Observer\Visacheckout"/>
+    </event>
+    <event name="shortcut_buttons_container">
+        <observer name="apsfort_shortcuts" instance="Amazonpaymentservices\Fort\Observer\AddApsShortcuts"/>
+    </event>
+</config>

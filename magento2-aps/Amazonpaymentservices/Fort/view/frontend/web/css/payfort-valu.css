@@ -1,0 +1,132 @@
+
+.slick-prev:before,
+.slick-next:before {
+  color: black;
+}
+
+.slide {
+    margin: 0px 20px;
+    transition: all ease-in-out .3s;
+    opacity: 1.5 !important;
+    width: 150px !important;
+    height: auto;
+    border: 2px solid #d8d8d8;
+    padding: 10px;
+    text-align: center;
+}
+.tenure{
+    font-size: 10px;
+}
+.emi{
+    font-weight: 900;
+}
+.interestrate{
+    font-size: 13px;
+    color: #03b303;
+    font-weight: 600;
+}
+.emitext{
+    font-weight: 500;
+    font-size: 11px;
+}
+.slide:hover {
+    border: 2px solid #00f !important;
+    cursor: pointer;
+    opacity: 1;
+}
+.slide-selected {
+    border: 2px solid #00f !important;
+    cursor: pointer;
+    opacity: 1;
+}
+.get-instructions{
+    font-size: 10px;
+    opacity: 0.5;
+}
+.primary-hidden{
+    display: none;
+}
+.primary-btn{
+    border-radius: 0px !important;
+    margin-top: -4px !important;
+}
+.primary-text{
+    width: 40% !important;
+    background-color: #eaeaea !important;
+    margin-right: -3px !important;
+}
+.primary-div{
+    margin-top: 30px !important;
+    clear: both !important;
+}
+.error-val{
+    color: #f00 !important;
+}
+.otp-div{
+    margin-bottom: 20px;
+}
+.popupWrapper { position: relative;padding-bottom: 56.25%; /* 16:9 */padding-top: 25px;height: 0;}
+.popuptext {position: absolute;top: 0;left: 0;width: 100%;height: 100%;}
+.mobile-pre{
+    background-color: #eaeaea;
+    padding: 6px 10px;
+    border: 1px solid #c2c2c2;
+    border-right: 0px !important;
+    padding-bottom: 5px;
+}
+.mobile-num {
+    border-left: 0px !important;
+}
+.req-otp{
+    margin-left: -1px !important;
+}
+.slick-initialized .slick-slide{
+    margin: 9px !important;
+}
+.dv-otp-verify{
+    margin-bottom: 10px;
+}
+.payfort-valu .payment-method-title{
+    margin-bottom: 10px;
+}
+.payfort-valu .payment-icon{
+    float: right;
+}
+.show-valu-slider .slick-dots{
+    display: none !important;
+}
+
+._pf-hidden{
+    display: none !important;
+}
+
+.widget-valu-grid,.widget-insta-grid,.widget-cc-insta-grid {
+    display: grid !important;
+}
+
+.slick-prev:before {
+    content: "←" !important;
+    color: rgb(0, 0, 0) !important;
+    margin-top: -13px;
+    position: inherit;
+    margin-left: -10px;
+}
+
+.slick-next:before {
+    content: "→" !important;
+    color: rgb(0, 0, 0) !important;
+    margin-top: -13px;
+    position: inherit;
+    margin-left: -10px;
+}
+
+.btn-decline{
+    background-color: rgb(109, 109, 109) !important;
+    border: 1px solid rgb(109, 109, 109) !important;
+}
+.tc-btn{
+    text-align: center;
+}
+.btn-accept{
+    margin-right: 10px!important;
+}

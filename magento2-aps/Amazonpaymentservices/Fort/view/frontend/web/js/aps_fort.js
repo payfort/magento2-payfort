@@ -64,38 +64,3 @@ var apsFort = (function () {
         };
  })();
  
- var apsFortStandard = (function () {
-     return {
-            showStandard: function (gatewayUrl) {
-                if (jQuery("#aps_merchant_page").size()) {
-                    jQuery("#aps_merchant_page").remove();
-                }
-                jQuery("#review-buttons-container .btn-checkout").hide();
-                jQuery("#review-please-wait").show();
-                jQuery('<iframe  name="aps_merchant_page" id="aps_merchant_page"height="640px" frameborder="0" scrolling="no" onload="apsFortStandard.iframeLoaded(this)" style="display:none"></iframe>').appendTo('#pf_iframe_content');
-                jQuery('.pf-iframe-spin').show();
-                jQuery('.pf-iframe-close').hide();
-                jQuery("#aps_merchant_page").attr("src", gatewayUrl);
-                //jQuery( "#aps_payment_form" ).attr("action",gatewayUrl);
-                jQuery("#aps_payment_form").attr("target","aps_merchant_page");
-                jQuery("#aps_payment_form").submit();
-                //fix for touch devices
-                if (apsFort.isTouchDevice()) {
-                    setTimeout(function () {
-                        jQuery("html, body").animate({ scrollTop: 0 }, "slow");
-                    }, 1);
-                }
-                jQuery("#div-pf-iframe").show();
-            },
-            closePopup: function () {
-                jQuery("#div-pf-iframe").hide();
-                jQuery("#aps_merchant_page").remove();
-                window.location = jQuery("#aps_cancel_url").val();
-            },
-            iframeLoaded: function () {
-                jQuery('.pf-iframe-spin').hide();
-                jQuery('.pf-iframe-close').show();
-                jQuery('#aps_merchant_page').show();
-            },
-        };
- })();

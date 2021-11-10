@@ -3,7 +3,6 @@ var config = {
         '*': {
             "aps_fort": 'Amazonpaymentservices_Fort/js/aps_fort',
             'Magento_Payment/js/model/credit-card-validation/credit-card-number-validator/credit-card-type':'Amazonpaymentservices_Fort/js/model/credit-card-validation/credit-card-type'
-            //'mage/validation':'Amazonpaymentservices_Fort/mage/validation'
         }
     },
     paths: {
@@ -25,10 +24,6 @@ var config = {
             'Magento_Checkout/js/view/minicart': {
                 'Amazonpaymentservices_Fort/js/view/minicart-apple': true
             }
-            /*,
-            'Amazonpaymentservices_Fort/mage/validation': {
-                'Amazonpaymentservices_Fort/mage/validation-mixin': true
-            }*/
         }
     }
 };

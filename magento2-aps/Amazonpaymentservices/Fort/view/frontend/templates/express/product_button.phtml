@@ -1,0 +1,355 @@
+<?php
+$checkActive = $block->getAppleProductConfig();
+if ($checkActive) {
+    $product = $block->getCurrentProduct();
+    $productId = $product->getId();
+    $productName = $product->getName();
+    $price = $product->getFinalPrice();
+    $countryCode = $block->getCountryCode();
+    
+    $currencyCode = $block->getCurrenctCurrencyCode();
+    $rate = $block->getCurrentCurrencyRate();
+    $productPrice = round(($price * $rate), 2);
+    $storeName = $block->getStoreName();
+    $supportedNetwork = $block->getSupportedNetwork();
+    $regions = $block->getRegions();
+    ?>
+<style>
+    #applePayProd {  
+    width: 150px !important;
+    height: 50px !important;
+    border: 0px !important;
+    border-radius: 5px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-top: 20px !important;
+    cursor: pointer !important;
+    
+    
+    
+    background-position: 50% 50% !important;
+    background-color: black !important;
+    background-size: 60% !important; 
+    background-repeat: no-repeat !important;
+    z-index: 999;
+}
+
+.apple-pay-buy {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: buy;
+}
+.apple-pay-donate {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: donate;
+}
+.apple-pay-plain {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: plain;
+}
+.apple-pay-set-up {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: set-up;
+}
+.apple-pay-book {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: book;
+}
+.apple-pay-check-out {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: check-out;
+}
+.apple-pay-subscribe {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: subscribe;
+}
+.apple-pay-add-money {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: add-money;
+}
+.apple-pay-contribute {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: contribute;
+}
+.apple-pay-order {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: order;
+}
+.apple-pay-reload {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: reload;
+}
+.apple-pay-rent {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: rent;
+}
+.apple-pay-support {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: support ;
+}
+.apple-pay-tip {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: tip;
+}
+.apple-pay-top-up {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: top-up;
+}
+
+.apple-pay .actions-toolbar{
+    text-align: center !important;
+}
+.apple-pay .primary{
+    float: none !important;
+}
+</style>
+<label id="applePayProd"></label>
+
+<script>
+    require(
+        [
+            'domReady!',
+            'jquery'
+        ], 
+        function(domReady, $) {
+            var productPrice = parseFloat(<?= /* @noEscape */ $productPrice;?>);
+
+            if (window.ApplePaySession) {
+                if (ApplePaySession.canMakePayments) {
+                    $("#applePayProd").addClass('<?= /* @noEscape */ $block->appleButtonTypes(); ?>');
+                    document.getElementById("applePayProd").style.display = "block";
+                } else {
+                    $(".apple-err").text('');
+                    $("#applePayProd").remove();
+                }
+            } else {
+                $(".apple-err").text('');
+                $("#applePayProd").remove();
+            }
+
+            $("#applePayProd").on("click",function(){
+                var form = $('#product_addtocart_form');
+                var request = [];
+                request = form.serialize();
+                $.ajax({
+                    url: '<?= /* @noEscape */ $block->addProductToCart(); ?>',
+                    type: 'POST',
+                    data: {
+                        request: request
+                    },
+                    async: false,
+                    dataType: 'json',
+                    success:function(data) {
+                        if ( data.status === 'success' ) {
+                            iniApplePay(data.data);
+                        } else {
+                            console.log( data.error_msg );
+                        }
+                    }
+                });
+            });
+            function iniApplePay (data) {
+                var shipData = {};
+                var storeName = '<?= /* @noEscape */ $storeName; ?>';
+                var supportedNetworks = '<?= /* @noEscape */ $supportedNetwork;?>';
+                var runningAmount = data.totalPrice;
+                var runningShipping = data.shippingAmount;
+                var totalTax = data.totalTax;
+                var discountAmount = data.discountAmount;
+                var appleTotal = data.total;
+                
+                var newItemArray = [];
+                var runningTotal = function(data) { 
+                    runningAmount = parseFloat(data.totalPrice);
+                    runningShipping = parseFloat(data.shippingAmount);
+                    totalTax = parseFloat(data.totalTax);
+                    discountAmount = parseFloat(data.discountAmount);
+                    
+                    newItemArray[0] = {type: 'final',label: 'Subtotal', amount: runningAmount};
+                    var x= 1;
+                    newItemArray[x++] = {type: 'final',label: 'Shipping', amount: runningShipping};
+                    newItemArray[x++] = {type: 'final',label: 'Tax', amount: totalTax};
+                    if(discountAmount > 0) {
+                        newItemArray[x++] = {type: 'final',label: 'Discount', amount: discountAmount};
+                    }
+                    var tempTotal = (runningAmount + runningShipping + totalTax - discountAmount);
+                    tempTotal = parseFloat(tempTotal);
+                    return tempTotal.toFixed(2);
+                }
+
+                runningTotal(data);
+                
+                var paymentRequest = {
+                    currencyCode: '<?= /* @noEscape */ $currencyCode; ?>',
+                    countryCode: '<?= /* @noEscape */ $countryCode; ?>',
+                    requiredShippingContactFields: ['postalAddress', 'name', 'email','phone'],
+                    lineItems: newItemArray,
+                    total: {
+                    label: storeName,
+                    amount: runningTotal(data)
+                    },
+                    supportedNetworks: supportedNetworks.split(','),
+                    merchantCapabilities: [ 'supports3DS' ]
+                };
+
+                var session = new ApplePaySession(2, paymentRequest);
+                session.onvalidatemerchant = function (event) {
+                    var promise = performValidation(event.validationURL);
+                    promise.then(function (merchantSession) {
+                        session.completeMerchantValidation(merchantSession);
+                    }).catch(function (validationErr) {
+                        // You should show an error to the user, e.g. 'Apple Pay failed to load.'
+                        console.error('Error validating merchant:', validationErr);
+                        session.abort();
+                    }); 
+                }
+
+                function performValidation(valURL) {
+                    return new Promise(function(resolve, reject) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.onload = function() {
+                            var data = JSON.parse(this.responseText);
+                            resolve(data);
+                        };
+                        xhr.onerror = reject;
+                        xhr.open('GET','<?= /* @noEscape */ $block->getAppleValidationUrl(); ?>'+'?valURL=' + valURL);
+                        xhr.send();
+                    }).catch(function (validationErr) {
+                        // You should show an error to the user, e.g. 'Apple Pay failed to load.'
+                        console.error('Error Performing Validation:', validationErr);
+                        session.abort();
+                    });
+                }
+
+                session.onpaymentmethodselected = function(event) {
+                    var newTotal = { type: 'final', label: storeName, amount: runningTotal(data) };
+                    
+                    session.completePaymentMethodSelection( newTotal, newItemArray );
+                }
+
+                session.onshippingcontactselected = function(event) {
+                    var promise = validationShippingAddress( event.shippingContact );
+                    promise.then(
+                        function(dataShip) {
+                            var status = ApplePaySession.STATUS_SUCCESS;
+                            var newShippingMethods = [];
+                            if(dataShip.data.hasOwnProperty(0)) {
+                                shipData = dataShip.data;
+                                data.shippingAmount = parseFloat(dataShip.data[0].amount);
+                            }
+                            data.totalTax = parseFloat(dataShip.taxes);
+                            
+                            var finalTotal = {
+                                label: storeName,
+                                amount: runningTotal(data)
+                            };
+                            session.completeShippingContactSelection( status, newShippingMethods, finalTotal, newItemArray );
+                        },
+                        function(error) {
+                            var zipAppleError = new ApplePayError( "shippingContactInvalid", "postalCode", "Invalid Address" );
+                            session.completeShippingContactSelection(
+                                {
+                                    newShippingMethods: [],
+                                    newTotal: { label: "error", amount: "1", type: "pending" },
+                                    newLineItems: [],
+                                    errors: [zipAppleError],
+                                }
+                            );
+                        }
+                    );
+                };
+
+                function validationShippingAddress( addressObject ) {
+                    return new Promise(
+                        function(resolve, reject) {
+                            $.ajax(
+                                {
+                                    url: '<?= /* @noEscape */ $block->validateAddress(); ?>',
+                                    type: 'POST',
+                                    data: {
+                                        productId: '<?= /* @noEscape */ $productId; ?>',
+                                        addressObject
+                                    },
+                                    async: false,
+                                    success:function(data) {
+                                        if ( data.status === 'success' ) {
+
+                                            resolve( data);
+                                        } else {
+                                            reject( data.error_msg );
+                                        }
+                                    },
+                                    error:function() {
+                                        reject( 'Invalid Address' );
+                                    }
+                                }
+                            );
+                        }
+                    );
+                }
+
+                var paymentData = {};
+                session.onpaymentauthorized = function (event) {
+                    var promise = sendPaymentToken(event.payment);
+                    promise.then(function (success) {   
+                        var status;
+                        if (success){
+                            status = ApplePaySession.STATUS_SUCCESS;
+                            sendPaymentToAps(paymentData);
+                        } else {
+                            status = ApplePaySession.STATUS_FAILURE;
+                        }
+                        session.completePayment(status);
+                    }).catch(function (validationErr) {
+                        // You should show an error to the user, e.g. 'Apple Pay failed to load.'
+                        console.error('Error Paymenth Authorization:', validationErr);
+                        session.abort();
+                    });
+                }
+
+                session.oncancel = function(event) {
+                    window.location.href = '<?= /* @noEscape */ $block->getCancelUrl(); ?>';
+                }
+
+                function sendPaymentToken(paymentToken) {
+                    return new Promise(function(resolve, reject) {
+                        paymentData = paymentToken;
+                        resolve(true);
+                    }).catch(function (validationErr) {
+                        // You should show an error to the user, e.g. 'Apple Pay failed to load.'
+                        session.abort();
+                    });
+                }
+
+                function sendPaymentToAps(data)
+                {
+
+                    var formId = 'frm_aps_fort_apple_product_payment';
+                    if (jQuery("#"+formId).length > 0) {
+                        jQuery("#"+formId).remove();
+                    }
+
+                    $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');
+                    var response = {};
+                    response.data = JSON.stringify({ "data" : data});
+                    response.shipData = JSON.stringify({ "shipData" : shipData});
+                    $.each(response, function (k, v) {
+                        $('<input>').attr({
+                            type: 'hidden',
+                            id: k,
+                            name: k,
+                            value: v
+                        }).appendTo($('#'+formId));
+                    });
+                    
+                    $('#'+formId).attr('action', '<?= /* @noEscape */ $block->postAppleData(); ?>');
+                    $('#'+formId).submit();
+                }
+                
+                session.begin(); 
+            }
+        }
+    );
+</script>
+    <?php
+}
+?>

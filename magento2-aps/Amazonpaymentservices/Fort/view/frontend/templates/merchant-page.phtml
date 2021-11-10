@@ -1,0 +1,82 @@
+<?php
+   /** @var \Amazonpaymentservices\Fort\Block\Payment\Redirect $block */
+
+    $form_data = $block->getFormData();
+    $form_url = $block->getFormUrl();
+?>
+<div class="apsfort-checkout">
+    <?php
+    if ($block->getOrderOk()) {
+        
+        ?>
+        <div class="pf-iframe-background" id="div-pf-iframe">
+            <div class="pf-iframe-container">
+                <span class="pf-close-container">
+                    <i class="fa fa-times-circle pf-iframe-close" onclick="apsFortStandard.closePopup()" style="display:none"></i>
+                </span>
+                <i class="fa fa-spinner fa-spin pf-iframe-spin"></i>
+                <div class="pf-iframe" id="pf_iframe_content"></div>
+            </div>
+        </div>
+        <form name="aps_payment_form" id="aps_payment_form" method="post" action="<?= $block->escapeHtml($form_url); ?>" style="display:none">
+            <!-- general parameters -->
+            <?php
+            $form_data['form_key'] = 'abcd';
+            foreach ($form_data as $k => $v): ?>
+                <input type="hidden" name="<?= $block->escapeHtml($k); ?>" value="<?= $block->escapeHtml($v); ?>">
+            <?php endforeach; ?>
+        </form>
+        
+        <input type="hidden" id="aps_cancel_url" value="<?= $block->escapeHtml($block->getUrl('amazonpaymentservicesfort/payment/orderCancel'))?>"/>
+        <script type="text/javascript">
+            require(['jquery', 'aps_fort'],function($){
+                'use strict';
+                $(document).ready(function ($) {
+                    $('#aps_payment_form input[name=form_key]').attr("disabled", "disabled");
+                    var gatewayUrl = $('#aps_payment_form').attr('action');
+                    apsFortStandard.showStandard(gatewayUrl);
+                });
+            });
+        </script>
+        <script type="text/javascript">
+            var apsFortStandard = (function () {
+                return {
+                    showStandard: function (gatewayUrl) {
+                        if (jQuery("#aps_merchant_page").size()) {
+                            jQuery("#aps_merchant_page").remove();
+                        }
+                        jQuery("#review-buttons-container .btn-checkout").hide();
+                        jQuery("#review-please-wait").show();
+                        jQuery('<iframe  name="aps_merchant_page" id="aps_merchant_page"height="640px" frameborder="0" scrolling="no" onload="apsFortStandard.iframeLoaded(this)" style="display:none"></iframe>').appendTo('#pf_iframe_content');
+                        jQuery('.pf-iframe-spin').show();
+                        jQuery('.pf-iframe-close').hide();
+                        jQuery("#aps_merchant_page").attr("src", gatewayUrl);
+                        //jQuery( "#aps_payment_form" ).attr("action",gatewayUrl);
+                        jQuery("#aps_payment_form").attr("target","aps_merchant_page");
+                        jQuery("#aps_payment_form").submit();
+                        //fix for touch devices
+                        if (apsFort.isTouchDevice()) {
+                            setTimeout(function () {
+                                jQuery("html, body").animate({ scrollTop: 0 }, "slow");
+                            }, 1);
+                        }
+                        jQuery("#div-pf-iframe").show();
+                    },
+                    closePopup: function () {
+                        console.log('<?= $block->escapeHtml($block->getCancelUrl()); ?>');
+                        jQuery("#div-pf-iframe").hide();
+                        jQuery("#aps_merchant_page").remove();
+                        window.location = '<?= $block->escapeHtml($block->getCancelUrl()); ?>';
+                    },
+                    iframeLoaded: function () {
+                        jQuery('.pf-iframe-spin').hide();
+                        jQuery('.pf-iframe-close').show();
+                        jQuery('#aps_merchant_page').show();
+                    },
+                };
+            })();
+        </script>
+        <?php
+    }
+    ?>
+</div>

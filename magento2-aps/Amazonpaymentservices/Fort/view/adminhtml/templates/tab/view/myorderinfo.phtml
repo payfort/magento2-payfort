@@ -1,0 +1,163 @@
+<?php
+$data = $block->orderPayments();
+$valuePaid = 0;
+$flag = true;
+$flagCapture = true;
+if (isset($data['additionalData']['command']) && \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::AUTHORIZATION == $data['additionalData']['command']) {
+    ?>
+<div class="fieldset-wrapper order-information">
+    <div class="fieldset-wrapper-title">
+        <span class="title"><?= /* @noEscape */ __('Capture/Void Authorization') ?></span>
+    </div>
+    <table class="admin__table-secondary">
+        <tbody>
+        <tr>
+            <th><?= /* @noEscape */ __('Order ID:') ?></th>
+            <td><?= /* @noEscape */ $block->getOrderIncrementId(); ?></td>
+        </tr>
+        <tr>
+            <th><?= /* @noEscape */ __('Title:') ?></th>
+            <td><?= /* @noEscape */ $data['title']; ?></td>
+        </tr>
+    </table>
+    <br>
+    <table class="admin__table-secondary payment-data">
+        <tr>
+            <th>PaymentType</th>
+            <th>Order Number</th>
+            <th>Amount</th>
+            <th>Date</th>
+        </tr>        
+        <?php
+        $paymentDatas = $block->getPaymentData();
+        if (!empty($paymentDatas)) {
+            foreach ($paymentDatas as $paymentData) {
+                ?>
+                <tr>
+                <?php
+                foreach ($paymentData as $k => $v) {
+                    if ($k == 'amount') {
+                        $valuePaid += $v;
+                    }
+                    if ($v == 'void') {
+                        $flag = false;
+                    }
+                    if ($v == 'capture') {
+                        $flagCapture = false;
+                    }
+                    if ($k == 'id') {
+                        continue;
+                    }
+                    ?>
+                        <td><?= /* @noEscape */ $v; ?></td>
+                    <?php
+                }
+                ?>
+                </tr>
+                <?php
+            }
+        }
+        ?>
+        </tbody>
+    </table>
+    <br>
+    <?php
+    if ($flag) {
+        ?>
+    <form method="get" id="apscapturepayment">
+        <table class="admin__table-secondary">
+            <tbody>
+            <tr>
+                <th>Payment Type</th>
+                <td>
+                    <select name="paymentType" id="paymentType">
+                        <option value="capture"><?= /* @noEscape */ __('Capture');?>
+                        </option>
+                        <?php if ($flagCapture) { ?>
+                        <option value="void"><?= /* @noEscape */ __('Void');?>
+                        <?php } ?>
+                        </option>
+                    </select>
+                </td>
+                <td>
+                    <input type="text" id="amount" name="amount">
+                </td>
+                <td>
+                    <input type="button" id="save" value="Save" disabled="disabled">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </form>
+    <?php } ?>
+
+</div>
+<script>
+    require([
+        'jquery',
+        'prototype'
+    ], function(jQuery){
+        var orderVal = parseFloat('<?= /* @noEscape */ $data['amountPaid']?>');
+        var orderValPaid = parseFloat('<?= /* @noEscape */ $valuePaid?>');
+        jQuery("#amount").on('input', function() {
+            if(jQuery('#paymentType :selected').val() != 'void' && jQuery('#amount').val().length > 0) {
+                jQuery('#save').prop('disabled', false);
+            } else if(jQuery('#paymentType :selected').val() == 'void') {
+                jQuery('#save').prop('disabled', false);
+            } else {
+                jQuery('#save').prop('disabled', true);
+            }
+
+        });
+        jQuery("#paymentType").change(function() {
+            if(jQuery('#paymentType :selected').val() == 'void') {
+                jQuery('#amount').css('display', 'none');
+                jQuery('#save').prop('disabled', false);
+            } else {
+                jQuery('#amount').val('');
+                jQuery('#amount').css('display', 'block');
+                jQuery('#save').prop('disabled', true);
+            }
+
+        });
+        jQuery('#save').click(function () {
+            var getAmount = jQuery('#amount').val();
+            var getPaymentType = jQuery('#paymentType :selected').val();
+            var orderNumber = '<?= /* @noEscape */ $block->getOrderIncrementId();?>';
+            var orderId = '<?= /* @noEscape */  $block->getOrderId();?>';
+            var remainingAmount = orderVal - orderValPaid - getAmount;
+            if(jQuery('#paymentType :selected').val() != 'void' && remainingAmount < 0) {
+                alert('Amount cannot be greater than order amount');
+                return false;
+            }
+            if (jQuery('#paymentType :selected').val() == 'void') {
+                getAmount = 0;
+            }
+
+            var params = {amount: getAmount, paymentType : getPaymentType,orderNumber: orderNumber,orderId:orderId};
+            new Ajax.Request('<?= /* @noEscape */ $block->getAjaxUrl() ?>', {
+                parameters:     params,
+                loaderArea:     false,
+                asynchronous:   true,
+                onSuccess: function(response) {
+                    alert(response.responseJSON.data.response_message);
+                    if(response.responseJSON.data.response_code == '04000' || response.responseJSON.data.response_code == '08000') {
+                        jQuery('#amount').val('');
+                        if(getPaymentType == 'Capture') {
+                            $("#paymentType option[value='void']").remove();
+                        }
+                        jQuery('.payment-data  tr:last').after('<tr><td>'+response.responseJSON.payment.payment_type+'</td><td>'+response.responseJSON.payment.order_number+'</td><td>'+response.responseJSON.payment.amount+'</td><td>'+response.responseJSON.payment.added_date+'</td></tr>');
+                        if (response.responseJSON.payment.payment_type == 'void') {
+                            jQuery('#apscapturepayment').css('display','none');
+                        }
+                    }
+                }
+            });
+        });
+
+    });
+</script>
+    <?php
+} else {
+    echo "Capture/Void is not avaible for this order";
+}

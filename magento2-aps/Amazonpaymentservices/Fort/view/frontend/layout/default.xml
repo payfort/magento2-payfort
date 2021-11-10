@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<page xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <body>
+    <!-- Order success page -->
+    <referenceBlock name="order.success.additional.info">
+     <block class="Amazonpaymentservices\Fort\Block\Success"
+       name="custom_info.order.success"
+       template="Amazonpaymentservices_Fort::order/success.phtml"
+       after="-">
+     </block>
+   </referenceBlock>
+ </body>
+</page>

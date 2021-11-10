@@ -1,0 +1,216 @@
+<?php $data =  $block->myFunction();
+$isAvailable = $block->isApsPaymentMethod($data['payment']['method']);
+if ($isAvailable) {
+    ?>
+<div>
+    <h1>APS Payment Information</h1>
+    <table class='data-table admin__table-primary edit-order-table'>
+    <tr>
+        <td><strong>Title</strong></td>
+        <td><strong>Value</strong></td>
+    </tr>
+    <?php
+    if (!empty($data)) {
+        ?>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Command')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['command'])) {
+                    ?>
+                    <?= /* @noEscape */ $block->escapeHtml($data['additionalData']['command']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Merchant Reference')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['merchant_reference'])) { ?>
+                    <?= /* @noEscape */  ($data['additionalData']['merchant_reference']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Payment Option')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['payment_option'])) { ?>
+                    <?= /* @noEscape */  ($data['additionalData']['payment_option']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <?php
+        if (isset($data['additionalData']['number_of_installments'])) {
+            ?>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__('Installments')); ?></strong></td>
+                <td>
+                    <?php if (isset($data['additionalData']['number_of_installments'])) { ?>
+                        <?= /* @noEscape */ ($data['additionalData']['number_of_installments']); ?>
+                    <?php } ?>
+                </td>
+            </tr>
+        <?php } ?>
+        <?php
+        if (isset($data['additionalData']['installment_amount'])) {
+            ?>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__('Installment Amount')); ?></strong></td>
+                <td>
+                    <?php if (isset($data['additionalData']['installment_amount'])) { ?>
+                        <?= /* @noEscape */ ($data['additionalData']['installment_amount']); ?>
+                <?php } ?>
+                </td>
+            </tr>
+        <?php } ?>
+        <?php
+        if (isset($data['additionalData']['installment_interest'])) {
+            ?>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__('Installment Interest')); ?></strong></td>
+                <td>
+                    <?php if (isset($data['additionalData']['installment_interest'])) { ?>
+                        <?= /* @noEscape */ $data['additionalData']['installment_interest']; ?>
+                    <?php } ?>
+                </td>
+            </tr>
+            <?php } ?>
+            <?php
+        
+            if ($data['payment']['method'] == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
+                ?>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__('Tenure')); ?></strong></td>
+                <td>
+                    <?php if (isset($data['additionalData']['valu_tenure'])) { ?>
+                        <?=  /* @noEscape */($data['additionalData']['valu_tenure']);?>
+                    <?php } ?>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__('Tenure Amount')); ?></strong></td>
+                <td>
+                    <?php if (isset($data['additionalData']['valu_tenure_amount'])) { ?>
+                        <?= /* @noEscape */($data['additionalData']['valu_tenure_amount']); ?>
+                    <?php } ?>
+                </td>
+            </tr>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__('Tenure Interest')); ?></strong></td>
+                <td>
+                    <?php if (isset($data['additionalData']['valu_tenure_interest'])) { ?>
+                        <?= /* @noEscape */ ($data['additionalData']['valu_tenure_interest']); ?>
+                        <?php } ?>
+                </td>
+            </tr>
+                <?php
+            }
+            ?>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Card Token')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['token_name'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['token_name']); ?>
+                    <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Card Expiry')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['expiry_date'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['expiry_date']);?>
+                    <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Card Number')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['card_number'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['card_number']); ?>
+                    <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Authorization Code')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['authorization_code'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['authorization_code']);?>
+                     <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Response Code')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['response_code'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['response_code']); ?>
+                    <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Acquier Response Code')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['acquirer_response_code'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['acquirer_response_code']);?>
+                    <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Reconciliation Reference')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['reconciliation_reference'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['reconciliation_reference']);?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Acquirer Response Message')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['acquirer_response_message'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['acquirer_response_message']);?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Customer IP')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['customer_ip'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['customer_ip']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Customer Email')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['customer_email'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['customer_email']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('Phone Number')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['phone_number'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['phone_number']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('KNET third party transaction number')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['third_party_transaction_number'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['third_party_transaction_number']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <tr>
+            <td><strong><?= $block->escapeHtml(__('KNET Reference Number')); ?></strong></td>
+            <td>
+                <?php if (isset($data['additionalData']['knet_ref_number'])) { ?>
+                    <?= /* @noEscape */ ($data['additionalData']['knet_ref_number']); ?>
+                <?php } ?>
+            </td>
+        </tr>
+        <?php
+    }
+    ?>
+    </table>
+</div>
+<?php } ?>

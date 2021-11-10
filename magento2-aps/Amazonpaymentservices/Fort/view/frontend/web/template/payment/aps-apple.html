@@ -1,0 +1,35 @@
+<!--
+/**
+ * Amazonpaymentservices_Fort Magento JS component
+ *
+ * @category    Aps
+ * @package     Amazonpaymentservices_Fort
+ */
+-->
+<div class="payment-method _active apple-pay">
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+        <div class="apple-err"></div>
+        <div class="checkout-agreements-block"> 
+        <!-- ko foreach: $parent.getRegion('before-place-order') -->
+        <!-- ko template: getTemplate() -->
+        <!-- /ko --> 
+        <!--/ko-->
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout" style="display: none;"
+                        type="submit" id="applePay"
+                        data-bind="
+                        click: afterPlaceOrder,
+                        attr: {title: $t('Apple Pay')},,
+                        afterRender: beforeApplePay
+                        "
+                        disabled>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

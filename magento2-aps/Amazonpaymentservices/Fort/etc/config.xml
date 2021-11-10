@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Config XML
+ * 
+ * @category Aps
+ * @package  Aps_Fort
+ * @author   Aps <email@example.com>
+ * @license  GNU / GPL v3
+ **/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <aps_fort>
+                <model>Amazonpaymentservices\Fort\Model\Payment</model>
+                <sha_type>SHA-128</sha_type>
+                <language>store</language>
+                <payment_action>sale</payment_action>
+                <allowspecific>0</allowspecific>
+                <min_order_total>0</min_order_total>
+                <order_status>aps_fort_new</order_status>
+                <order_status_on_fail>aps_fort_failed</order_status_on_fail>
+                <gateway_currency>base</gateway_currency>
+                <group>aps_fort</group>
+                <cctypes>AE,VI,MC,MZ,MD</cctypes>
+                <mada_regex>440647|440795|446404|457865|968208|457997|474491|636120|417633|468540|468541|468542|468543|968201|446393|409201|458456|484783|462220|455708|410621|455036|486094|486095|486096|504300|440533|489318|489319|445564|968211|410685|406996|432328|428671|428672|428673|968206|446672|543357|434107|407197|407395|412565|431361|604906|521076|529415|535825|543085|524130|554180|549760|968209|524514|529741|537767|535989|536023|513213|520058|558563|588982|589005|531095|530906|532013|968204|422817|422818|422819|428331|483010|483011|483012|589206|968207|419593|439954|530060|531196|420132</mada_regex>
+                <meeza_regex>507803[0-6][0-9]|507808[3-9][0-9]|507809[0-9][0-9]|507810[0-2][0-9]</meeza_regex>
+            </aps_fort>
+            <aps_apple>
+                <model>Amazonpaymentservices\Fort\Model\Method\Apple</model>
+                <active>0</active>
+                <title>APPLE</title>
+                <group>aps_fort</group>
+                <sort_order>10</sort_order>
+                <!--<instructions>You will be redirected to the Aps website when you place an order.</instructions>-->
+            </aps_apple>
+            <aps_fort_vault>
+                <model>Amazonpaymentservices\Fort\Model\Method\Vault</model>
+                <active>0</active>
+                <title>APS Payment Method</title>
+                <group>aps_fort</group>
+            </aps_fort_vault>
+            <aps_fort_cc>
+                <model>Amazonpaymentservices\Fort\Model\Method\Cc</model>
+                <active>0</active>
+                <title>Credit / Debit Card</title>
+                <integration_type>redirection</integration_type>
+                <group>aps_fort</group>
+                <order_status>pending</order_status>
+                <meeza_branding>no</meeza_branding>
+                <mada_branding>no</mada_branding>
+                <sort_order>20</sort_order>
+            </aps_fort_cc>
+            <aps_fort_naps>
+                <model>Amazonpaymentservices\Fort\Model\Method\Naps</model>
+                <active>0</active>
+                <title>NAPS</title>
+                <group>aps_fort</group>
+                <sort_order>30</sort_order>
+                <!--<instructions>You will be redirected to the Aps website when you place an order.</instructions>-->
+            </aps_fort_naps>
+            <aps_knet>
+                <model>Amazonpaymentservices\Fort\Model\Method\Knet</model>
+                <active>0</active>
+                <title>KNET</title>
+                <group>aps_fort</group>
+                <sort_order>40</sort_order>
+                <!--<instructions>You will be redirected to the Aps website when you place an order.</instructions>-->
+            </aps_knet>
+            <aps_installment>
+                <model>Amazonpaymentservices\Fort\Model\Method\Installment</model>
+                <active>0</active>
+                <title>INSTALLMENT</title>
+                <group>aps_fort</group>
+                <sort_order>50</sort_order>
+                <!--<instructions>You will be redirected to the Aps website when you place an order.</instructions>-->
+            </aps_installment>
+            <aps_fort_valu>
+                <model>Amazonpaymentservices\Fort\Model\Method\Valu</model>
+                <active>0</active>
+                <title>Buy Now, Pay Monthly</title>
+                <order_status>aps_fort_new</order_status>
+                <purchase_limit><![CDATA[500]]></purchase_limit>
+                <group>aps_fort</group>
+                <sort_order>60</sort_order>
+            </aps_fort_valu>
+            <aps_fort_visaco>
+                <model>Amazonpaymentservices\Fort\Model\Method\VisaCheckout</model>
+                <active>0</active>
+                <title>Visa Checkout</title>
+                <order_status>aps_fort_new</order_status>
+                <purchase_limit><![CDATA[500]]></purchase_limit>
+                <group>aps_fort</group>
+                <sort_order>70</sort_order>
+            </aps_fort_visaco>
+        </payment>
+    </default>
+</config>

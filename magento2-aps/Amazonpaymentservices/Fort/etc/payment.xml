@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Aps default payment configuration
+*
+* @category    Aps
+* @package     Aps_Fort
+*/
+-->
+<payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Payment:etc/payment.xsd">
+    <groups>
+        <group id="aps_fort">
+            <label>Aps Payment Methods</label>
+        </group>
+    </groups>
+    <methods>
+        <method name="aps_fort_cc">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="aps_fort_naps">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="aps_knet">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="aps_apple">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="aps_installment">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="aps_fort_valu">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="aps_fort_vault">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+    </methods>
+    <credit_cards>
+        <type id="MZ" order="110">
+            <label>Meeza</label>
+        </type>
+        <type id="MD" order="120">
+            <label>Mada</label>
+        </type>
+    </credit_cards>
+</payment>

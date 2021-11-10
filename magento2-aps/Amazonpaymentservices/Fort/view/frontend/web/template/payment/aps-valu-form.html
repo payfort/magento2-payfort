@@ -1,0 +1,153 @@
+<!--
+/**
+ * Amazonpaymentservices_Fort Valu Template
+ *
+ * @category    Aps
+ * @package     Amazonpaymentservices_Fort
+ */
+-->
+<div data-action="aps-valu" class="payment-method aps-valu" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+        <img data-action="setLogo" data-bind="attr: {alt: $t('Valu Logo'),afterRender: setLogo()}"
+                 class="payment-icon" />
+    </div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <fieldset class="fieldset" data-bind='attr: {id: "payment_form_" + getCode()}'>
+            <div data-action="pf-mobile-verify" class="payment-method-note mobile-verify">
+                <div>
+                    <span class="get-instructions"></span>
+                </div>
+                <div>
+                    <span class="mobile-pre">+20</span><input data-action="pf-mobileNumber" name="mobileNumber" class="mobile-num primary-text" type="number" maxlength="19" maxlength="12" autocomplete="off" data-bind="attr: {placeholder: $t('Enter your mobile number')}"/>
+                    <button class="action primary primary-btn req-otp" type = "submit" data-bind = "click: VerifyCustomer"><span data-bind="text: $t('Request OTP'), enable: (getCode() == isChecked())"></span></button>
+                </div>
+                <div>
+                    <span data-action="aps-otp-error" class="error-val "></span>
+                </div>
+            </div>
+            
+            <div data-action="aps-otp-verify" class="payment-method-note otp-verify _pf-hidden">
+                <div class="otp-div">
+                    <span data-action="aps-otp-msg" class="otp-msg"></span>
+                </div>
+                <div>
+                    <input data-action="otp" name="otp" class="primary-text" type="password" maxlength="10" data-bind="attr: {placeholder: $t('Enter OTP')}"/>
+                    <button class="action primary primary-btn" type = "submit" data-bind = "click: VerifyOtp"><span data-bind="text: $t('Submit'), enable: (getCode() == isChecked())"></span></button>
+                </div>
+                <div>
+                    <span data-action="pf-error-verify-otp" class="error-val error-verify-otp"></span>
+                </div>
+            </div>
+            <div data-action="show-valu-slider" class="payment-method-note show-valu-slider _pf-hidden">
+                <div data-action="dv-otp-verify" class="dv-otp-verify _pf-hidden">
+                </div>
+                <div data-action="widget-valu-grid" class="widget-valu-grid slider">
+                </div>
+            </div>
+            <div data-action="valu-place-order" class="actions-toolbar valu-place-order _pf-hidden">
+                <div class="primary primary-div">
+                    <input data-action="tenure" name="tenure" type="hidden" value="" />
+                    <button data-action="purchase-btn" class="action primary checkout purchase-btn" data-bind="click: ValuPurchase, enable: (getCode() == isChecked())">
+                        <span data-bind="text: $t('Place Order')"></span>
+                    </button>
+                </div>
+                <div>
+                    <span data-action="error-purchase" class="error-val error-purchase"></span>
+                </div>
+            </div>
+            <div data-action="valu-tc" class="valu-tc _pf-hidden">
+                <div>
+                    <input data-action="valtc" type="checkbox" name="valtc" />
+                    <a href="javascript:void(0)" data-trigger="trigger" data-bind="i18n: 'I agreed to ValU Terms and Conditions to proceed with the transaction'"></a>
+                </div>
+                <div>
+                    <span data-action="valu-check-err" class="valu-check-err error-val"></span>
+                </div>
+            </div>
+        </fieldset>
+        <div class="checkout-agreements-block"> 
+        <!-- ko foreach: $parent.getRegion('before-place-order') -->
+        <!-- ko template: getTemplate() -->
+        <!-- /ko --> 
+        <!--/ko-->
+        </div>
+    </div>
+</div>
+<div data-bind="mageInit: {
+'Magento_Ui/js/modal/modal':{
+'type': 'popup',
+'title': 'Terms and Conditions',
+'trigger': '[data-trigger=trigger]',
+'responsive': true,
+'buttons': [{
+    text: jQuery.mage.__('Accept'),
+    class: 'action primary purchase-btn btn-accept'
+},{
+    text: jQuery.mage.__('Decline'),
+    class: 'action primary checkout purchase-btn btn-decline'
+}]
+}}">
+    <div data-bind="attr: {afterRender: setPopup()}">
+        <div data-action="valu-en" class="_pf-hidden">
+            <ol>
+                <li>valU monthly payments option applies only to qualifying products purchased and shipped by Merchant and/or any of its affiliates, including where the "monthly payments" option is available on the product checkout page.</li>
+                <li>valU monthly payments option is not transferable and may not be combined with other options.</li>
+                <li>To be eligible for this option, you must be a valU customer, you must have available valU balance associated with your valU account, and you must have a good payment history on your valU purchases. </li>
+                <li>valU monthly payments option may not be available to every customer and may not be available to you for all qualifying products. </li>
+                <li>valU reserves the right to consider for each transaction factors including your transaction history and past products purchased using valU and the price of the qualifying product, in determining your eligibility for this option. </li>
+                <li>Each purchase you make using valU monthly payments option will be added to your overall valU outstanding balance and will be reported to The Egyptian Credit Bureau (I-score) along with your monthly payments.</li>
+                <li>Option is only available for qualifying products in terms of products availability for shipment and delivery.</li>
+                <li>valU reserves the right to cancel this option at any time.</li>
+                <li>You will be charged with the full price of the qualifying product you selected in subsequent monthly payments including interest or finance charges.</li>
+                <li>Any interest, finance charges or fees assessed by the issuer of the payment plan to which payments are charged may still apply. </li>
+                <li>Any applicable tax and shipping charges will be due and assessed in full as part of your monthly payment when you check out.</li>
+                <li>You authorize valU to charge your balance with your preferred payment plan from 3 months and up to 36 months.</li>
+                <li>You may prepay the full remaining balance of your purchase at any time, but you may not prepay a portion of the remaining balance.</li>
+                <li>This option and your purchase, including any dispute or claim relating thereto, are subject to the terms in the Merchants terms and conditions including No Warranty, Limitation of Liabilities, Indemnity, Relationship and Notice, Disputes, Transfer of Rights and Obligations, and General Governing Law, and Warranty legal terms and conditions therein.</li>
+                <li>Any return of a product purchased through this option, will be subject to Merchant return policy terms and the amount of any resulting refund will be available to use for buying another product with the same refund amount. This process has no impact whatsoever on your selected monthly payment plan and you’re fully liable for paying your monthly payment on due date shown on your valU mobile application.</li>
+                <li>You may not dispose the purchased goods through any type of transaction prior full settlement of the selected monthly payments plan. Any act to dispose of the purchased goods prior full settlement may subject you to criminal consequences in case of defaults on due payments.</li>
+                <li>In the event that you fail to pay two consecutive monthly payments, valU reserves its rights to annul this purchase and claim full settlement of due payments without prior notice or warning to you.</li>
+                <li>You acknowledge that all purchases you do on Merchant website using valU monthly payments option are subject to valU’s terms and conditions signed by you on valU application form.</li>
+                <li>You are fully responsible for using your valU balance on Merchant website as well as fully responsible for safeguarding the usage of your username, and OTP received on your mobile registered number from any third parties &/or breaches, which, in the event that this happens, valU bears no responsibility.</li>
+                <li>You fully and unconditionally agree to the right of valU to collect, preserve and possess all the information, data and documents submitted by you for use in legally permissible purposes.</li>
+                <li>You agree expressly and unconditionally to deal through electronic means and media (including e-mail messages), and that such means and media are valid and with full legal effect.</li>
+                <li>Products identified in the Consumer Finance Law no. 18 of 2020 only shall be permissible.</li>
+            </ol>
+        </div>
+        <div data-action="valu-ar" class="_pf-hidden">
+            <ol>
+                <li>valU monthly payments option applies only to qualifying products purchased and shipped by Merchant and/or any of its affiliates, including where the "monthly payments" option is available on the product checkout page.</li>
+                <li>valU monthly payments option is not transferable and may not be combined with other options.</li>
+                <li>To be eligible for this option, you must be a valU customer, you must have available valU balance associated with your valU account, and you must have a good payment history on your valU purchases. </li>
+                <li>valU monthly payments option may not be available to every customer and may not be available to you for all qualifying products. </li>
+                <li>valU reserves the right to consider for each transaction factors including your transaction history and past products purchased using valU and the price of the qualifying product, in determining your eligibility for this option. </li>
+                <li>Each purchase you make using valU monthly payments option will be added to your overall valU outstanding balance and will be reported to The Egyptian Credit Bureau (I-score) along with your monthly payments.</li>
+                <li>Option is only available for qualifying products in terms of products availability for shipment and delivery.</li>
+                <li>valU reserves the right to cancel this option at any time.</li>
+                <li>You will be charged with the full price of the qualifying product you selected in subsequent monthly payments including interest or finance charges.</li>
+                <li>Any interest, finance charges or fees assessed by the issuer of the payment plan to which payments are charged may still apply. </li>
+                <li>Any applicable tax and shipping charges will be due and assessed in full as part of your monthly payment when you check out.</li>
+                <li>You authorize valU to charge your balance with your preferred payment plan from 3 months and up to 36 months.</li>
+                <li>You may prepay the full remaining balance of your purchase at any time, but you may not prepay a portion of the remaining balance.</li>
+                <li>This option and your purchase, including any dispute or claim relating thereto, are subject to the terms in the Merchants terms and conditions including No Warranty, Limitation of Liabilities, Indemnity, Relationship and Notice, Disputes, Transfer of Rights and Obligations, and General Governing Law, and Warranty legal terms and conditions therein.</li>
+                <li>Any return of a product purchased through this option, will be subject to Merchant return policy terms and the amount of any resulting refund will be available to use for buying another product with the same refund amount. This process has no impact whatsoever on your selected monthly payment plan and you’re fully liable for paying your monthly payment on due date shown on your valU mobile application.</li>
+                <li>You may not dispose the purchased goods through any type of transaction prior full settlement of the selected monthly payments plan. Any act to dispose of the purchased goods prior full settlement may subject you to criminal consequences in case of defaults on due payments.</li>
+                <li>In the event that you fail to pay two consecutive monthly payments, valU reserves its rights to annul this purchase and claim full settlement of due payments without prior notice or warning to you.</li>
+                <li>You acknowledge that all purchases you do on Merchant website using valU monthly payments option are subject to valU’s terms and conditions signed by you on valU application form.</li>
+                <li>You are fully responsible for using your valU balance on Merchant website as well as fully responsible for safeguarding the usage of your username, and OTP received on your mobile registered number from any third parties &/or breaches, which, in the event that this happens, valU bears no responsibility.</li>
+                <li>You fully and unconditionally agree to the right of valU to collect, preserve and possess all the information, data and documents submitted by you for use in legally permissible purposes.</li>
+                <li>You agree expressly and unconditionally to deal through electronic means and media (including e-mail messages), and that such means and media are valid and with full legal effect.</li>
+                <li>Products identified in the Consumer Finance Law no. 18 of 2020 only shall be permissible.</li>
+            </ol>
+        </div>
+    </div>
+</div>

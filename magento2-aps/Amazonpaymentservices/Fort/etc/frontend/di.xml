@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2016 Magento. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Url\SecurityInfo">
+        <arguments>
+            <argument name="secureUrlList" xsi:type="array">
+                <item name="apsfort" xsi:type="string">/amazonpaymentservicesfort/</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="aps_fort_config_provider" xsi:type="object">Amazonpaymentservices\Fort\Model\PaymentConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Amazonpaymentservices\Fort\Block\Button">
+        <arguments>
+            <argument name="localeResolver" xsi:type="object">Amazonpaymentservices\Fort\Model\LocaleResolver</argument>
+            <argument name="data" xsi:type="array">
+                <item name="template" xsi:type="string">Amazonpaymentservices_Fort::express/cart_button.phtml</item>
+                <item name="alias" xsi:type="string">apple.mini-apple-cart</item>
+                <item name="button_id" xsi:type="string">apple-pay-mini-cart</item>
+            </argument>
+            <argument name="payment" xsi:type="object">Amazonpaymentservices\Fort\Model\Method\Apple</argument>
+        </arguments>
+    </type>
+    <type name="Amazonpaymentservices\Fort\Observer\AddApsShortcuts">
+        <arguments>
+            <argument name="buttonBlocks" xsi:type="array">
+                <item name="mini_cart" xsi:type="string">Amazonpaymentservices\Fort\Block\Button</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\Stdlib\CookieManagerInterface">
+        <plugin name="switch_samesite"
+                type="Amazonpaymentservices\Fort\Plugin\SwitchSameSite"
+                sortOrder="10"/>
+    </type>
+</config>

@@ -1,104 +1,55 @@
-magento2-Payfort_Fort
-======================
-
-Payfort payment gateway Magento2 extension. Payfort is the Most Trusted Online Payment Gateway in the Middle East
-PAYFORT is here to help you accept online payments, reduce fraud, and maximize your revenue
+# Amazon Payment Services plugin for Magento
+<a href="https://paymentservices.amazon.com/" target="_blank">Amazon Payment Services</a> plugin offers seamless payments for Magento platform merchants.  If you don't have an APS account click [here](https://paymentservices.amazon.com/) to sign up for Amazon Payment Services account.
 
 
-## Install
+## Getting Started
+We know that payment processing is critical to your business. With this plugin we aim to increase your payment processing capabilities. Do you have a business-critical questions? View our quick reference [documentation](https://paymentservices.amazon.com/docs/EN/index.html) for key insights covering payment acceptance, integration, and reporting.
 
-1. Go to [Magento2 root folder]/app/code
 
-2. Past Payfort folder to the previous path
+## Configuration and User Guide
+You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
+   
 
-3. Go to [Magento2 root folder] & Enter following commands to enable module:
+## Payment Options
 
-    ```bash
-    php bin/magento module:enable Payfort_Fort --clear-static-content
-    php bin/magento setup:upgrade
-    php bin/magento setup:static-content:deploy
+* Integration Types
+   * Redirection
+   * Merchant Page
+   * Hosted Merchant Page
+   * Installments
+   * Embedded Hosted Installments
 
-    ```
-4. Enable and configure Payfort in Magento Admin under Stores -> Configuration -> Sale -> Payment Methods -> PayFort Fort Payment Methods
-
-## Upgrade
-
-1. Go to [Magento2 root folder]/app/code
-
-2. Past Payfort folder to the previous path.
-
-3. Go to Magento Admin Panel -> System -> Cache Management.
-
-4. Click on Flush Javascript/Css Cache.
-
-5. Click on Flush Static Files Cache.
-
-6. Click On Flush Magento Cache.
+* Payment methods
+   * Mastercard
+   * VISA
+   * American Express
+   * VISA Checkout
+   * valU
+   * mada
+   * Meeza
+   * KNET
+   * NAPS
+   * Apple Pay
+   
 
 ## Changelog
 
-`v1.4.1`
-- Return items to stock if order fails in Magento versions 2.2.*
-
-`v1.4.0`
-- Support Magento 2.3
-
-`v1.3.1`
-- Fix order confirmation email is not sent issue
-
-`v1.3.0`
-- Added Installments as payment method
-
-`v1.2.1`
-- Generate invoice.
-- Capture order amount.
-
-`v1.2.0`
-- Added option for Gateway currency.
-- Added merchant page 2.0
-- Fixing some bugs.
-
-## Compatibility
+| Plugin Version | Release Notes |
+| :---: | :--- |
+| 2.2.3 |   * Fix - Logout after redirection related to session is resolved <br/> * Fix - Apple Pay code simplification | 
+| 2.2.2 |   * Fix - Namespace change <br/> * Fix - Shipping and tax calculation corrections in Apple Pay of Product / Cart pages <br/> * Fix - Back button click handling after a successful transaction | 
+| 2.2.1 |   * Fix - Fixed Apple Pay floating point issue | 
+| 2.2.0 |   * New - Installments are embedded in Debit/Credit Card payment option | 
+| 2.1.0 |   * New - ApplePay is activated in Product and Cart pages | 
+| 2.0.0 |   * New - Integrated payment options: MasterCard, Visa, AMEX, mada, Meeza, KNET, NAPS, Visa Checkout, ApplePay, valU <br/> * New - Tokenization is enabled for Debit/Credit Cards and Installments <br/> * New - Partial/Full Refund, Single/Multiple Capture and Void events are managed in order details | 
 
 
-Tested with [One Step Checkout]
-
-## Why Payfort?
-
-
-### Hassle-free setup
+## API Documentation
+This plugin has been implemented by using following [API library](https://paymentservices-reference.payfort.com/docs/api/build/index.html)
 
 
-There are a lot of moving parts when it comes to setting up a payment gateway. From applying for a merchant ID to integrating your website with a payment service provider, it can be a lot to manage for a busy business owner. Stop worrying and let us walk you through everything step-by-step.
+## Further Questions
+Have any questions? Just get in [touch](https://paymentservices.amazon.com/get-in-touch)
 
-
-### Protect your online business against fraud
-
-Credit card fraud can cost a business millions if not managed properly. With some powerful fraud prevention tools, our risk management team will secure you against online fraud, and keep your business safe.
-
-
-
-### Our relationship with you doesn’t end after integration
-
-We strongly believe in helping our customers grow their online businesses. Our relationship managers will keep a close eye on your financial performance, and work towards increasing your acceptance ratio and maximizing your revenue.
-
-
-### Let your customer checkout with any credit card, from anywhere in the world
-
-Give your customers the online shopping experience they deserve with simple and friendly checkout options. Whether they are using Visa or MasterCard credit cards, or checking out from different parts of the world, you’ll be able to sell globally to over 80 countries.
-
-
-### Are your customers not interested in paying with a credit card?
-We’ve got you covered.
-
-Give your customers different payment options and allow them to pay offline with, Sadad – KSA, Edirham – UAE.
-
-### Integrate faster
-
-With over 50 supported shopping cart integrations, our plug and play developer kit makes it easy to quickly integrate your website. Our Integration team is on hand to take you from production to live and get you to start transacting online.
-
-### It’s hard for a startup to succeed.
-We’ve got your back
-
-A startup’s success hinges on its ability to acquire customers. PayFort’s Startup Program lets you take off the ground quickly with low pricing and amazing benefits.
-
+## License
+Released under the [MIT License](/LICENSE).

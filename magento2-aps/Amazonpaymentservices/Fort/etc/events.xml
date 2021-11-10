@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Events XML
+ * 
+ * @category Aps
+ * @package  Aps_Fort
+ * @author   Aps <email@example.com>
+ * @license  GNU / GPL v3
+ **/
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_order_place_before">
+        <observer name="order_before_place" instance="Amazonpaymentservices\Fort\Observer\BeforeOrderPlaceObserver" />
+    </event>
+    <event name="shortcut_apple_buttons_container">
+        <observer name="aps_apple_shortcuts" instance="Amazonpaymentservices\Fort\Observer\AddAppleShortcuts"/>
+    </event>
+</config>

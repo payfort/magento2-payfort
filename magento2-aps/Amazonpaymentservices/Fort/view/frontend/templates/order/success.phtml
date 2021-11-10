@@ -1,0 +1,12 @@
+<?php if ($block->isKnetPaymentMethod()): ?>
+    <?php $knetData = $block->getKnetParmeters();
+    $knetRefNo = isset($knetData['knet_ref_number']) ? $knetData['knet_ref_number'] : '';
+    $thirdRefNo = isset($knetData['third_party_transaction_number']) ? $knetData['third_party_transaction_number'] : '';
+    ?>
+
+  <div class="success-section">
+    
+    <div style="clear: both;">KNET Reference Number : <?= $block->escapeHtml(__($knetRefNo)); ?></div>
+    <div style="clear: both;">KNET third party transaction number : <?= $block->escapeHtml(__($thirdRefNo)); ?></div>
+  </div>
+<?php endif; ?>

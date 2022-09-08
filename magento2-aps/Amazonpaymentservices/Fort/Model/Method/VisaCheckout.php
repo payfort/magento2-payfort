@@ -67,4 +67,12 @@ class VisaCheckout extends \Amazonpaymentservices\Fort\Model\Payment
         }
         return parent::getInstructions();
     }
+
+    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    {
+        if (!$this->_helper->checkSubscriptionItemInCart()) {
+            return false;
+        }
+        return parent::isAvailable($quote);
+    }
 }

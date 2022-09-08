@@ -1,0 +1,207 @@
+<?php
+/**
+ * Copyright © Amazon Payment Service, All rights reserved.
+ */
+
+ /** @var \Amazonpaymentservices\Fort\Block\Adminhtml\Order\View\View $block */
+$data =  $block->myFunction();
+
+/** @var \Magento\Framework\App\ObjectManager $objectManager */
+$objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+/** @var \Magento\Store\Model\StoreManagerInterface $storeManager */
+$storeManager = $objectManager->get('Magento\Store\Model\StoreManagerInterface');
+
+/** @var / site base url $storeManager */
+$baseUrl = $storeManager->getStore()->getBaseUrl();
+
+/** @var \Magento\Framework\App\ResourceConnection $resource */
+$resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+
+/** @var / getConnection function from resounce $connection */
+$connection = $resource->getConnection();
+
+/** @var / get details of each item in aps_subscriptions $subOrderDetails */
+$apsSubParentId = [];
+if (isset($data['additionalData']['merchant_reference'])) {
+    $query = $connection->select()->from(['table'=>'aps_subscription_orders'], ['aps_subscription_id'])->where('table.order_increment_id=?', $data['additionalData']['merchant_reference']);
+    $apsSubParentId = $connection->fetchRow($query);
+}
+
+$apsSubscriptionId = 0;
+if (isset($apsSubParentId['aps_subscription_id'])) {
+    $apsSubscriptionId = $apsSubParentId['aps_subscription_id'];
+}
+
+$query = $connection->select()->from(['table'=>'aps_subscriptions'], ['order_increment_id'])->where('table.id=?', $apsSubscriptionId);
+$apsSubParentDetail = $connection->fetchRow($query);
+
+if (isset($apsSubParentDetail['order_increment_id']) && $apsSubParentDetail['order_increment_id'] == $data['additionalData']['merchant_reference']) {
+    $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.order_increment_id=?', $apsSubParentDetail['order_increment_id']);
+    $subOrderDetails = $block->fetchAllQuery($query);
+} else {
+    $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.id=?', $apsSubscriptionId);
+    $subOrderDetails = $block->fetchAllQuery($query);
+}
+
+if (!empty($subOrderDetails)) {
+    ?>
+
+    <style>
+        .subscription_table th{color: #303030 !important; background-color: white !important; border: 0.5px solid #8f8f8f;}
+        .subscription_table td{font-size: 1.3rem; border: 0.5px dotted #a8a8a8; border-top: 0;}
+    </style>    
+
+    <?php
+    foreach ($subOrderDetails as $orderDetail) {
+        if ($orderDetail['subscription_status'] == 0) {$orderStatus = 'Cancel';
+        } elseif ($orderDetail['subscription_status'] == 1) {$orderStatus = 'Active';
+        } else {$orderStatus = 'On Hold';}
+
+        /** @var / get details of each item in sales_order_item $orderDetails */
+        $query = $connection->select()->from(['table'=>'sales_order_item'])->where('table.item_id=?', $orderDetail['item_id']);
+        $itemDetail = $connection->fetchRow($query);
+        ?>
+
+            <div class="fieldset-wrapper customer-information" style="overflow:auto; padding-bottom: 55px;">
+                <div class="admin__page-section-title">
+                    <span class="title">Subscription Details</span>
+                </div>
+                <table class="admin__table-secondary">
+                    <tbody class="subscription_table">
+                        <tr>
+                            <th><strong>Product</strong></th>
+                            <th><strong>Subscription Status</strong></th>
+                            <!-- <th><strong>Original Price</strong></th>
+                            <th><strong>Row Total</strong></th> -->
+                            <th><strong>Qty</strong></th>
+                            <th><strong>Subscription Start Date</strong></th>
+                            <th><strong>Next Payment Date</strong></th>
+                            <th><strong>Change Subscription Status</strong></th>
+                        </tr>
+                    <?= "<tr>" ?>
+                    <?= "<td>".$orderDetail['product_name']."<br>SKU: ".$orderDetail['product_sku']."</td>" ?>
+                    <?= "<td>".$orderStatus."</td>" ?>
+                    <?php /*= "<td>".$itemDetail['original_price']."</td>" ?>
+                    <?= "<td>".$itemDetail['row_total_incl_tax']."</td>" */?>
+                        <?= "<td>".$itemDetail['qty_invoiced']."</td>" ?>
+                        <?= "<td>".date("F d, Y H:i:s", strtotime($orderDetail['subscription_start_date']))."</td>" ?>
+                        <?= "<td>".date("F d, Y H:i:s", strtotime($orderDetail['next_payment_date']))."</td>" ?>
+                        <?= "<td>" ?>
+                                <?= "<select name='subscription[status]' data-subid = '".$orderDetail['id']."' data-orderid = '".$orderDetail['order_id']."' class='admin__control-select subscription_status'>" ?>
+                                    <?= "<option value=''  class='a'>--Change Status--</option>" ?>
+                                    <?php if ($orderDetail['subscription_status'] != 1) {?>
+                                            <?= "<option value='1' class='a'>Active</option>" ?>
+                                    <?php } if ($orderDetail['subscription_status'] != 2) {?>
+                                        <?= "<option value='2' class='a'>On Hold</option>" ?>
+                                    <?php } if ($orderDetail['subscription_status'] != 1 || $orderDetail['subscription_status'] != 2 ) {?>
+                                        <?= "<option value='0' class='a'>Cancel</option>" ?>
+                                    <?php } ?>
+                                <?= "</select>" ?>
+                            <?= "</td>" ?>
+                        <?= "</tr>" ?>
+                    </tbody>
+                </table>
+            </div>
+            
+            <?php
+            /** @var / get details of single item in aps_subscription_orders $subOrderDetail */
+            $query = $connection->select()->from(['table'=>'aps_subscription_orders'])->where('table.aps_subscription_id=?', $orderDetail['id']);
+            $orderDetailsSub = $block->fetchAllQuery($query);
+
+            if (!empty($orderDetailsSub)) {
+                ?>
+
+                    <div class="fieldset-wrapper customer-information" style="overflow:auto; padding-bottom: 55px;">
+                        <div class="admin__page-section-title">
+                            <span class="title">Related Orders</span>
+                        </div>
+                        <table class="admin__table-secondary">
+                            <tbody class="subscription_table">
+                                <tr>
+                                    <th><strong>Order Id</strong></th>
+                                    <th><strong>Product</strong></th>
+                                    <!-- <th><strong>Current Order Id</strong></th> -->
+                                    <!-- <th><strong>Order Increment Id</strong></th> -->
+                                    <!-- <th><strong>Item Qty</strong></th> -->
+                                    <!-- <th><strong>Subscription Start Date</strong></th> -->
+                                    <th><strong>Date</strong></th>
+                                    <!-- <th><strong>Next Payment Date</strong></th> -->
+                                    <th><strong>Status</strong></th>
+                                    <th><strong>Amount</strong></th>
+                                </tr>
+
+                            <?php
+                            foreach ($orderDetailsSub as $orderDetailSub) {
+                                $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.id=?', $orderDetailSub['aps_subscription_id']);
+                                $subProductDetail = $connection->fetchRow($query);
+
+                                if ($subProductDetail['subscription_status'] == 0) {$orderStatus = 'Cancel';
+                                } elseif ($subProductDetail['subscription_status'] == 1) {$orderStatus = 'Active';
+                                } else {$orderStatus = 'On Hold';}
+
+                                /** @var / get details of each item in sales_order_item $orderDetails */
+                                $query = $connection->select()->from(['table'=>'sales_order_item'])->where('table.item_id=?', $orderDetailSub['item_id']);
+                                $itemDetail = $connection->fetchRow($query);
+
+                                $query = $connection->select()->from(['table'=>'sales_order'])->where('table.entity_id=?', $orderDetailSub['order_id']);
+                                $pickedOrder = $connection->fetchRow($query);
+
+                                $priceCurrencyObject = $objectManager->get('Magento\Framework\Pricing\PriceCurrencyInterface');
+
+                                $rate = $priceCurrencyObject->convert($pickedOrder['base_grand_total'], $pickedOrder['store_id'], $pickedOrder['order_currency_code']);
+
+                                $childOrder = $objectManager->create('\Magento\Sales\Model\OrderRepository')->get($orderDetailSub['order_id']);
+                                $childOrderStatus = $childOrder->getStatus();
+                                ?>
+                                <?= "<tr>" ?>
+                                        <td>
+                                            <a href = "<?= $baseUrl?>admin/sales/order/view/order_id/<?= $orderDetailSub['order_id']?>"><?= $orderDetailSub['order_increment_id']?></a>
+                                            <small><?= ($orderDetailSub['order_increment_id'] == $orderDetail['order_increment_id']) ? '(Parent Order)' : '' ?></small>
+                                        </td>
+                                <?= "<td>".$subProductDetail['product_name']."<br>SKU: ".$subProductDetail['product_sku']."</td>" ?>
+                                <?php /* = "<td>".$orderDetailSub['order_id']."</td>" ?>
+                                <?= "<td>".$orderDetailSub['order_increment_id']."</td>" */ ?>
+                                        <?php /* = "<td>".$itemDetail['qty_invoiced']."</td>" ?>
+                                        <?= "<td>".date("M d, Y H:i:s", strtotime($subProductDetail['subscription_start_date']))."</td>" */ ?>
+                                        <?= "<td>".date("F d, Y H:i:s", strtotime($orderDetailSub['created_at']))."</td>" ?>
+                                        <?php /* = "<td>".date("M d, Y H:i:s", strtotime($subProductDetail['next_payment_date']))."</td>" */ ?>
+                                        <?= "<td>".$childOrderStatus."</td>" ?>
+                                        <?= "<td>".$rate."</td>" ?>
+                                        <?= "</tr>" ?>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php } ?>
+    <?php } ?>
+<?php } ?>
+
+<script>
+    require(["jquery"], function ($) {
+        $(document).on('change', '.subscription_status', function () {
+            var subid = $(this).data('subid');
+            var orderId = $(this).data('orderid');
+            var statusValue = $(this).val();
+            var statusCheck = ['0','1','2'];
+            if(statusCheck.includes(statusValue)) {
+                var controllerUrl = '<?= $baseUrl ?>admin/amazonpaymentservicesfort/subscription/subscription/';
+                if(confirm('Are you sure you want to change status?'))
+                {
+                    var params = {orderid: orderId, subid : subid,status: statusValue};
+                    new Ajax.Request(controllerUrl, {
+                        parameters:     params,
+                        loaderArea:     false,
+                        asynchronous:   true,
+                        onSuccess: function(response) {
+                            location.reload();
+                        }
+                    });
+                    
+                }
+            }  else if(statusValue != '') {
+                alert('Kindly select the correct status?');
+            }
+        });
+    });
+</script>

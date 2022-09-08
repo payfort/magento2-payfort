@@ -30,9 +30,9 @@
                 name="vaultHash1"
                 class="radio radiovaulthash"
                 data-bind="value: item.public_hash,
-                event:{click: $parent.newCard}"
+                event:{click: $parent.newCard}, attr: { 'id': 'card'+ item.public_hash }"
                 />
-                <label class="label">
+                <label class="label" data-bind="attr: { 'for': 'card'+ item.public_hash }">
                     <img data-bind="attr: {
                     'src': item.typename,
                     }" class="payment-icon">
@@ -50,8 +50,7 @@
                             value=""
                             maxlength="4"
                             data-bind="attr: {
-                            title: $t('Card Verification Number'),
-                            " disabled/>
+                            title: $t('Card Verification Number')}" disabled/>
                 </label>
             </div>
             

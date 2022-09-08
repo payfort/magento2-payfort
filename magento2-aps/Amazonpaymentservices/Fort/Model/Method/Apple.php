@@ -75,6 +75,10 @@ class Apple extends \Amazonpaymentservices\Fort\Model\Payment
             }
         }
         
+        if (!$this->_helper->checkSubscriptionItemInCart()) {
+            return false;
+        }
+        
         return parent::isAvailable($quote);
     }
 }

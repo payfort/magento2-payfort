@@ -107,8 +107,9 @@ class Redirect extends \Magento\Framework\View\Element\Template
                 } else {
                     $arrPaymentPageData = $this->_helper->getInstallmentRequestParams($order, $helper::INTEGRATION_TYPE_REDIRECTION);
                 }
+            } elseif ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
+                $arrPaymentPageData = $this->_helper->getStcRequestParams($order, $helper::INTEGRATION_TYPE_REDIRECTION);
             } else {
-
                 if ($this->_helper->isStandardMethod($order)) {
                     $this->_template = 'merchant-page.phtml';
                     $arrPaymentPageData = $this->_helper->getPaymentRequestParams($order, $helper::INTEGRATION_TYPE_STANDARD);
@@ -118,9 +119,7 @@ class Redirect extends \Magento\Framework\View\Element\Template
             }
             $form_data = $arrPaymentPageData['params'];
             $form_url = $arrPaymentPageData['url'];
-        
             $order->addStatusHistoryComment('AmazonpaymentservicesFort :: redirecting to payment page with Method: '.$paymentMethod);
-
             $order->save();
         }
         

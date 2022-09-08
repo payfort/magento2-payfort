@@ -12,6 +12,17 @@ class Paymentstatus
 
     protected $_order;
 
+    protected $_methodCodes = [
+        \Amazonpaymentservices\Fort\Model\Method\Vault::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Cc::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Naps::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Knet::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Apple::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE
+    ];
+
     public function __construct(
         \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
         \Psr\Log\LoggerInterface $logger,
@@ -38,7 +49,9 @@ class Paymentstatus
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $orders = $this->_order->getCollection()->addFieldToFilter('status', ['eq' => 'pending'])->addFieldToFilter('created_at', ['lteq' => $date]);
         foreach ($orders->getItems() as $order) {
-            $this->Orderupdate($order);
+            if (in_array($order->getPayment()->getMethod(), $this->_methodCodes)) {
+                $this->orderUpdate($order);
+            }
         };
         
         return $this;
@@ -49,7 +62,7 @@ class Paymentstatus
         $this->_logger->debug('APS Cron pending order : '.$order->getIncrementId());
         $paymentMethod = $order->getPayment()->getMethod();
         $orderId = $order->getIncrementId();
-        if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::Code) {
+        if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
             $orderId = $order->getApsValuRef();
         }
         $response = $this->_helper->checkOrderStatus($orderId, $paymentMethod);

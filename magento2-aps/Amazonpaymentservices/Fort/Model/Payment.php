@@ -118,5 +118,4 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
     {
         return __('You will be redirected to the Amazon Payment Services website when you place an order.');
     }
-    
 }

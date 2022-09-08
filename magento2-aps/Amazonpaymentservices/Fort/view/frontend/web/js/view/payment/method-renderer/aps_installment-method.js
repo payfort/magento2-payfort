@@ -41,7 +41,8 @@ define(
             redirectAfterPlaceOrder: false,
             
             afterPlaceOrder : function () {
-                $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_installment.redirectUrl);
+                var randomNum = new Date().getTime();
+                $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_installment.redirectUrl+"?id="+randomNum);
             }
         });
     }

@@ -22,6 +22,24 @@ define(
         'use strict';
         var promise = '';
         $("#applePay").addClass(window.checkoutConfig.payment.apsFort.aps_apple.appleButtonClass);
+        $(document).on(
+            'submit',
+            'form',
+            function (e) {
+                var formKeyElement,
+                    existingFormKeyElement,
+                    isKeyPresentInForm,
+                    form = $(e.target),
+                    formKey = $('input[name="form_key"]').val();
+                existingFormKeyElement = form.find('input[name="form_key"]');
+                isKeyPresentInForm = existingFormKeyElement.length;
+                if (isKeyPresentInForm && existingFormKeyElement.attr('auto-added-form-key') === '1') {
+                    isKeyPresentInForm = form.find('> input[name="form_key"]').length;
+                }
+                $('#frm_aps_fort_apple_payment input[name=form_key]').remove();
+                $('#frm_aps_fort_apple_payment input[name=form_key]').attr("disabled", "disabled");
+            }
+        );
         return Component.extend({
             defaults: {
                 template: 'Amazonpaymentservices_Fort/payment/aps-apple'
@@ -167,14 +185,18 @@ define(
                     merchantCapabilities: [ 'supports3DS' ]
                 };
 
-                var session = new ApplePaySession(3, paymentRequest);
+                var supportedNetworks = window.checkoutConfig.payment.apsFort.aps_apple.appleSupportedNetwork.split(',');
+                if(supportedNetworks.indexOf('mada') >= 0) {
+                    var session = new ApplePaySession(5, paymentRequest);
+                } else {
+                    var session = new ApplePaySession(3, paymentRequest);
+                }
                 session.onvalidatemerchant = function (event) {
                     var promise = performValidation(event.validationURL);
                     promise.then(function (merchantSession) {
                         session.completeMerchantValidation(merchantSession);
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
-                        console.error('Error validating merchant:', validationErr);
                         session.abort();
                     });
                 }
@@ -188,11 +210,11 @@ define(
                             resolve(data);
                         };
                         xhr.onerror = reject;
-                        xhr.open('GET',window.checkoutConfig.payment.apsFort.aps_apple.appleValidation+'?valURL=' + valURL);
-                        xhr.send();
+                        xhr.open('POST',window.checkoutConfig.payment.apsFort.aps_apple.appleValidation);
+                        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                        xhr.send('valURL=' + valURL);
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
-                        console.error('Error Performing Validation:', validationErr);
                         session.abort();
                     });
                 }
@@ -216,7 +238,6 @@ define(
                         session.completePayment(status);
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
-                        console.error('Error Paymenth Authorization:', validationErr);
                         session.abort();
                     });
                 }

@@ -60,6 +60,12 @@ class VisaCheckoutResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         $success = '';
         if (!empty($responseParams['response_code']) && $responseParams['response_code'] == \Amazonpaymentservices\Fort\Model\Payment::PAYMENT_STATUS_3DS_CHECK && isset($responseParams['3ds_url'])) {
             $success = $helper->handleFortResponse($responseParams, 'online', $integrationType, 'h2h');
+            if (isset($success['redirect']) && $success['redirect'] == true) {
+                $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
+                $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
+                $response->setContents($redirectURL);
+                return $response;
+            }
         } else {
             $success = $helper->handleFortResponse($responseParams, 'offline', $integrationType);
         }

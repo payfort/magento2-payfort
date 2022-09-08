@@ -224,7 +224,7 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
                 ->setCode($result[0]['id'])
                 ->getPrice(1);
             $shippingAddress = $quote->getShippingAddress();
-            //@todo set in order data
+            
             $shippingAddress->setCollectShippingRates(true)
                 ->collectShippingRates()
                 ->setShippingMethod($result[0]['id']);

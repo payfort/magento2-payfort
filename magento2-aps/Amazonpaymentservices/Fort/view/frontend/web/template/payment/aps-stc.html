@@ -1,0 +1,86 @@
+<!--
+/**
+ * Amazonpaymentservices_Fort Magento JS component
+ *
+ * @category    Aps
+ * @package     Amazonpaymentservices_Fort
+ */
+-->
+<div class="payment-method apsstcpay ccform stcpay apsfort" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+        <img data-action="setStcLogo" data-bind="attr: {alt: $t('STCPay Logo'),afterRender: setStcLogo()}"
+                 class="payment-icon" />
+    </div>
+    <div class="error-ccform"></div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="payment-method-content">
+            <!-- ko foreach: getRegion('messages') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+            <!-- ko foreach: { data: getStcCard(), as: 'item' } -->
+            <div class="payment-method-title field choice token">
+                <input type="radio"
+                name="stctoken"
+                class="radio radiostctoken"
+                data-bind="value: item.token_name,
+                event:{click: $parent.newCard}, attr: { 'id': 'card'+ item.token_name }"
+                />
+                <label class="label" data-bind="attr: { 'for': 'card'+ item.token_name }">
+                    <span data-bind="text: item.phone_number"></span>
+                </label>
+            </div>
+            
+            <!--/ko-->
+            <div class="payment-method-title newcardtype field choice" data-bind="
+            afterRender: afterTokenRender
+            ">
+                <input type="radio"
+                name="stctoken"
+                class="radio radiostctoken"
+                value="newCard" 
+                data-bind="
+                    click: newCard"
+                />
+                <label class="label" data-bind="
+                text: $t('Add New Number')
+                ">
+                </label>
+            </div>
+
+        <fieldset class="fieldset" data-bind='attr: {id: "payment_form_" + getCode()}'>
+            <div class="payment-method-note">
+                <span data-bind="html: getInstructions()"></span>
+            </div>
+        </fieldset>
+        <div class="checkout-agreements-block"> 
+        <!-- ko foreach: $parent.getRegion('before-place-order') -->
+        <!-- ko template: getTemplate() -->
+        <!-- /ko --> 
+        <!--/ko-->
+        </div>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <button class="action primary checkout"
+                        type="submit"
+                        data-bind="
+                        click: preparePayment,
+                        attr: {title: $t('Place Order')},
+                        css: {disabled: false},
+                        enable: (getCode() == isChecked())
+                        "
+                        disabled>
+                    <span data-bind="text: $t('Place Order')"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

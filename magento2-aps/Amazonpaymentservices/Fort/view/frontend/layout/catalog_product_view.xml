@@ -2,12 +2,19 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceBlock name="product.info.addtocart">
+           <action method="setTemplate">
+               <argument name="template" xsi:type="string">Amazonpaymentservices_Fort::catalog/product/view/addtocart.phtml</argument>
+           </action>
+        </referenceBlock>
+        <referenceBlock name="product.info.addtocart">
             <block class="Amazonpaymentservices\Fort\Block\Button" name="product.info.aps_fort_express" template="Amazonpaymentservices_Fort::express/product_button.phtml" before="-" ifconfig="payment/aps_apple/active" />
         </referenceBlock>
 
         <referenceBlock name="product.info.addtocart.additional">
             <block name="product.info.addtocart.aps_fort_express.additional" class="Amazonpaymentservices\Fort\Block\Button" template="Amazonpaymentservices_Fort::express/product_button.phtml" ifconfig="payment/aps_apple/active" before="-" />
         </referenceBlock>
+        <block class="Magento\Catalog\Block\Product\View" name="product.custom.title" template="Amazonpaymentservices_Fort::custom/title.phtml" />
     </body>
+    <move element="product.custom.title" destination="product.info.main" after="product.info.price"/>
 </page>
 

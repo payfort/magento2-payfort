@@ -1,0 +1,15 @@
+<?php
+
+$_item = $block->getItem();
+$product = $_item->getProduct(); // Get cart product details
+$additional_data = $block->getSubscriptionData($product->getId()); // Get cart product additionl details defined in block page
+
+if ($additional_data['aps_product_subscription']) {
+    ?>
+
+    <div style=" font-weight: 700; color: #0093c9; ">Subscription Product</div>
+    <div>
+        <span style=" color: #0093c9; ">Frequency: <?= $additional_data['aps_product_subscription_frequency_count'].' '.$additional_data['aps_product_subscription_frequency']?></span>
+    </div>
+
+<?php } ?>

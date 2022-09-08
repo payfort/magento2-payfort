@@ -24,7 +24,24 @@ define(
         if (!customer.isLoggedIn()) {
             vaultSelected = 'newCard';
         }
-        
+        $(document).on(
+            'submit',
+            'form',
+            function (e) {
+                var formKeyElement,
+                    existingFormKeyElement,
+                    isKeyPresentInForm,
+                    form = $(e.target),
+                    formKey = $('input[name="form_key"]').val();
+                existingFormKeyElement = form.find('input[name="form_key"]');
+                isKeyPresentInForm = existingFormKeyElement.length;
+                if (isKeyPresentInForm && existingFormKeyElement.attr('auto-added-form-key') === '1') {
+                    isKeyPresentInForm = form.find('> input[name="form_key"]').length;
+                }
+                $('#frm_aps_fort_payment input[name=form_key]').remove();
+                $('#frm_aps_fort_payment input[name=form_key]').attr("disabled", "disabled");
+            }
+        );
         return Component.extend({
             defaults: {
                 template: 'Amazonpaymentservices_Fort/payment/aps-form'
@@ -100,11 +117,12 @@ define(
             
             afterPlaceOrder : function () {
                 if (vaultSelected == 'newCard') {
-                    $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_fort_cc.redirectUrl);
+                    var randomNum = new Date().getTime();
+                    $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_fort_cc.redirectUrl+"?id="+randomNum);
                 } else if (vaultSelected != 'newCard' && window.checkoutConfig.payment.apsFort.aps_fort_cc.integrationType == 'redirection') {
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_fort_vault.ajaxVaultUrl,
-                        type: 'get',
+                        type: 'post',
                         context: this,
                         data:{publicHash:vaultSelected},
                         dataType: 'json',
@@ -124,7 +142,7 @@ define(
                                         value: v
                                     }).appendTo($('#'+formId));
                                 });
-                                
+                                $('#'+formId +' input[name=form_key]').attr("disabled", "disabled");
                                 $('#'+formId).attr('action', response.url);
                                 $('#'+formId).submit();
                                 return false;
@@ -149,7 +167,7 @@ define(
                     var cvv = $("input[value='"+vaultSelected+"']").parent('.vault').find('.input-text').val();
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_fort_vault.ajaxVaultUrl,
-                        type: 'get',
+                        type: 'post',
                         context: this,
                         data:{publicHash:vaultSelected,cvv:cvv},
                         dataType: 'json',
@@ -169,7 +187,7 @@ define(
                                         value: v
                                     }).appendTo($('#'+formId));
                                 });
-                                
+                                $('#'+formId +' input[name=form_key]').attr("disabled", "disabled");
                                 $('#'+formId).attr('action', response.url);
                                 $('#'+formId).submit();
                                 return false;

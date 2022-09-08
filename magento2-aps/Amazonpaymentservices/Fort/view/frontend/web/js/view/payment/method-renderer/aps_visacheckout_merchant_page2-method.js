@@ -28,7 +28,24 @@ define(
         'use strict';
         var visaData = {};
         var self = this;
-        
+        $(document).on(
+            'submit',
+            'form',
+            function (e) {
+                var formKeyElement,
+                    existingFormKeyElement,
+                    isKeyPresentInForm,
+                    form = $(e.target),
+                    formKey = $('input[name="form_key"]').val();
+                existingFormKeyElement = form.find('input[name="form_key"]');
+                isKeyPresentInForm = existingFormKeyElement.length;
+                if (isKeyPresentInForm && existingFormKeyElement.attr('auto-added-form-key') === '1') {
+                    isKeyPresentInForm = form.find('> input[name="form_key"]').length;
+                }
+                $('#frm_aps_fort_payment input[name=form_key]').remove();
+                $('#frm_aps_fort_payment input[name=form_key]').attr("disabled", "disabled");
+            }
+        );
         return Component.extend({
             validateHandler: null,
             defaults: {
@@ -121,7 +138,7 @@ define(
             afterPlaceOrder: function () {
                 $.ajax({
                     url: window.checkoutConfig.payment.apsFort.aps_fort_visaco.response,
-                    type: 'get',
+                    type: 'post',
                     context: this,
                     data : {callid : visaData.callid},
                     dataType: 'json',

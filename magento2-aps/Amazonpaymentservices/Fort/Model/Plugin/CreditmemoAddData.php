@@ -115,7 +115,27 @@ class CreditmemoAddData
             $shipAmount = isset($postParams['creditmemo']['shipping_amount']) ? ((float)$postParams['creditmemo']['shipping_amount'] * $amountRate) : 0;
             $adjustAmount = isset($postParams['creditmemo']['adjustment_positive']) ? ((float)$postParams['creditmemo']['adjustment_positive'] * $amountRate) : 0;
             $adjustNegative = isset($postParams['creditmemo']['adjustment_negative']) ? ((float)$postParams['creditmemo']['adjustment_negative'] * $amountRate) : 0;
-            $amount += $shipAmount + $adjustAmount - $adjustNegative;
+
+            $taxAmount = 0;
+            if($shipAmount > 0) {
+                $shippingTax = $order->getShippingInclTax() - $order->getShippingAmount();
+                if($shippingTax > 0) {
+                    $shippingTaxPer =  $shippingTax/$order->getShippingAmount()*100;
+                    $taxAmount = $shipAmount*$shippingTaxPer/100;
+                }
+            }
+            $this->_helper->log("Shipping Tax amount: ".$taxAmount);
+
+            if($amount > 0) {
+                $orderTax = $order->getSubtotalInclTax() - $order->getSubtotal();
+                if($orderTax > 0) {
+                    $orderTaxPer =  $orderTax/$order->getSubtotal()*100;
+                    $taxAmount  += $amount*$orderTaxPer/100;
+                }
+            }
+            $this->_helper->log("Creditmemo with Shipping Tax amount : ".$taxAmount);
+
+            $amount += $shipAmount + $adjustAmount - $adjustNegative + $taxAmount;
 
             if ((\Amazonpaymentservices\Fort\Model\Method\Valu::CODE == $paymentMethod || \Amazonpaymentservices\Fort\Model\Method\Naps::CODE == $paymentMethod) && $amount != $orderTotal) {
                 $this->_helper->log("\n\n Partial Refund is not allowed for this payment method(".$paymentMethod."). (order id: ".$postParams['order_id'].") \n\n");
@@ -140,7 +160,7 @@ class CreditmemoAddData
                 $creditMemoTotal = $this->getCreditMemosTotal($creditmemos);
                 
                 $orderRemainingAmount = $orderTotal - $creditMemoTotal;
-                if ($orderRemainingAmount < $amount) {
+                if (!$orderRemainingAmount >= $amount) {
                     $this->_helper->log("You cannot refund as Refund amount(".$amount.") is greater than order Remaining amount(".$orderRemainingAmount.").");
                     throw new \Exception("You cannot refund as Refund amount is greater than order Remaining amount.");
                 }
@@ -152,7 +172,7 @@ class CreditmemoAddData
             if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
                 $orderIncrementId = $order->getApsValuRef();
             }
-            $response = $this->_helper->apsRefund($orderIncrementId, $currencyCode, $amount, $paymentMethod);
+            $response = $this->_helper->apsRefund($orderIncrementId, $currencyCode, $amount, $paymentMethod, $order);
 
             if ($response['response_code'] != '06000') {
                 throw new \Exception('Amazon Payment Service Error : '.$response['response_message']);

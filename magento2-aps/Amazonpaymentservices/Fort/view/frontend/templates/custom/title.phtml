@@ -1,0 +1,53 @@
+<?php
+/**
+ * Copyright © Amazon Payment Service, All rights reserved.
+ */
+
+ /** @var \Magento\Catalog\Block\Product\View $block */
+$product = $block->getProduct();
+
+if (!empty($product)) {
+
+/** @var \Magento\Framework\App\ObjectManager $objectManager */
+    $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+
+/** @var \Magento\Framework\App\ResourceConnection $resource */
+    $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+
+/** @var / getConnection function from resounce $connection */
+    $connection = $resource->getConnection();
+
+/** @var / get id of aps_sub_enabled product attribute $apsSubEnabled */
+    $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+    $apsSubEnabled = $connection->fetchRow($query);
+
+/** @var / get id of aps_sub_interval product attribute $apsSubInterval */
+    $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+    $apsSubInterval = $connection->fetchRow($query);
+
+/** @var / get id of aps_sub_interval_count product attribute $apsSubIntervalCount */
+    $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+    $apsSubIntervalCount = $connection->fetchRow($query);
+
+/* @isSubscriptionProduct */
+    $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $product->getId());
+    $prodApsSubEnabled = $connection->fetchRow($query);
+
+    ?>
+
+    <?php
+    if (!empty($prodApsSubEnabled)) {
+
+        $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $product->getId());
+        $prodApsSubInterval = $connection->fetchRow($query);
+
+        $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $product->getId());
+        $prodApsSubIntervalCount = $connection->fetchRow($query);
+        
+        if (!empty($prodApsSubInterval) && !empty($prodApsSubIntervalCount)) { ?>
+            <?= $prodApsSubIntervalCount['value'] == 1 ? "<span style='font-size: 12px; color: #006abc;'><strong style='font-size: 12px;'>Subscription product - </strong>subscription will charge every ".$prodApsSubInterval['value'].".</span><br>" : "<span style='font-size: 12px; color: #006abc;'><strong style='font-size: 12px;'>Subscription product - </strong>subscription will charge after every ".sprintf("%02d", $prodApsSubIntervalCount['value']).' '.$prodApsSubInterval['value']."s.</span><br>"; ?>
+            <?php
+        }
+    }
+}
+?>

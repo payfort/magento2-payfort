@@ -72,6 +72,10 @@ class Sadad extends \Amazonpaymentservices\Fort\Model\Payment
             return false;
         }
         
+        if (!$this->_helper->checkSubscriptionItemInCart()) {
+            return false;
+        }
+        
         return parent::isAvailable($quote);
     }
 }

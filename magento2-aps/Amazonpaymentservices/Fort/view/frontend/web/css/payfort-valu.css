@@ -130,3 +130,13 @@
 .btn-accept{
     margin-right: 10px!important;
 }
+.stcpay .stchide{
+    display: none;
+}
+.stcpay .stcgroup{
+    border: none;
+}
+.stcpay .payment-icon {
+    margin-top: -7px;
+    margin-left: 10px;
+}

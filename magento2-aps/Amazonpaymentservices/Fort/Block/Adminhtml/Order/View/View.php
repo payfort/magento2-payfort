@@ -15,7 +15,8 @@ class View extends \Magento\Backend\Block\Template
         \Amazonpaymentservices\Fort\Model\Method\Apple::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE
+        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE
     ];
 
     public function isApsPaymentMethod($paymentMethod)
@@ -34,9 +35,23 @@ class View extends \Magento\Backend\Block\Template
         $order = $orderRepository->get($orderId);
         $payment = $order->getPayment();
         $data = $payment->getAdditionalData();
-        $sendData['additionalData'] = json_decode($data, true);
+        $sendData['additionalData'] = [];
+        if (!empty($data)) {
+            $sendData['additionalData'] = json_decode($data, true);
+        }
         $sendData['payment'] = $order->getPayment()->toArray();
         
         return $sendData;
+    }
+
+    public function fetchAllQuery($query)
+    {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
+        $connection = $resource->getConnection();
+        //@codingStandardsIgnoreStart
+        $queryResponse = $connection->fetchAll($query);
+        //@codingStandardsIgnoreEnd
+        return $queryResponse;
     }
 }

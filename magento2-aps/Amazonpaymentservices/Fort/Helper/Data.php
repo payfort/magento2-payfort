@@ -25,6 +25,8 @@ use Magento\Framework\HTTP\PhpEnvironment\RemoteAddress;
 use Magento\Framework\Controller\ResultFactory;
 use Amazonpaymentservices\Fort\Model\Payment;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
+use Magento\Sales\Model\Service\InvoiceService;
+use Magento\Framework\DB\TransactionFactory;
 
 /**
  * Amazonpaymentservices Payment Helper
@@ -157,6 +159,11 @@ class Data extends \Magento\Payment\Helper\Data
     protected $_order;
 
     protected $_cart;
+    
+    protected $invoiceService;
+
+    protected $transaction;
+
 
     /**
      * @var \Magento\Sales\Model\Order\CreditmemoFactory
@@ -172,6 +179,11 @@ class Data extends \Magento\Payment\Helper\Data
      * @var \Magento\Quote\Model\QuoteManagement
      */
     protected $quoteManagement;
+
+    /**
+     * @var Resource Connection
+     */
+    public $_connection;
     
     protected $_date;
 
@@ -201,6 +213,7 @@ class Data extends \Magento\Payment\Helper\Data
     const PAYMENT_METHOD_INSTALLMENT = 'aps_installment';
     const PAYMENT_METHOD_VALU = 'aps_fort_valu';
     const PAYMENT_METHOD_VISACHECKOUT = 'aps_fort_visaco';
+    const PAYMENT_METHOD_STC = 'aps_fort_stc';
     const VALU_API_FAILED_STATUS  = '15777';
     const VALU_API_FAILED_RESPONSE_CODE  = '15777';
     const PAYMENT_METHOD_CAPTURE_STATUS = '04000';
@@ -215,7 +228,8 @@ class Data extends \Magento\Payment\Helper\Data
         \Amazonpaymentservices\Fort\Model\Method\Apple::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE
+        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE
     ];
 
     const APS_ONHOLD_RESPONSE_CODES = [
@@ -284,7 +298,10 @@ class Data extends \Magento\Payment\Helper\Data
         \Magento\Vault\Api\Data\PaymentTokenInterface $paymentTokenInterface,
         \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $salesCollectionFactory,
         \Magento\Sales\Api\Data\OrderInterface $orderInterface,
-        \Magento\Framework\Module\ResourceInterface $moduleResourceInterface
+        \Magento\Framework\Module\ResourceInterface $moduleResourceInterface,
+        \Magento\Framework\App\ResourceConnection $connect,
+        InvoiceService $invoiceService,
+        transactionFactory $transaction
     ) {
         parent::__construct($context, $layoutFactory, $paymentMethodFactory, $appEmulation, $paymentConfig, $initialConfig);
         $this->_storeManager = $storeManager;
@@ -328,6 +345,9 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_salesCollectionFactory = $salesCollectionFactory;
         $this->_orderInterface = $orderInterface;
         $this->_moduleResourceInterface = $moduleResourceInterface;
+        $this->_connection = $connect;
+        $this->invoiceService = $invoiceService;
+        $this->transaction = $transaction;
         $this->apsCookieUpdate();
     }
     
@@ -372,7 +392,20 @@ class Data extends \Magento\Payment\Helper\Data
             'merchant_reference'  => $orderId,
             'language'            => $language,
         ];
-        if ($integrationType == self::INTEGRATION_TYPE_REDIRECTION) {
+        if ($paymentMethod == self::PAYMENT_METHOD_STC) {
+            $baseCurrency                    = $this->getBaseCurrency();
+            $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
+            $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
+            $amount                          = $this->convertFortAmount($order, $currency);
+            $this->_gatewayParams['currency']       = strtoupper($currency);
+            $this->_gatewayParams['amount']         = $amount;
+            $this->_gatewayParams['customer_email'] = trim($order->getCustomerEmail());
+            $this->_gatewayParams['command']        = $this->getMainConfigData('command');
+            $this->_gatewayParams['digital_wallet'] = 'STCPAY';
+            $this->_gatewayParams['return_url']     = $this->getReturnUrl('amazonpaymentservicesfort/payment/stcResponseOnline');
+            $this->_gatewayParams['token_name'] = $postData['stcToken'];
+            $this->_gatewayParams['remember_me'] = "YES";
+        } elseif ($integrationType == self::INTEGRATION_TYPE_REDIRECTION) {
             $baseCurrency                    = $this->getBaseCurrency();
             $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
             $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
@@ -429,7 +462,7 @@ class Data extends \Magento\Payment\Helper\Data
         if ($paymentMethod == self::PAYMENT_METHOD_INSTALLMENT && $integrationType == self::INTEGRATION_TYPE_HOSTED) {
             $this->_gatewayParams['remember_me'] = isset($postData['rememberMe']) ? $postData['rememberMe'] : 'NO';
         }
-        if ($paymentMethod == self::PAYMENT_METHOD_CC && $this->getConfig('payment/aps_installment/integration_type') == self::INTEGRATION_TYPE_EMBEDED) {
+        if ($paymentMethod == self::PAYMENT_METHOD_CC && $integrationType == self::INTEGRATION_TYPE_HOSTED && $this->getConfig('payment/aps_installment/integration_type') == self::INTEGRATION_TYPE_EMBEDED) {
             $this->_gatewayParams['remember_me'] = isset($postData['rememberMe']) ? $postData['rememberMe'] : 'NO';
         }
 
@@ -757,6 +790,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $products[0]['product_name'] = substr($products[0]['product_name'], 0, 50);
         $products[0]['product_category'] = substr($products[0]['product_category'], 0, 50);
+        $products[0]['product_category'] = empty($products[0]['product_category']) ? 'Uncategorized' : $products[0]['product_category'];
         $products[0]['product_price'] = $products[0]['product_price'] + ($discountAmount * 100);
         return $products;
     }
@@ -1129,7 +1163,9 @@ class Data extends \Magento\Payment\Helper\Data
         $apsParams = [];
         foreach ($collections as $collection) {
             $apsParams = $collection->getApsParams();
-            $apsParams = json_decode($apsParams, 1);
+            if (!empty($apsParams)) {
+                $apsParams = json_decode($apsParams, 1);
+            }
         }
         
         if (!empty($apsParams['plan_code'])) {
@@ -1361,7 +1397,7 @@ class Data extends \Magento\Payment\Helper\Data
             return $array_result;
             
         } catch (\Exception $e) {
-            $this->log("Call API :".json_encode($e));
+            $this->log("Call API :".$e->getMessage());
             return false;
         }
     }
@@ -1394,7 +1430,10 @@ class Data extends \Magento\Payment\Helper\Data
             $shaOutPassPhrase = $this->getMainConfigData('sha_out_pass_phrase');
             $shaType = $this->getMainConfigData('sha_type');
         }
-        
+        //@codingStandardsIgnoreStart
+        $shaInPassPhrase = html_entity_decode(htmlentities($shaInPassPhrase));
+        $shaOutPassPhrase = html_entity_decode(htmlentities($shaOutPassPhrase));
+        //@codingStandardsIgnoreEnd
         $shaString = '';
 
         ksort($arrData);
@@ -1452,6 +1491,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $productName = substr($productName, 0, 50);
         $productCategory = substr($productCategory, 0, 50);
+        $productCategory = empty($productCategory) ? 'Uncategorized' : $productCategory;
         $productsString .= '{product_name='.$productName.', product_price='.$productPrice.', product_category='.$productCategory.'}';
         $productsString .= ']';
         return $productsString;
@@ -1660,7 +1700,7 @@ class Data extends \Magento\Payment\Helper\Data
     private function isReturnItemsToInventoryRequired()
     {
         $version = $this->getMagentoVersion();
-        return version_compare($version, "2.2.4", ">=");
+        return version_compare($version, "2.3", ">=");
     }
 
     /**
@@ -1746,6 +1786,7 @@ class Data extends \Magento\Payment\Helper\Data
                     $order->save();
                     $order->addStatusToHistory($order::STATE_HOLDED, $reason, false);
                     $order->save();
+                    $this->apsSubscriptionOrder($order, 0);
                     return true;
                 }
             } elseif ($order->getState() != $order::STATE_CANCELED) {
@@ -1754,6 +1795,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $order->save();
                 $order->addStatusToHistory($order::STATE_CANCELED, $reason, false);
                 $order->save();
+                $this->apsSubscriptionOrder($order, 0);
                 return true;
             }
         }
@@ -1950,10 +1992,13 @@ class Data extends \Magento\Payment\Helper\Data
         return ['success' => $success, 'order' => $order];
     }
 
-    public function apsRefund($orderId, $currencyCode, $amount, $paymentMethod)
+    public function apsRefund($orderId, $currencyCode, $amount, $paymentMethod, $order)
     {
         $language = $this->getLanguage();
         $amount = $this->convertAmount($amount, $currencyCode);
+        if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
+            $orderId = $order->getApsStcRef();
+        }
         $data = [
             "command"             => 'REFUND',
             "access_code"         => $this->getMainConfigData('access_code'),
@@ -1985,7 +2030,7 @@ class Data extends \Magento\Payment\Helper\Data
         $type = '';
         $access_code = $this->getMainConfigData('access_code');
         $merchant_identifier = $this->getMainConfigData('merchant_identifier');
-        if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Apple::Code) {
+        if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Apple::CODE) {
             $type = 'apple_pay';
             $access_code = $this->getConfig('payment/aps_apple/apple_access_code');
             $merchant_identifier = $this->getConfig('payment/aps_apple/merchant_identifier');
@@ -2049,7 +2094,8 @@ class Data extends \Magento\Payment\Helper\Data
             $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order has been paid.', true);
             $order->save();
             $this->log('process order2');
-            if (!empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
+            $paymentMethod = $order->getPayment()->getMethod();
+            if ($paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Stc::CODE && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
                 $this->log('process order3');
                 $this->log('process order4');
                 $year = substr($responseParams['expiry_date'], 0, 2);
@@ -2072,6 +2118,7 @@ class Data extends \Magento\Payment\Helper\Data
             }
             $this->log('process order8');
             $this->sendInvoiceEmail($invoice);
+            $this->apsSubscriptionOrder($order, 1);
             
             return true;
         }
@@ -2080,6 +2127,7 @@ class Data extends \Magento\Payment\Helper\Data
 
     private function saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month)
     {
+        $entityID = '';
         if (empty($tokenobjectManagerDuplicate)) {
             $this->log('process order6');
             $_paymentToken = $this->_modelPaymentToken;
@@ -2094,6 +2142,7 @@ class Data extends \Magento\Payment\Helper\Data
             $_paymentToken->setIsActive(true);
             $_paymentToken->setIsVisible(true);
             $_paymentToken->save();
+            $entityID = $_paymentToken->getEntityId();
         } else {
             $this->log('process order7');
             $_paymentToken = $this->_paymentTokenInterface;
@@ -2109,7 +2158,17 @@ class Data extends \Magento\Payment\Helper\Data
             $_paymentToken->setIsVisible(true);
             $paymentToken = $this->_modelPaymentToken;
             $paymentToken->save($_paymentToken);
+            $entityID = $paymentToken->getEntityId();
         }
+
+        $connection = $this->_connection->getConnection();
+        $connection->insert(
+            $this->_connection->getTableName('vault_payment_token_order_payment_link'),
+            [
+                'order_payment_id' => $order->getPayment()->getEntityId(),
+                'payment_token_id' => $entityID
+            ]
+        );
     }
 
     /**
@@ -2146,7 +2205,7 @@ class Data extends \Magento\Payment\Helper\Data
      *
      * @return \Magento\Sales\Model\Order
      */
-    protected function getOrderById($order_id)
+    public function getOrderById($order_id)
     {
         $order_info = $this->_order->loadByIncrementId($order_id);
         return $order_info;
@@ -2188,7 +2247,7 @@ class Data extends \Magento\Payment\Helper\Data
             $notIncludedParams = ['signature', 'aps_fort', 'integration_type','form_key'];
 
             $responseType          = isset($responseParams['response_message']) ? $responseParams['response_message'] : '';
-            $signature             = $responseParams['signature'];
+            $signature             = isset($responseParams['signature']) ? $responseParams['signature'] : '';
             $responseOrderId       = $orderId;
             $responseStatus        = isset($responseParams['status']) ? $responseParams['status'] : '';
             $responseCode          = isset($responseParams['response_code']) ? $responseParams['response_code'] : '';
@@ -2252,6 +2311,25 @@ class Data extends \Magento\Payment\Helper\Data
             $collections = $this->_salesCollectionFactory->create()
                 ->addAttributeToSelect('*')
                 ->addFieldToFilter('aps_valu_ref', ['eq'=>$responseParams['merchant_reference']]);
+            foreach ($collections as $collection) {
+                $orderId = $collection->getIncrementId();
+            }
+        }
+        if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'STCPAY') {
+            
+            $collections = $this->_salesCollectionFactory->create()
+                ->addAttributeToSelect('*')
+                ->addFieldToFilter('aps_stc_ref', ['eq'=>$responseParams['merchant_reference']]);
+            foreach ($collections as $collection) {
+                $orderId = $collection->getIncrementId();
+            }
+        }
+
+        if (isset($responseParams['digital_wallet']) && $responseParams['digital_wallet'] == 'STCPAY') {
+            
+            $collections = $this->_salesCollectionFactory->create()
+                ->addAttributeToSelect('*')
+                ->addFieldToFilter('aps_stc_ref', ['eq'=>$responseParams['merchant_reference']]);
             foreach ($collections as $collection) {
                 $orderId = $collection->getIncrementId();
             }
@@ -2457,6 +2535,7 @@ class Data extends \Magento\Payment\Helper\Data
         
         $creditMemoData['items'] = $itemToCredit;
         try {
+            $orderIncId = $orders->getId();
             $this->creditmemoLoader->setOrderId($orderIncId); //pass order id
             $this->creditmemoLoader->setCreditmemo($creditMemoData);
 
@@ -2529,13 +2608,305 @@ class Data extends \Magento\Payment\Helper\Data
         }
     }
 
+    public function apsSubscriptionOrder($order, $status)
+    {
+        /**
+         * ---START---
+         * IF PRODUCT (ITEM) IS A SUBSCRIPTION ITEM
+         * THEN BELOW CODE WILL SAVE THE ITEM TO SUBSCRIPTION TABLES
+         */
+         
+        $connection = $this->_connection->getConnection();
+
+        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+        $apsSubEnabled = $connection->fetchRow($query);
+
+        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+        $apsSubInterval = $connection->fetchRow($query);
+
+        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+        $apsSubIntervalCount = $connection->fetchRow($query);
+        
+        foreach ($order->getAllItems() as $item) {
+            
+            /* @isSubscriptionProduct */
+            $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+            $prodApsSubEnabled = $connection->fetchRow($query);
+            
+            if (!empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
+                
+                /* @Subscription Interval */
+                $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+                $prodApsSubInterval = $connection->fetchRow($query);
+
+                /* @Subscription Interval Count*/
+                $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+                $prodApsSubIntervalCount = $connection->fetchRow($query);
+                
+                $subscriptionStartDate = date('Y-m-d', strtotime('now'));
+                $nextPaymentDate = date('Y-m-d', strtotime('+'.$prodApsSubIntervalCount['value'].' '.$prodApsSubInterval['value'], strtotime('now')));
+                
+                $this->apsSubscriptionDataSave($item, $order, $subscriptionStartDate, $nextPaymentDate, $status);
+            }
+        }
+    }
+
+    private function apsSubscriptionDataSave($item, $order, $subscriptionStartDate, $nextPaymentDate, $status)
+    {
+        $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApssubscriptionsFactory')->create();
+
+        $model->setProductId($item->getProductId());
+        $model->setProductName($item->getName());
+        $model->setProductSku($item->getSku());
+        $model->setOrderId($order->getId());
+        $model->setOrderIncrementId($order->getIncrementId());
+        $model->setQty($item->getQtyInvoiced());
+        $model->setCustomerId($order->getCustomerId());
+        $model->setItemId($item->getItemId());
+        $model->setSubscriptionStartDate($subscriptionStartDate);
+        $model->setNextPaymentDate($nextPaymentDate);
+        $model->setSubscriptionStatus($status);
+        $model->setCreatedAt(date('Y-m-d H:i:s'));
+        $model->setUpdatedAt(date('Y-m-d H:i:s'));
+
+        $model->save();
+        $apsSubscriptionId = $model->getId();
+
+        $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApssubscriptionordersFactory')->create();
+
+        $model->setApsSubscriptionId($apsSubscriptionId);
+        $model->setOrderId($order->getId());
+        $model->setOrderIncrementId($order->getIncrementId());
+        $model->setCustomerId($order->getCustomerId());
+        $model->setItemId($item->getItemId());
+        $model->setCreatedAt(date('Y-m-d H:i:s'));
+        $model->setUpdatedAt(date('Y-m-d H:i:s'));
+        $model->save();
+    }
+
+    public function apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, $status, $order)
+    {
+        /**
+         * ---START---
+         * IF PRODUCT (ITEM) IS A SUBSCRIPTION ITEM
+         * THEN BELOW CODE WILL SAVE THE ITEM TO SUBSCRIPTION TABLES
+         */
+        try {
+            $connection = $this->_connection->getConnection();
+
+            $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+            $apsSubEnabled = $connection->fetchRow($query);
+            $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+            $apsSubInterval = $connection->fetchRow($query);
+
+            $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+            $apsSubIntervalCount = $connection->fetchRow($query);
+            
+            foreach ($newOrder->getAllItems() as $item) {
+                $this->saveSubscriptionData($item, $apsSubEnabled, $apsSubInterval, $apsSubIntervalCount, $subscriptionOrderId, $status, $newOrder);
+            }
+        } catch (\Exception $e) {
+            $order->addStatusHistoryComment('APS :: Failed to create child order.', true);
+            $order->save();
+            $this->cancelSubscription($subscriptionOrderId);
+            $this->log("Cron Job failed for Order:".$order->getId());
+            $this->log($e->getMessage());
+            
+            return false;
+        }
+    }
+
+    private function saveSubscriptionData($item, $apsSubEnabled, $apsSubInterval, $apsSubIntervalCount, $subscriptionOrderId, $status, $newOrder)
+    {
+        /* @isSubscriptionProduct */
+        $connection = $this->_connection->getConnection();
+        $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+        $prodApsSubEnabled = $connection->fetchRow($query);
+        
+        /* @Subscription Interval */
+        $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+        $prodApsSubInterval = $connection->fetchRow($query);
+        
+        /* @Subscription Interval Count*/
+        $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+        $prodApsSubIntervalCount = $connection->fetchRow($query);
+        
+        $date_now = date('Y-m-d H:i:s', strtotime('now'));
+        $nextPaymentDate = date('Y-m-d', strtotime('+'.$prodApsSubIntervalCount['value'].' '.$prodApsSubInterval['value'], strtotime('now')));
+
+        $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApssubscriptionsFactory')->create();
+        
+        $model->load($subscriptionOrderId);
+
+        if ($status == 1) {
+            $model->setNextPaymentDate($nextPaymentDate);
+        } else {
+            $model->setSubscriptionStatus($status);
+        }
+        $model->setUpdatedAt($date_now);
+        $model->save();
+        
+        $this->log('Order Next_Payment_Date is updated in aps_subscriptions table.');
+
+        $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApssubscriptionordersFactory')->create();
+        
+        $model->setApsSubscriptionId($subscriptionOrderId);
+        $model->setOrderId($newOrder->getId());
+        $model->setOrderIncrementId($newOrder->getIncrementId());
+        $model->setCustomerId($newOrder->getCustomerId());
+        $model->setItemId($item->getItemId());
+        $model->setCreatedAt(date('Y-m-d H:i:s'));
+        $model->setUpdatedAt(date('Y-m-d H:i:s'));
+        $model->save();
+
+        $this->log('New Order Detail entry is inserted in aps_subscription_orders table.');
+        $this->log('Subscription is taken now.');
+    }
+
+    public function apsSubscriptionPaymentApi(&$newOrder, $tokenName, $order, $remoteIp = '')
+    {
+        $responseParams = [];
+        try {
+            $paymentMethod = $newOrder->getPayment()->getMethod();
+            $orderId = $newOrder->getRealOrderId();
+            if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
+                $orderId = $order->getApsStcRef();
+                $connection = $this->_connection->getConnection();
+                $query = $connection->select()->from(['table'=>'aps_stc_token_order_relation'], ['token_name'])->where('table.order_increment_id=?', $orderId);
+                $cardList = $connection->fetchAll($query);
+                foreach ($cardList as $card) {
+                    $tokenName = $card['token_name'];
+                }
+            }
+            $language = $this->getLanguage();
+            $baseCurrency = $this->getBaseCurrency();
+            $orderCurrency = $newOrder->getOrderCurrency()->getCurrencyCode();
+            $currency = $this->getFortCurrency($baseCurrency, $orderCurrency);
+            $amount = $this->convertFortAmount($newOrder, $currency);
+            $remoteIp = !empty($newOrder->getRemoteIp()) ? $newOrder->getRemoteIp() : $remoteIp;
+            $gatewayParams         = [
+                'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
+                'access_code'         => $this->getMainConfigData('access_code'),
+                'command'             => \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE,
+                'merchant_reference'  => $orderId,
+                'amount'              => $this->convertFortAmount($newOrder, $currency),
+                'currency'            => strtoupper($currency),
+                'customer_ip'         => $remoteIp,
+                'language'            => $language,
+                'customer_email'      => trim($newOrder->getCustomerEmail()),
+                'eci'                 => 'RECURRING',
+                'token_name'          => $tokenName,
+                'return_url'          => $this->getReturnUrl('amazonpaymentservicesfort/payment/responseOnline')
+            ];
+            if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
+                $gatewayParams['digital_wallet'] = "STCPAY";
+            }
+            $signature = $this->calculateSignature($gatewayParams, 'request');
+            $gatewayParams['signature'] = $signature;
+            $this->log('API PARAM: '.json_encode($gatewayParams));
+            $gatewayUrl = $this->getGatewayUrl('notificationApi');
+            $responseParams = $this->callApi($gatewayParams, $gatewayUrl);
+            $payment = $invoice = '';
+            if ($responseParams['response_code'] == '14000') {
+            
+                $payment = $newOrder->getPayment();
+                $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
+                $payment->setAdditionalInformation($responseParams['merchant_reference']);
+                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->save();
+                
+                try {
+                    
+                    $this->log('Gerenating Invoice: '.$newOrder->getId());
+                    $this->log('OrderData:'.json_encode($newOrder->getData()));
+
+                    $invoice = $this->invoiceService->prepareInvoice($newOrder);
+                    if (!$invoice) {
+                        $this->_helper->log('Invoice not generated');
+                    } elseif (!$invoice->getTotalQty()) {
+                        $this->_helper->log('Invoice not generated');
+                    } else {
+                        $invoice->setRequestedCaptureCase(\Magento\Sales\Model\Order\Invoice::CAPTURE_OFFLINE);
+                        $invoice->register();
+                        $invoice->getOrder()->setCustomerNoteNotify(false);
+                        $invoice->getOrder()->setIsInProcess(true);
+                        $newOrder->addStatusHistoryComment('Automatically INVOICED', false);
+                        $transactionSave = $this->transaction->create()->addObject($invoice)->addObject($invoice->getOrder());
+                        $transactionSave->save();
+                        $this->_invoiceSender->send($invoice);
+
+                    }
+                } catch (\Exception $e) {
+                    $this->log("Failed in sending invoice:".$newOrder->getId());
+                    $this->log($e);
+                    return false;
+                }
+
+                try {
+                    $this->sendOrderEmail($newOrder);
+                    $this->log('Order Email Sent: '.$newOrder->getId());
+                } catch (\Exception $e) {
+                    $this->log("Failed in sending order mail:".$newOrder->getId());
+                    return false;
+                }
+            } else {
+                $payment = $newOrder->getPayment();
+                $payment->setAdditionalInformation($responseParams['merchant_reference']);
+                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->save();
+            }
+            return $responseParams;
+        } catch (\Exception $e) {
+            $order->addStatusHistoryComment('APS :: Failed to create child order.', true);
+            $order->save();
+            $this->cancelSubscription($subscriptionOrderId);
+            $this->log("Cron Job API failed for Order:".$order->getId());
+            $this->log($e->getMessage());
+            return $responseParams;
+        }
+    }
+
+    public function checkSubscriptionItemInCart()
+    {
+        /** This function is use in payment methods to remove methods while item is subscription */
+        $items = $this->_cart->getQuote()->getAllItems();
+        $connection = $this->_connection->getConnection();
+        
+        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+        $apsSubEnabled = $connection->fetchRow($query);
+        
+        foreach ($items as $item) {
+            $productEntityId = $item->getProductId();
+
+            /** @isSubscriptionProduct */
+            $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $productEntityId);
+            $prodApsSubEnabled = $connection->fetchRow($query);
+
+            if (!empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function fetchAllQuery($query)
+    {
+        $connection = $this->_connection->getConnection();
+        //@codingStandardsIgnoreStart
+        $queryResponse = $connection->fetchAll($query);
+        //@codingStandardsIgnoreEnd
+        return $queryResponse;
+    }
+
     public function apsCookieUpdate()
     {
         $sessionName = $this->getSessionName();
         $time = time() + $this->getConfig('web/cookie/cookie_lifetime');
         $id = $this->getSessionId();
         $time = gmdate("D, d-M-Y H:i:s T", $time);
+        //@codingStandardsIgnoreStart
         header('Set-Cookie: '.$sessionName.'=' . $id. '; expires='.$time.'; Path='.ini_get('session.cookie_path').'; SameSite=None; Secure=true; httponly='.ini_get('session.cookie_httponly').';domain='.ini_get('session.cookie_domain'));
+        //@codingStandardsIgnoreEnd
     }
 
     public function getSessionId()
@@ -2546,5 +2917,173 @@ class Data extends \Magento\Payment\Helper\Data
     public function getSessionName()
     {
         return $this->session->getName();
+    }
+
+    public function cancelSubscription($subscriptionOrderId)
+    {
+        $date_now = date('Y-m-d H:i:s', strtotime('now'));
+        $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApssubscriptionsFactory')->create();
+        $model->load($subscriptionOrderId);
+        $model->setSubscriptionStatus(0);
+        $model->setUpdatedAt($date_now);
+        $model->save();
+    }
+
+    public function getStcRequestParams($order, $integrationType)
+    {
+        $language = $this->getLanguage();
+        $orderId = $order->getRealOrderId();
+        $order->setData('aps_stc_ref', $orderId);
+        $order->setApsStcRef($orderId);
+        $order->save();
+        $gatewayParams = [
+            'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
+            'access_code'         => $this->getMainConfigData('access_code'),
+            'language'            => $language,
+            'merchant_reference'  => $orderId,
+        ];
+        $baseCurrency                    = $this->getBaseCurrency();
+        $orderCurrency                   = $this->_storeManager->getStore()->getCurrentCurrencyCode();
+        $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
+        $amount                          = $this->convertFortAmount($order, $currency);
+        $gatewayParams['currency']       = strtoupper($currency);
+        $gatewayParams['amount']         = $amount;
+        
+        $gatewayParams['customer_email'] = trim($order->getCustomerEmail());
+        $gatewayParams['command'] = \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE;
+        $gatewayParams['digital_wallet'] = 'STCPAY';
+        $gatewayParams['return_url']      = $this->getReturnUrl('amazonpaymentservicesfort/payment/stcResponseOnline');
+        $gatewayParams = array_merge($gatewayParams, $this->pluginParams());
+
+        $signature = $this->calculateSignature($gatewayParams, 'request');
+        $gatewayParams['signature'] = $signature;
+
+        $gatewayUrl = $this->getGatewayUrl();
+        $logMsg = "Request Params for payment method (STC) \n\n" . json_encode($gatewayParams, 1);
+        $this->log($logMsg);
+
+        return ['url' => $gatewayUrl, 'params' => $gatewayParams];
+    }
+
+    public function stcPayRequestOtp($order, $mobileNumber)
+    {
+        $refId = 'MA'.round(microtime(true) * 1000);
+        //$refId = '006200334';
+        $language = $this->getLanguage();
+        $orderId = $order->getRealOrderId();
+        $baseCurrency                    = $this->getBaseCurrency();
+        $orderCurrency                   = $this->_storeManager->getStore()->getCurrentCurrencyCode();
+        $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
+        $amount                          = $this->convertFortAmountCart($currency);
+
+        $data = [
+            "amount" => $amount,
+            "digital_wallet" => "STCPAY",
+            "merchant_identifier" => $this->getMainConfigData('merchant_identifier'),
+            "service_command" => "GENERATE_OTP",
+            "access_code" => $this->getMainConfigData('access_code'),
+            "merchant_reference" => $refId,
+            "currency" => strtoupper($currency),
+            "language" => $language,
+            "phone_number" => $mobileNumber
+        ];
+        $this->_custmerSession->setCustomValue(['refId' => $refId]);
+        $signature = $this->calculateSignature($data, 'request');
+        $data['signature'] = $signature;
+        $gatewayUrl = $this->getGatewayUrl('notificationApi');
+        $this->log(json_encode($data));
+        $responseParams = $this->callApi($data, $gatewayUrl);
+        return $responseParams;
+    }
+
+    public function getStcPaymentRequestParams($order, $postData = [])
+    {
+        $paymentMethod = $order->getPayment()->getMethod();
+        $sessionData = $this->_custmerSession->getCustomValue();
+        
+        $orderId = $order->getRealOrderId();
+        $language = $this->getLanguage();
+        $order->setData('aps_stc_ref', $sessionData['refId']);
+        $order->setApsStcRef($sessionData['refId']);
+        $order->save();
+        $this->_custmerSession->setCustomValue(['refId' =>$sessionData['refId'],'orderId' => $orderId]);
+        $this->_gatewayParams = [
+            'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
+            'access_code'         => $this->getMainConfigData('access_code'),
+            'merchant_reference'  => $sessionData['refId'],
+            'language'            => $language,
+        ];
+
+        $baseCurrency                    = $this->getBaseCurrency();
+        $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
+        $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
+        $amount                          = $this->convertFortAmount($order, $currency);
+        $this->_gatewayParams['currency']       = strtoupper($currency);
+        $this->_gatewayParams['amount']         = $amount;
+        $this->_gatewayParams['customer_email'] = trim($order->getCustomerEmail());
+        $this->_gatewayParams['command']        = 'PURCHASE';
+        $this->_gatewayParams['digital_wallet'] = 'STCPAY';
+        $this->_gatewayParams['otp']   = $postData['otp'];
+        $ip = $this->getVisitorIp();
+        $this->_gatewayParams['customer_ip']    = $ip;
+
+        $this->_gatewayParams['return_url']     = $this->getReturnUrl('amazonpaymentservicesfort/payment/stcResponse');
+        $this->_gatewayParams['remember_me']    = "YES";
+        $this->_gatewayParams['phone_number']   = $postData['mobileNumber'];
+        $this->_gatewayParams = array_merge($this->_gatewayParams, $this->pluginParams());
+        $signature = $this->calculateSignature($this->_gatewayParams, 'request');
+        $this->_gatewayParams['signature'] = $signature;
+        
+        $gatewayUrl = $this->getGatewayUrl('notificationApi');
+        $this->log("Request Data STC:".json_encode($this->_gatewayParams));
+        $responseParams = $this->callApi($this->_gatewayParams, $gatewayUrl);
+        
+        $integrationType = self::INTEGRATION_TYPE_REDIRECTION;
+        $success = $this->handleFortResponse($responseParams, 'online', $integrationType);
+        
+        $returnUrl = '';
+        if ($success) {
+            $this->stcSaveCard($order, $responseParams);
+            $returnUrl = $this->getUrl('checkout/onepage/success');
+        } else {
+            if ($order->getState() == $order::STATE_PROCESSING) {
+                $this->stcSaveCard($order, $responseParams);
+                $returnUrl = $this->getUrl('checkout/onepage/success');
+            } else {
+                if (isset($responseParams['response_message'])) {
+                    $this->_messageManager->addError($responseParams['response_message']);
+                }
+                $returnUrl = $this->getUrl('checkout/cart');
+            }
+        }
+        return ['url' => $returnUrl];
+    }
+
+    private function stcSaveCard($order, $responseParams)
+    {
+        if ($this->getConfig('payment/aps_fort_stc/token') == 1) {
+            $connection = $this->_connection->getConnection();
+            $query = $connection->select()->from(['table'=>'aps_stc_relation'], ['id'])->where('table.token_name=?', $responseParams['token_name']);
+            $stcTokenData = $connection->fetchRow($query);
+            if (empty($stcTokenData)) {
+                $connection->insert(
+                    $connection->getTableName('aps_stc_relation'),
+                    [
+                        'customer_id' => $order->getCustomerId(),
+                        'order_increment_id' => $order->getIncrementId(),
+                        'token_name' => $responseParams['token_name'],
+                        'phone_number' => $responseParams["phone_number"],
+                        'added_date' => date('Y-m-d H:i:s'),
+                    ]
+                );
+            }
+            $connection->insert(
+                $connection->getTableName('aps_stc_token_order_relation'),
+                [
+                    'order_increment_id' => $order->getIncrementId(),
+                    'token_name' => $responseParams['token_name']
+                ]
+            );
+        }
     }
 }

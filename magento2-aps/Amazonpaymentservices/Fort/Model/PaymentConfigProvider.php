@@ -53,7 +53,8 @@ class PaymentConfigProvider implements ConfigProviderInterface
         \Amazonpaymentservices\Fort\Model\Method\Apple::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE
+        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE
     ];
 
     /**
@@ -130,6 +131,8 @@ class PaymentConfigProvider implements ConfigProviderInterface
 
     protected $config;
 
+    protected $_connection;
+
     /**
      * @param PaymentHelper $paymentHelper
      * @param UrlInterface $urlBuilder
@@ -143,6 +146,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
         \Magento\Framework\Locale\Resolver $store,
         \Magento\Vault\Api\PaymentTokenManagementInterface $paymenttokenmanagement,
         \Magento\Customer\Model\Session $session,
+        \Magento\Framework\App\ResourceConnection $connect,
         ScopeConfigInterface $scopeConfig
     ) {
         $this->paymentHelper = $paymentHelper;
@@ -154,6 +158,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
         $this->paymenttokenmanagement = $paymenttokenmanagement;
         $this->session = $session;
         $this->scopeConfig = $scopeConfig;
+        $this->_connection = $connect;
         foreach ($this->_methodCodes as $code) {
             $this->methods[$code] = $this->paymentHelper->getMethodInstance($code);
         }
@@ -180,6 +185,9 @@ class PaymentConfigProvider implements ConfigProviderInterface
         $visaCoIntegrationType = $this->methods[\Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE]->getConfigData('integration_type');
         $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE]['integrationType'] = $visaCoIntegrationType;
 
+        $stcIntegrationType = $this->methods[\Amazonpaymentservices\Fort\Model\Method\Stc::CODE]->getConfigData('integration_type');
+        $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Stc::CODE]['integrationType'] = $stcIntegrationType;
+
         $vaultIntegrationType = $this->methods[\Amazonpaymentservices\Fort\Model\Method\Vault::CODE]->getConfigData('integration_type');
         $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Vault::CODE]['integrationType'] = $vaultIntegrationType;
        
@@ -203,6 +211,13 @@ class PaymentConfigProvider implements ConfigProviderInterface
 
                 if ($code == \Amazonpaymentservices\Fort\Model\Method\CC::CODE) {
                     $this->ccConfig($code);
+                }
+                if ($code == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
+                    $this->config['payment']['apsFort'][$code]['stcLogo'] = $this->getStcLogo();
+                    $this->config['payment']['apsFort'][$code]['getStcData']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/getStcPaymentData');
+                    $this->config['payment']['apsFort'][$code]['ajaxOtpUrl']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/stcpayotp');
+                    $this->config['payment']['apsFort'][$code]['tokenstatus']  = $this->apsHelper->getConfig('payment/aps_fort_stc/token');
+                    $this->stcConfig($code);
                 }
                 if ($code == \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE) {
                     $this->visaConfig($code);
@@ -249,6 +264,24 @@ class PaymentConfigProvider implements ConfigProviderInterface
             }
         }
         return $this->config;
+    }
+
+    private function stcConfig($code)
+    {
+        if ($this->apsHelper->getConfig('payment/aps_fort_stc/token')) {
+            $customerId = $this->session->getCustomer()->getId();
+            $connection = $this->_connection->getConnection();
+            $query = $connection->select()->from(['table'=>'aps_stc_relation'], ['token_name','phone_number'])->where('table.customer_id=?', $customerId);
+            $cardList = $connection->fetchAll($query);
+            $temp=0;
+            foreach ($cardList as $card) {
+                $this->config['payment']['apsFort'][$code]['data'][$temp]['token_name'] = $card['token_name'];
+                $this->config['payment']['apsFort'][$code]['data'][$temp]['phone_number'] = $card['phone_number'];
+                $temp++;
+            }
+        } else {
+            $this->config['payment']['apsFort'][$code]['data'] = [];
+        }
     }
 
     private function getCardImages()
@@ -420,6 +453,12 @@ class PaymentConfigProvider implements ConfigProviderInterface
     protected function getCardLogoImg($imgName)
     {
         $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/logos/'.$imgName);
+        return $output;
+    }
+
+    protected function getStcLogo()
+    {
+        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/stcpay.png');
         return $output;
     }
 

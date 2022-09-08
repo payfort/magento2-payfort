@@ -26,7 +26,7 @@
                 if (config.tokentype == 'aps_fort') {
                     $.ajax({
                         url: config.url,
-                        type: 'get',
+                        type: 'post',
                         context: this,
                         data:{publicHash:config.publicHash},
                         dataType: 'json',

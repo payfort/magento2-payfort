@@ -77,7 +77,9 @@ class SwitchSameSite
     {
         if (!count($this->affectedKeys)) {
             $affectedKeys = $this->scopeConfig->getValue(self::CONFIG_AFFECTED_KEYS, ScopeInterface::SCOPE_STORE);
-            $this->affectedKeys = explode(',', strtolower($affectedKeys));
+            if (!empty($affectedKeys)) {
+                $this->affectedKeys = explode(',', strtolower($affectedKeys));
+            }
         }
 
         return in_array(strtolower($name), $this->affectedKeys);

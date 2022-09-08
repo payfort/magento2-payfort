@@ -26,9 +26,9 @@
             name="vaultHash"
             class="radio"
             data-bind="value: item.public_hash,
-            event:{click: $parent.newCard}"
+            event:{click: $parent.newCard}, attr: { 'id': 'cardi'+ item.public_hash }"
             />
-            <label class="label">
+            <label class="label" data-bind="attr: { 'for': 'cardi'+ item.public_hash }">
                 <img data-bind="attr: {
                 'src': item.typename,
                 }" class="payment-icon">
@@ -218,7 +218,7 @@
                         value="YES"
                                class="input-text remember_me"
                                name="payment[remember_me]"
-                               data-bind="attr: {id: getCode() + '_remember_me'" />
+                               data-bind="attr: {id: getCode() + '_remember_me'}" />
                     <label data-bind="attr: {for: getCode() + '_remember_me'}" class="label">
                         <span><!-- ko i18n: 'Save My Card'--><!-- /ko --></span>
                     </label>

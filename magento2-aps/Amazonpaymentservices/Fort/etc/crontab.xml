@@ -5,4 +5,9 @@
 			<schedule>0 * * * *</schedule>
 		</job>
 	</group>
+	<group id="aps_subscription_cron">
+		<job instance="Amazonpaymentservices\Fort\Cron\PlaceSubscriptionOrder" method="execute" name="aps_fort_subscription_cron">
+			<schedule>0 */4 * * *</schedule>
+		</job>
+	</group>
 </config>

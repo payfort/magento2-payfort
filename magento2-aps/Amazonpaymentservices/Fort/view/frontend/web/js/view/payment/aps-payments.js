@@ -50,6 +50,10 @@ define(
             {
                 type: 'aps_fort_visaco',
                 component: window.checkoutConfig.payment.apsFort.aps_fort_visaco.integrationType == 'hosted' ? 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_visacheckout_merchant_page2-method' : 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_visacheckout_redirect'
+            },
+            {
+                type: 'aps_fort_stc',
+                component: window.checkoutConfig.payment.apsFort.aps_fort_stc.integrationType == 'hosted' ? 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_stc-merchant' : 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_stc'
             }
         );
 

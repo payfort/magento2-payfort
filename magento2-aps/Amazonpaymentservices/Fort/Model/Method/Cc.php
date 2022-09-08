@@ -287,11 +287,15 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
         }
              
         $info = $this->getInfoInstance();
+        $ccLastDigits = '';
+        if (!empty($additionalData->getCcNumber())) {
+            $ccLastDigits = substr($additionalData->getCcNumber(), -4);
+        }
         $info->addData(
             [
                 'cc_type' => $additionalData->getCcType(),
                 'cc_owner' => $additionalData->getCcOwner(),
-                'cc_last_4' => substr($additionalData->getCcNumber(), -4),
+                'cc_last_4' => $ccLastDigits,
                 'cc_number' => $additionalData->getCcNumber(),
                 'cc_cid' => $additionalData->getCcCid(),
                 'cc_exp_month' => $additionalData->getCcExpMonth(),

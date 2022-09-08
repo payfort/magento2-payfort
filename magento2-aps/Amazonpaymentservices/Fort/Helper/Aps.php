@@ -80,7 +80,7 @@ class Aps extends \Magento\Payment\Helper\Data
         $certificate_path = $mediapath.'/aps/certificate_keys/'.$this->apsHelper->getConfig('payment/aps_apple/apple_certificate_pem');
         $read = $this->_driver->create($certificate_path, \Magento\Framework\Filesystem\DriverPool::FILE);
         $merchantidentifier = '';
-        if($read) {
+        if ($read) {
             $content = $read->readAll();
             $merchantidentifier = openssl_x509_parse($content)['subject']['UID'];
         }

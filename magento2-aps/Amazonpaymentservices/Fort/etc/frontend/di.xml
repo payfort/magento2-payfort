@@ -43,4 +43,13 @@
                 type="Amazonpaymentservices\Fort\Plugin\SwitchSameSite"
                 sortOrder="10"/>
     </type>
+    <type name="Magento\Checkout\CustomerData\DefaultItem">
+        <plugin name="subscription_data_custom" type="Amazonpaymentservices\Fort\Plugin\Checkout\CustomerData\DefaultItem" disabled="false" sortOrder="10"/>
+    </type>
+
+    <type name="Magento\Checkout\Model\DefaultConfigProvider">
+        <plugin name="subscription_order_summary_data_custom" type="Amazonpaymentservices\Fort\Plugin\Checkout\Ordersummary\Subscriptiondata" />
+    </type>
+
+    <preference for="Magento\CatalogWidget\Block\Product\ProductsList" type="Amazonpaymentservices\Fort\Block\Product\ProductsList" />
 </config>

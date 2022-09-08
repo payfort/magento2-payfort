@@ -1,0 +1,89 @@
+<!--
+/**
+ * Amazonpaymentservices_Fort Magento JS component
+ *
+ * @category    Aps
+ * @package     Amazonpaymentservices_Fort
+ */
+-->
+<div class="payment-method apsstcpay ccform stcpay apsfort" data-bind="css: {'_active': (getCode() == isChecked())}">
+    <div class="payment-method-title field choice">
+        <input type="radio"
+               name="payment[method]"
+               class="radio"
+               data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
+        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+        <img data-action="setStcLogo" data-bind="attr: {alt: $t('STCPay Logo'),afterRender: setStcLogo()}"
+                 class="payment-icon" />
+    </div>
+    <div class="error-ccform"></div>
+    <div class="payment-method-content">
+        <!-- ko foreach: getRegion('messages') -->
+        <!-- ko template: getTemplate() --><!-- /ko -->
+        <!--/ko-->
+
+        <div class="payment-method-content">
+            <!-- ko foreach: getRegion('messages') -->
+            <!-- ko template: getTemplate() --><!-- /ko -->
+            <!--/ko-->
+            <!-- ko foreach: { data: getStcCard(), as: 'item' } -->
+            <div class="payment-method-title field choice token">
+                <input type="radio"
+                name="stctoken"
+                class="radio radiostctoken"
+                data-bind="value: item.token_name,
+                event:{click: $parent.newCard}, attr: { 'id': 'card'+ item.token_name }"
+                />
+                <label class="label" data-bind="attr: { 'for': 'card'+ item.token_name }">
+                    <span data-bind="text: item.phone_number"></span>
+                </label>
+            </div>
+            
+            <!--/ko-->
+            <div class="payment-method-title newcardtype field choice" data-bind="
+            afterRender: afterTokenRender
+            ">
+                <input type="radio"
+                name="stctoken"
+                class="radio radiostctoken"
+                value="newCard" 
+                data-bind="
+                    click: newCard"
+                />
+                <label class="label" data-bind="
+                text: $t('Add New Number')
+                ">
+                </label>
+            </div>
+            <fieldset class="stcgroup stchide" class="fieldset" data-bind='attr: {id: "payment_form_" + getCode()}'>
+                <div data-action="pf-mobile-verify" class="payment-method-note mobile-verify">
+                    <div>
+                        <span class="get-instructions"></span>
+                    </div>
+                    <div class="stcotp-div">
+                        <span data-action="aps-stcotp-msg" class="otp-msg"></span>
+                    </div>
+                    <div class="stcphonenumber ">
+                        <span class="mobile-pre">+966</span><input data-action="stcpf-mobileNumber" name="mobileNumber" class="mobile-num primary-text" type="number" maxlength="19" maxlength="12" autocomplete="off" data-bind="attr: {placeholder: $t('Enter your mobile number')}"/>
+                        <button class="action primary primary-btn req-otp" type = "submit" data-bind = "click: requestOtp"><span data-bind="text: $t('Request OTP'), enable: (getCode() == isChecked())"></span></button>
+                    </div>
+                    <div class="stcotp stchide">
+                        <input data-action="otp" name="otp" class="primary-text" type="password" maxlength="10" data-bind="attr: {placeholder: $t('Enter OTP')}"/>
+                        <button class="action primary primary-btn" type = "submit" data-bind = "click: preparePayment"><span data-bind="text: $t('Submit'), enable: (getCode() == isChecked())"></span></button>
+                    </div>
+                    <div>
+                        <span data-action="aps-stcotp-error" class="error-val "></span>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="checkout-agreements-block"> 
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() -->
+            <!-- /ko --> 
+            <!--/ko-->
+            </div>
+            
+        </div>
+    </div>
+</div>

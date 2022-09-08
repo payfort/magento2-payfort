@@ -1,0 +1,88 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+/** @var \Amazonpaymentservices\Fort\Block\Subscription\SubscriptionList $block */
+
+$connection = $block->getConnection();
+
+$subscriptionOrderCount = null;
+foreach ($block->getOrders() as $order) {
+
+    $query = $connection->select()->from(['table'=>'aps_subscriptions'], ['COUNT(table.id)'])->where('table.order_id=?', $order['entity_id']);
+    $subscriptionOrderCount = $connection->fetchOne($query);
+    
+    if ($subscriptionOrderCount != '0') {break;}
+}
+if ($subscriptionOrderCount != '0') {
+    ?>
+    <div class="table-wrapper orders-history">
+        <table class="data table table-order-items history" id="my-orders-table">
+            <caption class="table-caption"><?= $block->escapeHtml(__('Orders')) ?></caption>
+            <thead>
+                <tr>
+                    <!-- <th scope="col" class="col date"><?= $block->escapeHtml(__('Order #')) ?></th> -->
+                    <th scope="col" class="col deal"><?= $block->escapeHtml(__('Product #')) ?></th>
+                    <th scope="col" class="col item"><?= $block->escapeHtml(__('Order Date')) ?></th>
+                    <th scope="col" class="col item"><?= $block->escapeHtml(__('Next Pay Date')) ?></th>
+                    <th scope="col" class="col qty"><?= $block->escapeHtml(__('Price')) ?></th>
+                    <th scope="col" class="col price"><?= $block->escapeHtml(__('Qty')) ?></th>
+                    <th scope="col" class="col status"><?= $block->escapeHtml(__('Status')) ?></th>
+                    <th scope="col" class="col actions">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($block->getOrders() as $order) { ?>
+                
+                <?php $subscriptionOrders = null;
+                $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.order_id=?', $order['entity_id']);
+                $subscriptionOrders = $block->fetchAllQuery($query); ?>
+
+                    <?php if (!empty($subscriptionOrders)) { ?>
+                        <?php foreach ($subscriptionOrders as $subscriptionOrder) { ?>
+                            
+                            <?php $orderDetail = null;
+                            $query = $connection->select()->from(['table'=>'sales_order'], ['order_currency_code'])->where('table.entity_id=?', $subscriptionOrder['order_id']);
+                            $orderDetail = $connection->fetchRow($query); ?>
+                            
+                            <?php $itemDetail = null;
+                            $query = $connection->select()->from(['table'=>'sales_order_item'])->where('table.item_id=?', $subscriptionOrder['item_id']);
+                            $itemDetail = $connection->fetchRow($query); ?>
+                            
+                            <?php $orderStatus = null;
+                            if ($subscriptionOrder['subscription_status'] == 0) {$orderStatus = 'Cancel';
+                            } elseif ($subscriptionOrder['subscription_status'] == 1) {$orderStatus = 'Active';
+                            } else {$orderStatus = 'On Hold';} ?>
+                            <tr>
+                                <!-- <td class="col date"><?= $subscriptionOrder['order_increment_id']?></td> -->
+                                <td class="col item"><?= $subscriptionOrder['product_name']?></td>
+                                <td class="col item"><?= date("F d, Y", strtotime($subscriptionOrder['subscription_start_date'])) ?></td>
+                                <td class="col item"><?= date("F d, Y", strtotime($subscriptionOrder['next_payment_date'])) ?></td>
+                                <td class="col item"><?= $orderDetail['order_currency_code'].number_format($itemDetail['row_invoiced'], 2)?></td>
+                                <td class="col item"><?= number_format($itemDetail['qty_invoiced'], 2)?></td>
+                                <td class="col item"><?= $orderStatus?></td>
+                                <td class="col item"><div><a href = '<?= $block->getViewUrl($subscriptionOrder['id'])?>'>View Order</a> | </div>
+                                    <div>
+                                        <?php if ($orderStatus == 'Cancel') { ?>
+                                            <a style = 'cursor: no-drop; color: #808080;'>Cancel Subscription</a>
+                                        <?php } else { ?>
+                                            <a href = '<?= $block->getCancelUrl($subscriptionOrder['id'])?>'>Cancel Subscription</a>
+                                        <?php } ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php }?>
+                    <?php }?>
+                <?php }?>
+            </tbody>
+        </table>
+    </div>
+<?php } else {?>
+    <div class="message info empty"><span><?= $block->escapeHtml(__('You have no subscription orders.')) ?></span></div>
+<?php }?>
+    <?php /*if ($block->getPagerHtml()) : ?>
+        <div class="order-products-toolbar toolbar bottom"><?= $block->getPagerHtml() ?></div>
+    <?php else : ?>
+        <div class="message info empty"><span><?= $block->escapeHtml(__('You have placed no orders.')) ?></span></div>
+    <?php endif*/ ?>

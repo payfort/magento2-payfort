@@ -47,6 +47,24 @@ define(
             $("body .instaform .instaslider-tenure").removeClass('slide-selected');
             $(this).addClass('slide-selected');
         });
+        $(document).on(
+            'submit',
+            'form',
+            function (e) {
+                var formKeyElement,
+                    existingFormKeyElement,
+                    isKeyPresentInForm,
+                    form = $(e.target),
+                    formKey = $('input[name="form_key"]').val();
+                existingFormKeyElement = form.find('input[name="form_key"]');
+                isKeyPresentInForm = existingFormKeyElement.length;
+                if (isKeyPresentInForm && existingFormKeyElement.attr('auto-added-form-key') === '1') {
+                    isKeyPresentInForm = form.find('> input[name="form_key"]').length;
+                }
+                $('#frm_aps_fort_payment input[name=form_key]').remove();
+                $('#frm_aps_fort_payment input[name=form_key]').attr("disabled", "disabled");
+            }
+        );
         return Component.extend({
             
             placeOrderHandler: null,
@@ -308,7 +326,7 @@ define(
                         $('[data-action="widget-insta-grid"]').html(sliderText);
                         $.ajax({
                             url: window.checkoutConfig.payment.apsFort.aps_installment.getInstallmentPlans,
-                            type: 'get',
+                            type: 'post',
                             data:{cardNumber:cardNumber},
                             context: this,
                             dataType: 'json',
@@ -342,7 +360,7 @@ define(
                     $('[data-action="widget-insta-grid"]').html(sliderText);
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_installment.getInstallmentPlans,
-                        type: 'get',
+                        type: 'post',
                         data:{vaultSelected:vaultSelected},
                         context: this,
                         dataType: 'json',
@@ -399,7 +417,7 @@ define(
                     
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_installment.ajaxUrl,
-                        type: 'get',
+                        type: 'post',
                         context: this,
                         data:{tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,installment_amount:instaValue,installment_interest:instaInterest},
                         dataType: 'json',
@@ -425,7 +443,7 @@ define(
                                         value: v
                                     }).appendTo($('#'+formId));
                                 });
-                                
+                                $('#'+formId +' input[name=form_key]').attr("disabled", "disabled");
                                 $('#'+formId).attr('action', response.url);
                                 $('#'+formId).submit();
                                 return false;
@@ -448,7 +466,7 @@ define(
                     var cvv = $("input[value='"+vaultSelected+"']").parent('.vaultinsta').find('.input-text').val();
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_installment.vaultInstallment,
-                        type: 'get',
+                        type: 'post',
                         context: this,
                         data:{vaultSelected:vaultSelected,tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,cvv:cvv,installment_amount:instaValue,installment_interest:instaInterest},
                         dataType: 'json',
@@ -469,7 +487,7 @@ define(
                                         value: v
                                     }).appendTo($('#'+formId));
                                 });
-                                
+                                $('#'+formId +' input[name=form_key]').attr("disabled", "disabled");
                                 $('#'+formId).attr('action', response.url);
                                 $('#'+formId).submit();
                                 return false;

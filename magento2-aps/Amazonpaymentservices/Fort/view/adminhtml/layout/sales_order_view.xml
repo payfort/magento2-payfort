@@ -14,5 +14,9 @@
                 </action>
             </referenceBlock>
         </referenceContainer>
+
+        <block class="Amazonpaymentservices\Fort\Block\Adminhtml\Order\View\View" name="custom.subscription.order.view" template="order/view/subscription.phtml"/>
+
     </body>
+    <move element="custom.subscription.order.view" destination="order_additional_info" after="custom_view"/>
 </page>

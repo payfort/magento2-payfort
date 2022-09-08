@@ -91,6 +91,10 @@ class Valu extends \Amazonpaymentservices\Fort\Model\Payment
         if ($grandTotal < $minAmount) {
             return false;
         }
+        
+        if (!$this->_helper->checkSubscriptionItemInCart()) {
+            return false;
+        }
 
         return parent::isAvailable($quote);
     }

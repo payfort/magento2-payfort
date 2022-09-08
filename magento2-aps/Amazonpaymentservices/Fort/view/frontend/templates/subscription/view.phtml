@@ -1,0 +1,269 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+/** @var \Amazonpaymentservices\Fort\Block\Subscription\SubscriptionList $block */
+
+$urlParams = $block->fetchGetParams();
+$orderId = $urlParams['order_id'];
+$subscriptionOrderDetails = $block->getSubscriptionItemDetail($orderId);
+
+if (!empty($subscriptionOrderDetails)) {
+
+    $allAmount = [];
+    $subOrderDetail = null;
+    $connection = $block->getConnection();
+
+    $query = $connection->select()->from(['table'=>'sales_order'])->where('table.entity_id=?', $subscriptionOrderDetails['0']['order_id']);
+    $subOrderDetail = $connection->fetchRow($query);
+    
+    $billingAddress = $block->getBillingAddress($subscriptionOrderDetails['0']['order_id']);
+    $shippingAddress = $block->getShippingAddress($subscriptionOrderDetails['0']['order_id']);
+    $orderPaymentMethod = $block->getPaymentMethod($subscriptionOrderDetails['0']['order_id']);
+    
+    ?>
+
+<style>
+    tbody td{background:white !important;}
+</style>
+
+<div class="order-date">
+    <span class="label">Order Date:</span> 
+    <span><?= date('F d, Y', strtotime($subscriptionOrderDetails['0']['created_at'])) ?></span>
+</div>
+
+<div class="actions-toolbar order-actions-toolbar">
+    <div class="actions">
+        <a href="https://ajaytak.in/magentorecurring/sales/order/print/order_id/<?= $orderId ?>/" class="action print" target="_blank" rel="noopener">
+            <span>Print Order</span>
+        </a>
+    </div>
+</div>
+
+<ul class="items order-links">
+    <li class="nav item current">
+        <strong>Items Ordered</strong>
+    </li>
+</ul>
+
+<div class="order-details-items ordered">
+    
+    <div class="order-title">
+        <strong>Items Ordered</strong>
+    </div>
+
+    <div class="table-wrapper order-items">
+        <table class="data table table-order-items" id="my-orders-table" summary="Items Ordered">
+            <caption class="table-caption">Items Ordered</caption>
+            <thead>
+                <tr>
+                    <th class="col name">Product Name</th>
+                    <th class="col sku">Status</th>
+                    <th class="col sku">Next Payment Date</th>
+                    <th class="col price">Price</th>
+                    <th class="col qty">Qty</th>
+                    <th class="col subtotal">Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($subscriptionOrderDetails as $subscriptionOrderDetail) { ?>
+                    <tr id="order-item-row">
+                        <td class="col name" data-th="Product Name">
+                            <strong class="product name product-item-name"><?= $subscriptionOrderDetail['product_name']?></strong>
+                        </td>
+
+                        <?php $orderStatus = null;
+                        if ($subscriptionOrderDetail['subscription_status'] == 0) {$orderStatus = 'Cancel';
+                        } elseif ($subscriptionOrderDetail['subscription_status'] == 1) {$orderStatus = 'Active';
+                        } else {$orderStatus = 'On Hold';} ?>
+                        <td class="col sku" data-th="Status"><?= $orderStatus ?></td>
+
+                        <td class="col sku" data-th="Date"><?= date('F d, Y', strtotime($subscriptionOrderDetail['next_payment_date'])) ?></td>
+
+                        <?php $orderCurrency = null;
+                        $query = $connection->select()->from(['table'=>'sales_order'])->where('table.entity_id=?', $subscriptionOrderDetail['order_id']);
+                        $orderCurrency = $connection->fetchRow($query); ?>
+                        
+                        <?php $itemDetail = null;
+                        $query = $connection->select()->from(['table'=>'sales_order_item'])->where('table.item_id=?', $subscriptionOrderDetail['item_id']);
+                        $itemDetail = $connection->fetchRow($query); ?>
+                        
+                        <td class="col price" data-th="Price">
+                
+                            <span class="price-excluding-tax" data-label="Excl. Tax">
+                                <span class="cart-price">
+                                    <span class="price"><?= $orderCurrency['order_currency_code'].number_format($itemDetail['price'], 2)?></span>
+                                </span>
+                            </span>
+
+                        </td>
+                        <td class="col qty" data-th="Qty">
+                            <ul class="items-qty">
+                                <li class="item">
+                                    <span class="title">Ordered</span>
+                                    <span class="content"><?= number_format($itemDetail['qty_invoiced'], 2)?></span>
+                                </li>
+                            </ul>
+                        </td>
+                        <td class="col subtotal" data-th="Subtotal">
+                
+                            <span class="price-excluding-tax" data-label="Excl. Tax">
+                                <span class="cart-price">
+                                    <span class="price"><?= $orderCurrency['order_currency_code'].number_format($itemDetail['row_invoiced'], 2) ?></span>
+                                    <?php $currency = $orderCurrency['order_currency_code']; $allAmount[] = $itemDetail['row_invoiced'] ?>
+                                </span>
+                            </span>
+                        </td>
+                    </tr>
+                <?php }?>
+            </tbody>
+            
+            <tfoot>
+                <!-- <tr class="subtotal">
+                    <th colspan="4" class="mark" scope="row">Subtotal</th>
+                    <td class="amount" data-th="Subtotal"><span class="price">EGP29,754.84</span></td>
+                </tr>
+                <tr class="shipping">
+                    <th colspan="4" class="mark" scope="row">Shipping &amp; Handling</th>
+                    <td class="amount" data-th="Shipping &amp; Handling"><span class="price">EGP521.80</span></td>
+                </tr> -->
+                <?php if (!empty($allAmount)) { ?>
+                    <tr class="grand_total">
+                        <th colspan="5" class="mark" scope="row"><strong>Grand Total</strong></th>
+                        <td class="amount" data-th="Grand Total"><strong><span class="price"><?= $currency.number_format(array_sum($allAmount), 2)?></span></strong></td>
+                    </tr>
+                <?php }?>
+                <!-- <tr class="totals-tax">
+                    <th colspan="4" class="mark" scope="row">Tax</th>
+                    <td class="amount" data-th="Tax"><span class="price">EGP297.55</span></td>
+                </tr>
+                <tr class="base_grandtotal">
+                    <th colspan="4" class="mark" scope="row">Grand Total to be Charged</th>
+                    <td class="amount" data-th="Grand Total to be Charged"><span class="price">KWD585.93</span></td>
+                </tr> -->
+            </tfoot>
+
+        </table>
+    </div>
+    
+    <div class="action-toolbar">
+        <div class="secondary">
+            <a class="actions back" href="<?= $block->getBackUrl() ?>">
+                <span>Back to My Subscriptions</span>
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<div class="page-title-wrapper" style = 'border-bottom: 1px solid #d6d6d6;'>
+    <h2 class="page-title"><span class="base" data-ui-id="page-title-wrapper">All Related Orders</span></h2>
+</div>
+
+
+<div class="table-wrapper orders-history">
+        <table class="data table table-order-items history" id="my-orders-table">
+            <caption class="table-caption"><?= $block->escapeHtml(__('Orders')) ?></caption>
+            <thead>
+                <tr>
+                    <th><strong>Order #</strong></th>
+                    <th><strong>Product</strong></th>
+                    <!-- <th><strong>Current Order Id</strong></th> -->
+                    <!-- <th><strong>Order Increment Id</strong></th> -->
+                    <th><strong>Item Qty</strong></th>
+                    <!-- <th><strong>Subscription Start Date</strong></th> -->
+                    <th><strong>Order Date</strong></th>
+                    <!-- <th><strong>Next Payment Date</strong></th> -->
+                    <th><strong>Status</strong></th>
+                    <th><strong>Amount</strong></th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+            foreach ($block->getRelatedItems($orderId) as $orderDetail) {
+                $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.id=?', $orderDetail['aps_subscription_id']);
+                $subProductDetail = $connection->fetchRow($query);
+
+                if ($subProductDetail['subscription_status'] == 0) {$orderStatus = 'Cancel';
+                } elseif ($subProductDetail['subscription_status'] == 1) {$orderStatus = 'Active';
+                } else {$orderStatus = 'On Hold';}
+
+                /** @var / get details of each item in sales_order_item $orderDetails */
+                $query = $connection->select()->from(['table'=>'sales_order_item'])->where('table.item_id=?', $orderDetail['item_id']);
+                $itemDetail = $connection->fetchRow($query);
+                ?>
+                <?= "<tr>" ?>
+                <?= "<td><a href = '".$block->getMainOrderlUrl()."order_id/".$orderDetail['order_id']."'>".$orderDetail['order_increment_id']."</a></td>" ?>
+                <?= "<td>".$subProductDetail['product_name']."<br>SKU: ".$subProductDetail['product_sku']."</td>" ?>
+                <?php /* = "<td>".$orderDetail['order_id']."</td>" ?>
+                <?= "<td>".$orderDetail['order_increment_id']."</td>" */ ?>
+                    <?= "<td>".number_format($itemDetail['qty_invoiced'], 2)."</td>" ?>
+                    <?php /* = "<td>".date("M d, Y H:i:s", strtotime($subProductDetail['subscription_start_date']))."</td>" */ ?>
+                    <?= "<td>".date("F d, Y", strtotime($orderDetail['created_at']))."</td>" ?>
+                    <?php /* = "<td>".date("M d, Y H:i:s", strtotime($subProductDetail['next_payment_date']))."</td>" */ ?>
+                    <?= "<td>".$orderStatus."</td>" ?>
+                    <?= "<td>".number_format($itemDetail['row_invoiced'], 2)."</td>" ?>
+                    <?= "</tr>" ?>
+            <?php } ?>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="block block-order-details-view">
+
+        <div class="block-title">
+            <strong>Order Information</strong>
+        </div>
+
+        <div class="block-content">
+
+            <div class="box box-order-shipping-address">
+                <strong class="box-title"><span>Shipping Address</span></strong>
+                <div class="box-content">
+                    
+                    <?php $countryName = $block->getCountryName($billingAddress['country_id']); ?>
+                    
+                    <address><?= $shippingAddress['firstname'].' '.$shippingAddress['lastname'] ?><br><?= $shippingAddress['company'] ?><br><?= $shippingAddress['street'] ?><br>
+                    <?= $shippingAddress['city'] ?>,  <?= $shippingAddress['region'] ?>, <?= $shippingAddress['postcode'] ?><br><?= $countryName ?><br>
+                    T: <a href="tel:<?= $shippingAddress['telephone'] ?>"><?= $shippingAddress['telephone'] ?></a></address>
+
+                </div>
+            </div>
+
+            <div class="box box-order-shipping-method">
+                <strong class="box-title">
+                    <span>Shipping Method</span>
+                </strong>
+                <div class="box-content"><?= $subOrderDetail['shipping_description'] ?></div>
+            </div>
+            
+            <div class="box box-order-billing-address">
+                <strong class="box-title">
+                    <span>Billing Address</span>
+                </strong>
+                <div class="box-content">
+                    
+                <?php $countryName = $block->getCountryName($billingAddress['country_id']); ?>
+                    
+                    <address><?= $billingAddress['firstname'].' '.$billingAddress['lastname'] ?><br><?= $billingAddress['company'] ?><br><?= $billingAddress['street'] ?><br>
+                    <?= $billingAddress['city'] ?>,  <?= $billingAddress['region'] ?>, <?= $billingAddress['postcode'] ?><br><?= $countryName ?><br>
+                    T: <a href="tel:<?= $billingAddress['telephone'] ?>"><?= $billingAddress['telephone'] ?></a></address>
+
+                </div>
+            </div>
+
+            <div class="box box-order-billing-method">
+                <strong class="box-title">
+                    <span>Payment Method</span>
+                </strong>
+                <div class="box-content">
+                    <dl class="payment-method"><dt class="title"><?= $orderPaymentMethod ?></dt></dl>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+<?php }?>

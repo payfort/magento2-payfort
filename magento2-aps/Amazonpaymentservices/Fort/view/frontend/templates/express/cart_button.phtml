@@ -180,14 +180,18 @@
                     merchantCapabilities: [ 'supports3DS' ]
                 };
 
-                var session = new ApplePaySession(3, paymentRequest);
+                var supportedNetworks = supportedNetworks.split(',');
+                if(supportedNetworks.indexOf('mada') >= 0) {
+                    var session = new ApplePaySession(5, paymentRequest);
+                } else {
+                    var session = new ApplePaySession(3, paymentRequest);
+                }
                 session.onvalidatemerchant = function (event) {
                     var promise = performValidation(event.validationURL);
                     promise.then(function (merchantSession) {
                         session.completeMerchantValidation(merchantSession);
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
-                        console.error('Error validating merchant:', validationErr);
                         session.abort();
                     }); 
                 }
@@ -200,11 +204,11 @@
                             resolve(data);
                         };
                         xhr.onerror = reject;
-                        xhr.open('GET','<?= /* @noEscape */ $block->getAppleValidationUrl(); ?>'+'?valURL=' + valURL);
-                        xhr.send();
+                        xhr.open('POST','<?= /* @noEscape */ $block->getAppleValidationUrl(); ?>');
+                        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+                        xhr.send('valURL=' + valURL);
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
-                        console.error('Error Performing Validation:', validationErr);
                         session.abort();
                     });
                 }
@@ -288,7 +292,6 @@
                         session.completePayment(status);
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
-                        console.error('Error Paymenth Authorization:', validationErr);
                         session.abort();
                     });
                 }

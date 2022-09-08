@@ -70,7 +70,10 @@ class View extends \Magento\Backend\Block\Template implements \Magento\Backend\B
         if (in_array($order->getPayment()->getMethod(), \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD)) {
             $data['amountPaid'] = $payment->getAmountPaid();
             $additionalData = $payment->getAdditionalData();
-            $data['additionalData'] = json_decode($additionalData, true);
+            $data['additionalData'] = [];
+            if (!empty($additionalData)) {
+                $data['additionalData'] = json_decode($additionalData, true);
+            }
         } else {
             $data['amountPaid'] = 0;
             $data['additionalData'] = [];

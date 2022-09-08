@@ -28,7 +28,6 @@ define(
             tenure = $(this).attr('data-attr');
             valuInterest = $(this).attr('data-valuint');
             valuAmount = $(this).attr('data-valuamount');
-            $('[data-action="tenure"]').val(tenure);
             $(".slider-tenure").removeClass('slide-selected');
             $(this).addClass('slide-selected');
         });
@@ -39,6 +38,24 @@ define(
             $('[data-action="valtc"]').prop("checked", false);
         });
         var quoteTotal = quote.totals();
+        $(document).on(
+            'submit',
+            'form',
+            function (e) {
+                var formKeyElement,
+                    existingFormKeyElement,
+                    isKeyPresentInForm,
+                    form = $(e.target),
+                    formKey = $('input[name="form_key"]').val();
+                existingFormKeyElement = form.find('input[name="form_key"]');
+                isKeyPresentInForm = existingFormKeyElement.length;
+                if (isKeyPresentInForm && existingFormKeyElement.attr('auto-added-form-key') === '1') {
+                    isKeyPresentInForm = form.find('> input[name="form_key"]').length;
+                }
+                $('#frm_aps_valu_payment input[name=form_key]').remove();
+                $('#frm_aps_valu_payment input[name=form_key]').attr("disabled", "disabled");
+            }
+        );
         return Component.extend({
             defaults: {
                 template: 'Amazonpaymentservices_Fort/payment/aps-valu-form'
@@ -96,7 +113,7 @@ define(
                 }
                 $.ajax({
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpUrl,
-                    type: 'get',
+                    type: 'post',
                     context: this,
                     data:{mobileNumber:mobileNumber,otpCheck:otpCheck},
                     dataType: 'json',
@@ -116,7 +133,7 @@ define(
                 var otpCheck = "requestOtp";
                 $.ajax({
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpUrl,
-                    type: 'get',
+                    type: 'post',
                     context: this,
                     data:{mobileNumber:mobileNumber,otpCheck:otpCheck},
                     dataType: 'json',
@@ -150,7 +167,7 @@ define(
                 }
                 $.ajax({
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpVerifyUrl,
-                    type: 'get',
+                    type: 'post',
                     context: this,
                     data:{mobileNumber:mobileNumber,otp:otp},
                     dataType: 'json',
@@ -185,7 +202,6 @@ define(
                 $('[data-action="error-purchase"]').text('');
                 $('[data-action="valu-check-err"]').html('');
                 $('.aps-valu .checkout-agreements .valu-check-err').remove('');
-                var tenure = $('[data-action="tenure"]').val();
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otp = $('[data-action="otp"]').val();
                 if (!$('[data-action="valtc"]').is(':checked')) {
@@ -204,7 +220,7 @@ define(
                 }
                 $.ajax({
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxPurchaseUrl,
-                    type: 'get',
+                    type: 'post',
                     context: this,
                     data:{mobileNumber:mobileNumber,otp:otp,tenure:tenure,valu_tenure_amount:valuAmount,valu_tenure_interest:valuInterest},
                     dataType: 'json',

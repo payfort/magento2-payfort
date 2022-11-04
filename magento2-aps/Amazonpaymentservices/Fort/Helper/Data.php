@@ -1375,6 +1375,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->getCurlClient()->setOption(CURLOPT_RETURNTRANSFER, true);
             $this->getCurlClient()->setOption(CURLOPT_FOLLOWLOCATION, 1);
             $this->getCurlClient()->setOption(CURLOPT_CONNECTTIMEOUT, 0);
+            $this->getCurlClient()->setOption(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
             if (!empty($certificate_key)) {
                 $this->getCurlClient()->setOption(CURLOPT_SSLKEY, $certificate_key);
             }

@@ -36,7 +36,9 @@ You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and i
 
 | Plugin Version | Release Notes |
 | :---: | :--- |
-| 2.4.0 | STCPay is added as a new payment option | 
+| 2.4.2 | * Valu payment option is updated | 
+| 2.4.1 | * Fix - Compliance changes for Magento v2.4.5 | 
+| 2.4.0 | * STCPay is added as a new payment option | 
 | 2.3.0 | * Fix - Customer login mandatory for Subscription products <br/> * Fix - Invoice generation on child orders resolved <br/> * Fix - Failed orders not showing in subscription listing <br/> * Fix - Subscriptions listing not showing proper status  <br/> * Fix - Country name issue with version dependency resolved <br/> * Fix - Shipping and billing region id issue resolved <br/> * Fix - Recurring cron issue for inactive products <br/> * Fix - Payment cron issue of Apple Code <br/> * Fix - Credit memo issue resolved <br/> * Fix - Mada bin changes |
 | 2.2.3 |   * Fix - Logout after redirection related to session is resolved <br/> * Fix - Apple Pay code simplification | 
 | 2.2.2 |   * Fix - Namespace change <br/> * Fix - Shipping and tax calculation corrections in Apple Pay of Product / Cart pages <br/> * Fix - Back button click handling after a successful transaction | 

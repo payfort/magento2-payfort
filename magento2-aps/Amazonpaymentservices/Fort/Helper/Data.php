@@ -922,7 +922,7 @@ class Data extends \Magento\Payment\Helper\Data
                 'total_down_payment'  => 0,
                 'customer_code'       => $mobileNumber
             ];
-            //$postData = array_merge($postData, $this->pluginParams());
+            $postData = array_merge($postData, $this->pluginParams());
             //calculate request signature
             $signature = $this->calculateSignature($postData, 'request');
             $postData['signature'] = $signature;
@@ -1382,7 +1382,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->getCurlClient()->setOption(CURLOPT_FOLLOWLOCATION, 1);
             $this->getCurlClient()->setOption(CURLOPT_CONNECTTIMEOUT, 0);
             $this->getCurlClient()->setOption(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-            $this->getCurlClient()->setOption(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+           
             if (!empty($certificate_key)) {
                 $this->getCurlClient()->setOption(CURLOPT_SSLKEY, $certificate_key);
             }

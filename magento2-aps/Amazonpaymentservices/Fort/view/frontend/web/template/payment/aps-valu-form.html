@@ -35,7 +35,7 @@
                 </div>
             </div>
             
-            <div data-action="aps-otp-verify" class="payment-method-note otp-verify _pf-hidden">
+            <!-- <div data-action="aps-otp-verify" class="payment-method-note otp-verify _pf-hidden">
                 <div class="otp-div">
                     <span data-action="aps-otp-msg" class="otp-msg"></span>
                 </div>
@@ -46,18 +46,24 @@
                 <div>
                     <span data-action="pf-error-verify-otp" class="error-val error-verify-otp"></span>
                 </div>
-            </div>
+            </div> -->
+
             <div data-action="show-valu-slider" class="payment-method-note show-valu-slider _pf-hidden">
-                <div data-action="dv-otp-verify" class="dv-otp-verify _pf-hidden">
-                </div>
+                <!-- <div data-action="dv-otp-verify" class="dv-otp-verify _pf-hidden">
+                </div> -->
                 <div data-action="widget-valu-grid" class="widget-valu-grid slider">
                 </div>
             </div>
             <div data-action="valu-place-order" class="actions-toolbar valu-place-order _pf-hidden">
                 <div class="primary primary-div">
+                    <input data-action="otp" name="otp" class="primary-text" type="password" maxlength="10" data-bind="attr: {placeholder: $t('Enter OTP')}"/>
+
                     <button data-action="purchase-btn" class="action primary checkout purchase-btn" data-bind="click: ValuPurchase, enable: (getCode() == isChecked())">
                         <span data-bind="text: $t('Place Order')"></span>
                     </button>
+                    <div>
+                        <span data-action="pf-error-verify-otp" class="error-val error-verify-otp"></span>
+                    </div>
                 </div>
                 <div>
                     <span data-action="error-purchase" class="error-val error-purchase"></span>

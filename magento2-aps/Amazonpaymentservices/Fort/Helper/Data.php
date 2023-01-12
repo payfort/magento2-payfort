@@ -697,6 +697,7 @@ class Data extends \Magento\Payment\Helper\Data
             $taxAmount = $order->getTaxAmount();
             $products = $this->getValuProductsArr($items, $shippingAmount, $taxAmount, $discountAmount);
             $language = $this->getLanguage();
+            $include_installments = 'YES';
             $postData = [
                 'service_command'     => 'OTP_GENERATE',
                 'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
@@ -708,7 +709,8 @@ class Data extends \Magento\Payment\Helper\Data
                 'phone_number'        => $mobileNumber,
                 'amount'              => round($amount),
                 'currency'            => $currency,
-                'products'            => $products
+                'products'            => $products,
+                'include_installments' => $include_installments
             ];
             $signature = $this->calculateSignature($postData, 'request');
             $postData['signature'] = $signature;
@@ -724,14 +726,18 @@ class Data extends \Magento\Payment\Helper\Data
                 $responseData['response_code'] = self::VALU_API_FAILED_RESPONSE_CODE;
                 $responseData['response_message'] = __('Failed to generate OTP');
             } elseif ($response['status'] == '88') {
-                $this->_custmerSession->setCustomValue(['orderId' => $orderId, 'refId' => $sessionData['refId'], 'transaction_id' => $response['transaction_id']]);
+                $this->_custmerSession->setCustomValue(['orderId' => $orderId, 'refId' => $sessionData['refId'], 'transaction_id' => $response['merchant_order_id']]);
                 $responseData['status'] = $response['status'];
                 $responseData['response_code'] = $response['response_code'];
                 $responseData['response_message'] = $response['response_message'];
+                $responseData['installment_detail'] = $response['installment_detail'];
+
             } else {
                 $responseData['status'] = $response['status'];
                 $responseData['response_code'] = $response['response_code'];
                 $responseData['response_message'] = $response['response_message'];
+                $responseData['installment_detail'] = $response['installment_detail'];
+
             }
         } else {
             $responseData['status'] = self::VALU_API_FAILED_STATUS;
@@ -916,7 +922,7 @@ class Data extends \Magento\Payment\Helper\Data
                 'total_down_payment'  => 0,
                 'customer_code'       => $mobileNumber
             ];
-            $postData = array_merge($postData, $this->pluginParams());
+            //$postData = array_merge($postData, $this->pluginParams());
             //calculate request signature
             $signature = $this->calculateSignature($postData, 'request');
             $postData['signature'] = $signature;
@@ -1376,6 +1382,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->getCurlClient()->setOption(CURLOPT_FOLLOWLOCATION, 1);
             $this->getCurlClient()->setOption(CURLOPT_CONNECTTIMEOUT, 0);
             $this->getCurlClient()->setOption(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
+            $this->getCurlClient()->setOption(CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
             if (!empty($certificate_key)) {
                 $this->getCurlClient()->setOption(CURLOPT_SSLKEY, $certificate_key);
             }

@@ -144,7 +144,24 @@ define(
                         } else {
                             $('[data-action="aps-otp-msg"]').text($.mage.__('OTP has been sent to you on your mobile number : +20') + mobileNumber);
                             $('[data-action="pf-mobile-verify"]').addClass('_pf-hidden');
-                            $('[data-action="aps-otp-verify"]').removeClass('_pf-hidden');
+                            var sliderText = '';
+
+                            $.each(response.installment_detail.plan_details, function ( key, value ) {
+                                sliderText += '<div class="slide slider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + value.number_of_installments + '" data-valuint="'+ value.fees_amount +'" data-valuamount="'+ value.amount_per_month +'"><span class="tenure">' + value.number_of_installments+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' +((value.amount_per_month/100).toFixed(2)) + '</span> <span class="emitext">'+$.mage.__('EGP/Month')+'</span><span class="interestrate">' +"</span></div>";
+                            });
+                            $('[data-action="show-valu-slider"]').removeClass('_pf-hidden');
+                            $('[data-action="widget-valu-grid"]').html(sliderText);
+                            $('.show-valu-slider .widget-valu-grid').not('.slick-initialized').slick({
+                                dots: false,
+                                infinite: false,
+                                centerMode: false,
+                                slidesToShow: 4,
+                                slidesToScroll: 2
+                            });
+                            $('[data-action="valu-place-order"]').removeClass('_pf-hidden');
+                            $('[data-action="valu-tc"]').removeClass('_pf-hidden');
+
+                           // $('[data-action="aps-otp-verify"]').removeClass('_pf-hidden');
                         }
                     }
                 });
@@ -199,22 +216,30 @@ define(
                 });
             },
             ValuPurchase: function () {
+                $('[data-action="pf-error-verify-otp"]').text('');
                 $('[data-action="error-purchase"]').text('');
                 $('[data-action="valu-check-err"]').html('');
                 $('.aps-valu .checkout-agreements .valu-check-err').remove('');
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otp = $('[data-action="otp"]').val();
+
+                if (otp.length > 10 || otp.length < 1) {
+                    $('[data-action="pf-error-verify-otp"]').text($.mage.__('Invalid Valu OTP'));
+                    return false;
+                }
+
                 if (!$('[data-action="valtc"]').is(':checked')) {
                     $('[data-action="valu-check-err"]').html($.mage.__('This is a required field.'));
                     return false;
                 }
+                
                 if ($(".aps-valu .checkout-agreements .required-entry").length) {
                     if (!$(".aps-valu .checkout-agreements .required-entry").is(':checked')) {
                         $('.aps-valu .checkout-agreements .checkout-agreement').after('<div class="valu-check-err error-val">'+$.mage.__('This is a required field.')+'</div>');
                         return false;
                     }
                 }
-                if (tenure.length == 0) {
+                if (tenure === 0) {
                     $('[data-action="error-purchase"]').text($.mage.__('Please select your installment plan.'));
                     return false;
                 }

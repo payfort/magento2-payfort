@@ -96,12 +96,17 @@ define(
                 $('[data-action="aps-otp-error"]').text('');
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otpCheck = "customerVerify";
+                var downPayment = $('[data-action="pf-downpayment"]').val();
                 $('.aps-valu .checkout-agreements .valu-check-err').remove('');
                 if ($(".aps-valu .checkout-agreements .required-entry").length) {
                     if (!$(".aps-valu .checkout-agreements .required-entry").is(':checked')) {
                         $('.aps-valu .checkout-agreements .checkout-agreement').after('<div class="valu-check-err error-val">'+$.mage.__('This is a required field.')+'</div>');
                         return false;
                     }
+                }
+                if(!Number.isFinite(parseFloat(downPayment))){
+                    $('[data-action="aps-otp-error"]').text($.mage.__('Please enter a valid downpayment amount.'));
+                    return false;
                 }
                 if (!Number.isInteger(parseInt(mobileNumber))) {
                     $('[data-action="aps-otp-error"]').text($.mage.__('Please enter mobile number.'));
@@ -131,11 +136,12 @@ define(
             afterPlaceOrder: function () {
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otpCheck = "requestOtp";
+                var downPayment = $('[data-action="pf-downpayment"]').val();
                 $.ajax({
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otpCheck:otpCheck},
+                    data:{mobileNumber:mobileNumber,otpCheck:otpCheck, downPayment:downPayment},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {
@@ -147,7 +153,7 @@ define(
                             var sliderText = '';
 
                             $.each(response.installment_detail.plan_details, function ( key, value ) {
-                                sliderText += '<div class="slide slider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + value.number_of_installments + '" data-valuint="'+ value.fees_amount +'" data-valuamount="'+ value.amount_per_month +'"><span class="tenure">' + value.number_of_installments+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' +((value.amount_per_month/100).toFixed(2)) + '</span> <span class="emitext">'+$.mage.__('EGP/Month')+'</span><span class="interestrate">' +"</span></div>";
+                                sliderText += '<div class="slide slider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + value.number_of_installments + '" data-valuint="'+ value.fees_amount +'" data-valuamount="'+ value.amount_per_month +'"><span class="tenure">' + value.number_of_installments+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' +((value.amount_per_month/100).toFixed(2)) + '</span> <span class="emitext">'+$.mage.__('EGP/Month')+'</span><br><span class="interestrate">'+$.mage.__('Admin Fee:')+' '+ ((value.fees_amount/100).toFixed(2)) + '</span></div>';
                             });
                             $('[data-action="show-valu-slider"]').removeClass('_pf-hidden');
                             $('[data-action="widget-valu-grid"]').html(sliderText);
@@ -222,7 +228,7 @@ define(
                 $('.aps-valu .checkout-agreements .valu-check-err').remove('');
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otp = $('[data-action="otp"]').val();
-
+                var downPayment = $('[data-action="pf-downpayment"]').val();
                 if (otp.length > 10 || otp.length < 1) {
                     $('[data-action="pf-error-verify-otp"]').text($.mage.__('Invalid Valu OTP'));
                     return false;
@@ -247,7 +253,7 @@ define(
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxPurchaseUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otp:otp,tenure:tenure,valu_tenure_amount:valuAmount,valu_tenure_interest:valuInterest},
+                    data:{mobileNumber:mobileNumber,otp:otp,tenure:tenure,valu_tenure_amount:valuAmount,valu_tenure_interest:valuInterest, downPayment:downPayment},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {

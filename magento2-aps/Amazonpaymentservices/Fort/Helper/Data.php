@@ -670,7 +670,7 @@ class Data extends \Magento\Payment\Helper\Data
      * @param string $mobileNumber
      * @return array
      */
-    public function execGenOtp($order, $mobileNumber)
+    public function execGenOtp($order, $mobileNumber, $downPayment)
     {
         $orderId = $order->getRealOrderId();
 
@@ -690,6 +690,7 @@ class Data extends \Magento\Payment\Helper\Data
             $orderCurrency = $order->getOrderCurrency()->getCurrencyCode();
             $currency      = $this->getFortCurrency($baseCurrency, $orderCurrency);
             $amount        = $this->convertFortAmount($order, $currency);
+            $downPaymentAmount = $downPayment*100;
 
             $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
             $items = $cart->getAllItems();
@@ -710,6 +711,7 @@ class Data extends \Magento\Payment\Helper\Data
                 'amount'              => round($amount),
                 'currency'            => $currency,
                 'products'            => $products,
+                'total_downpayment'   => $downPaymentAmount,
                 'include_installments' => $include_installments
             ];
             $signature = $this->calculateSignature($postData, 'request');
@@ -882,7 +884,7 @@ class Data extends \Magento\Payment\Helper\Data
      * @param string $tenure
      * @return array
      */
-    public function merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest)
+    public function merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment)
     {
         $orderId = $order->getRealOrderId();
         $sessionData = $this->_custmerSession->getCustomValue();
@@ -891,6 +893,7 @@ class Data extends \Magento\Payment\Helper\Data
             $orderCurrency = $order->getOrderCurrency()->getCurrencyCode();
             $currency      = $this->getFortCurrency($baseCurrency, $orderCurrency);
             $amount        = $this->convertFortAmount($order, $currency);
+            $downPaymentAmount = $downPayment*100;
 
             $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
 
@@ -918,8 +921,8 @@ class Data extends \Magento\Payment\Helper\Data
                 'customer_email'      => $customerEmail,
                 'transaction_id'      => $sessionData['transaction_id'],
                 'tenure'              => $tenure,
-                'purchase_description'=> str_replace(" ", "", $storeName),
-                'total_down_payment'  => 0,
+                'purchase_description'=> "PurchaseWithEGP".$downPaymentAmount."downpaymentAnd".$tenure."MonthsTenure",
+                'total_down_payment'  => $downPaymentAmount,
                 'customer_code'       => $mobileNumber
             ];
             $postData = array_merge($postData, $this->pluginParams());

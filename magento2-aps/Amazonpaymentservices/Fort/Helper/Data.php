@@ -1435,7 +1435,7 @@ class Data extends \Magento\Payment\Helper\Data
         if ($type == 'apple_pay') {
             $shaInPassPhrase  = $this->getConfig('payment/aps_apple/apple_sha_in_pass_phrase');
             $shaOutPassPhrase = $this->getConfig('payment/aps_apple/apple_sha_out_pass_phrase');
-            $shaType = $this->getMainConfigData('sha_type');
+            $shaType = $this->getConfig('payment/aps_apple/apple_sha_type');
         } else {
             $shaInPassPhrase  = $this->getMainConfigData('sha_in_pass_phrase');
             $shaOutPassPhrase = $this->getMainConfigData('sha_out_pass_phrase');

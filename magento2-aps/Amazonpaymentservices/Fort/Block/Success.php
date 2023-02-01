@@ -50,12 +50,25 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
         return $this->getMethod() == "aps_knet";
     }
 
+    public function isValuPaymentMethod()
+    {
+        return $this->getMethod() == "aps_fort_valu";
+    }
+
     public function getKnetParmeters()
     {
         $payment = $this->order->getPayment();
         $data = $payment->getAdditionalData();
         $knetData = json_decode($data, true);
         return $knetData;
+    }
+
+    public function getValuParmeters()
+    {
+        $payment = $this->order->getPayment();
+        $data = $payment->getAdditionalData();
+        $valuData = json_decode($data, true);
+        return $valuData;
     }
 
     public function getOrderNumber()

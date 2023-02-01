@@ -14,7 +14,7 @@
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
         <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
         <img data-action="setLogo" data-bind="attr: {alt: $t('Valu Logo'),afterRender: setLogo()}"
-                 class="payment-icon" />
+                 class="payment-icon" style="height: 20px;"/>
     </div>
     <div class="payment-method-content">
         <!-- ko foreach: getRegion('messages') -->

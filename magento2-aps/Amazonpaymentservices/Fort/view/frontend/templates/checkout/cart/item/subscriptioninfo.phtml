@@ -1,15 +1,22 @@
 <?php
 
-$_item = $block->getItem();
-$product = $_item->getProduct(); // Get cart product details
-$additional_data = $block->getSubscriptionData($product->getId()); // Get cart product additionl details defined in block page
+// is the Recurring Product feature enabled?
+$isRecurringEnabled = (int)$this->helper(Amazonpaymentservices\Fort\Helper\Data::class)->getConfig('payment/aps_recurring/active') === 1;
 
-if ($additional_data['aps_product_subscription']) {
-    ?>
+if ($isRecurringEnabled) {
+    /** @var $block \Magento\Catalog\Block\Product\View */
 
-    <div style=" font-weight: 700; color: #0093c9; ">Subscription Product</div>
-    <div>
-        <span style=" color: #0093c9; ">Frequency: <?= $additional_data['aps_product_subscription_frequency_count'].' '.$additional_data['aps_product_subscription_frequency']?></span>
-    </div>
+    $_item = $block->getItem();
+    $product = $_item->getProduct(); // Get cart product details
+    $additional_data = $block->getSubscriptionData($product->getId()); // Get cart product additionl details defined in block page
 
+    if ($additional_data['aps_product_subscription']) {
+        ?>
+
+        <div style=" font-weight: 700; color: #0093c9; ">Subscription Product</div>
+        <div>
+            <span style=" color: #0093c9; ">Frequency: <?= $additional_data['aps_product_subscription_frequency_count'].' '.$additional_data['aps_product_subscription_frequency']?></span>
+        </div>
+
+    <?php } ?>
 <?php } ?>

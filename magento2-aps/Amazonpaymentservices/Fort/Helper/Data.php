@@ -2626,7 +2626,14 @@ class Data extends \Magento\Payment\Helper\Data
          * IF PRODUCT (ITEM) IS A SUBSCRIPTION ITEM
          * THEN BELOW CODE WILL SAVE THE ITEM TO SUBSCRIPTION TABLES
          */
-         
+
+        // is the Recurring Product feature enabled?
+        // if it isn't then skip this part
+        $isRecurringEnabled = (int)$this->getConfig('payment/aps_recurring/active') === 1;
+        if (!$isRecurringEnabled) {
+            return;
+        }
+
         $connection = $this->_connection->getConnection();
 
         $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
@@ -2702,6 +2709,14 @@ class Data extends \Magento\Payment\Helper\Data
          * IF PRODUCT (ITEM) IS A SUBSCRIPTION ITEM
          * THEN BELOW CODE WILL SAVE THE ITEM TO SUBSCRIPTION TABLES
          */
+
+        // is the Recurring Product feature enabled?
+        // if it isn't then skip this part
+        $isRecurringEnabled = (int)$this->getConfig('payment/aps_recurring/active') === 1;
+        if (!$isRecurringEnabled) {
+            return false;
+        }
+
         try {
             $connection = $this->_connection->getConnection();
 
@@ -2879,6 +2894,14 @@ class Data extends \Magento\Payment\Helper\Data
 
     public function checkSubscriptionItemInCart()
     {
+        // is the Recurring Product feature enabled?
+        // if it isn't then skip this part
+        // return true, no restriction regarding the cart items
+        $isRecurringEnabled = (int)$this->getConfig('payment/aps_recurring/active') === 1;
+        if (!$isRecurringEnabled) {
+            return true;
+        }
+
         /** This function is use in payment methods to remove methods while item is subscription */
         $items = $this->_cart->getQuote()->getAllItems();
         $connection = $this->_connection->getConnection();

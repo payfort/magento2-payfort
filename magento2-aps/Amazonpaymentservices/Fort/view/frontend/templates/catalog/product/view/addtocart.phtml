@@ -12,32 +12,37 @@
 <?php $buttonTitle = __('Add to Cart'); ?>
 <?php if ($product->isSaleable()): ?>
     <?php
-    /** @var \Magento\Framework\App\ObjectManager $objectManager */
+
+    // is the Recurring Product feature enabled?
+    $isRecurringEnabled = (int)$this->helper(Amazonpaymentservices\Fort\Helper\Data::class)->getConfig('payment/aps_recurring/active') === 1;
+
+    $isSubscriptionsProduct = false;
+
+    if ($isRecurringEnabled) {
+        /** @var \Magento\Framework\App\ObjectManager $objectManager */
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-    
-    /** @var \Magento\Framework\App\ResourceConnection $resource */
+
+        /** @var \Magento\Framework\App\ResourceConnection $resource */
         $resource = $objectManager->get('Magento\Framework\App\ResourceConnection');
-    
-    /** @var / getConnection function from resounce $connection */
+
+        /** @var / getConnection function from resounce $connection */
         $connection = $resource->getConnection();
-    
-    /** @var / get id of aps_sub_enabled product attribute $apsSubEnabled */
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+
+        /** @var / get id of aps_sub_enabled product attribute $apsSubEnabled */
+        $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
         $apsSubEnabled = $connection->fetchRow($query);
-    
-    /** @var / get id of aps_sub_interval product attribute $apsSubInterval */
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+
+        /** @var / get id of aps_sub_interval product attribute $apsSubInterval */
+        $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
         $apsSubInterval = $connection->fetchRow($query);
-    
-    /** @var / get id of aps_sub_interval_count product attribute $apsSubIntervalCount */
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+
+        /** @var / get id of aps_sub_interval_count product attribute $apsSubIntervalCount */
+        $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
         $apsSubIntervalCount = $connection->fetchRow($query);
-    
-    /* @isSubscriptionProduct */
-        $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $product->getId());
+
+        /* @isSubscriptionProduct */
+        $query = $connection->select()->from(['table' => 'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $product->getId());
         $prodApsSubEnabled = $connection->fetchRow($query);
-        
-        $isSubscriptionsProduct = false;
 
         $context = $objectManager->get('Magento\Framework\App\Http\Context');
         /** @var bool $isLoggedIn */
@@ -45,17 +50,18 @@
 
         if (!empty($prodApsSubEnabled)) {
 
-            $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $product->getId());
+            $query = $connection->select()->from(['table' => 'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $product->getId());
             $prodApsSubInterval = $connection->fetchRow($query);
-    
-            $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $product->getId());
+
+            $query = $connection->select()->from(['table' => 'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $product->getId());
             $prodApsSubIntervalCount = $connection->fetchRow($query);
-            
+
             if (!empty($prodApsSubInterval) && !empty($prodApsSubIntervalCount)) {
                 $isSubscriptionsProduct = true;
             }
         }
-    ?>        
+    }
+    ?>
 <div class="box-tocart">
    <div class="fieldset">
        <?php if ($block->shouldRenderQuantity()): ?>
@@ -73,7 +79,7 @@
            </div>
        </div>
        <?php endif; ?>
-       <?php if ($isSubscriptionsProduct == false || ($isSubscriptionsProduct == true && $isLoggedIn)): ?>
+       <?php if (!$isRecurringEnabled || $isSubscriptionsProduct == false || ($isSubscriptionsProduct == true && $isLoggedIn)): ?>
             <div class="actions">
                 <button type="submit"
                         title="<?= /* @escapeNotVerified */ $buttonTitle ?>"

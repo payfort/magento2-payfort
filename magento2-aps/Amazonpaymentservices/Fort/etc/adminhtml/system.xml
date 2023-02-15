@@ -408,20 +408,6 @@
                         <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Stcintegrationtype</source_model>
                         <config_path>payment/aps_fort_stc/integration_type</config_path>
                     </field>
-                </group>
-                <group id="aps_fort_stc" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>STC</label>
-                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Enabled</label>
-                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/aps_fort_stc/active</config_path>
-                    </field>
-                    <field id="integration_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Integration Type</label>
-                        <comment>STC Integration Type</comment>
-                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Stcintegrationtype</source_model>
-                        <config_path>payment/aps_fort_stc/integration_type</config_path>
-                    </field>
                     <field id="stctoken" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Tokenisation Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -437,6 +423,14 @@
                         <label>Set Duration</label>
                         <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Intervaloptions</source_model>
                         <config_path>payment/aps_fort_cron/interval</config_path>
+                    </field>
+                </group>
+                <group id="aps_recurring_enabled" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Recurring Payments / Subscription Products</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_recurring/active</config_path>
                     </field>
                 </group>
             </group>

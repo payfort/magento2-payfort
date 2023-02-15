@@ -8,10 +8,41 @@ class CheckoutAdditionalInfo extends \Magento\Framework\View\Element\Template
 {
 
     /**
-     * @return additional information data
+     * @var \Amazonpaymentservices\Fort\Helper\Data
+     */
+    protected $helper;
+
+    /**
+     * @param \Magento\Framework\View\Element\Template\Context $context
+     * @param \Amazonpaymentservices\Fort\Helper\Data $helper
+     */
+    public function __construct(
+        \Magento\Framework\View\Element\Template\Context $context,
+        \Amazonpaymentservices\Fort\Helper\Data $helper
+    )
+    {
+        $this->helper = $helper;
+        parent::__construct($context);
+    }
+
+    /**
+     * return additional information data
      */
     public function getSubscriptionData($productEntityId)
     {
+        $atts = [
+            "aps_product_subscription" => false,
+            "aps_product_subscription_frequency" => null,
+            "aps_product_subscription_frequency_count" => null
+        ];
+
+        // is the Recurring Product feature enabled?
+        $isRecurringEnabled = (int)$this->helper->getConfig('payment/aps_recurring/active') === 1;
+
+        if (!$isRecurringEnabled) {
+            return $atts;
+        }
+
         $resource = ObjectManager::getInstance()->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
 
@@ -40,14 +71,8 @@ class CheckoutAdditionalInfo extends \Magento\Framework\View\Element\Template
                 "aps_product_subscription_frequency" => $prodApsSubIntervalCount['value'] == 1 ? $prodApsSubInterval['value'] : $prodApsSubInterval['value'].'s',
                 "aps_product_subscription_frequency_count" => sprintf("%02d", $prodApsSubIntervalCount['value'])
             ];
-            
-        } else {
-            $atts = [
-                "aps_product_subscription" => false,
-                "aps_product_subscription_frequency" => null,
-                "aps_product_subscription_frequency_count" => null
-            ];
         }
+
         return $atts;
     }
 }

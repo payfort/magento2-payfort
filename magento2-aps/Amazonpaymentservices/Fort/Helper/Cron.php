@@ -171,15 +171,21 @@ class Cron extends \Magento\Payment\Helper\Data
 
     private function updateSubscriptionOrder($subscriptionOrderId, $item, $newOrder, $tokenId, $tokenName, $remoteIp, $order)
     {
-        $connection = $this->_connection->getConnection();
-        /* @isSubscriptionProduct */
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
-        $apsSubEnabled = $connection->fetchRow($query);
+        // is the Recurring Product feature enabled?
+        $isRecurringEnabled = (int)$this->_helper->getConfig('payment/aps_recurring/active') === 1;
 
-        $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
-        $prodApsSubEnabled = $connection->fetchRow($query);
+        $connection = $prodApsSubEnabled = null;
+        if ($isRecurringEnabled) {
+            $connection = $this->_connection->getConnection();
+            /* @isSubscriptionProduct */
+            $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+            $apsSubEnabled = $connection->fetchRow($query);
 
-        if (!empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
+            $query = $connection->select()->from(['table' => 'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+            $prodApsSubEnabled = $connection->fetchRow($query);
+        }
+
+        if ($isRecurringEnabled && !empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
 
             $this->_helper->log('New ORderNUmber:'.$newOrder->getRealOrderId());
             

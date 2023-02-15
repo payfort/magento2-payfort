@@ -13,22 +13,42 @@ class Subscriptiondata
     protected $checkoutSession;
 
     /**
+     * @var \Amazonpaymentservices\Fort\Helper\Data
+     */
+    protected $helper;
+
+
+    /**
      * Constructor
      *
      * @param CheckoutSession $checkoutSession
      */
     public function __construct(
-        CheckoutSession $checkoutSession
+        CheckoutSession $checkoutSession,
+        \Amazonpaymentservices\Fort\Helper\Data $helper
     ) {
         $this->checkoutSession = $checkoutSession;
+        $this->helper = $helper;
     }
 
     public function afterGetConfig(
         \Magento\Checkout\Model\DefaultConfigProvider $subject,
         array $result
     ) {
+
+        // is the Recurring Product feature enabled?
+        $isRecurringEnabled = (int)$this->helper->getConfig('payment/aps_recurring/active') === 1;
+
         $items = $result['totalsData']['items'];
         foreach ($items as $index => $item) {
+            $result['quoteItemData'][$index]['aps_product_subscription'] = false;
+            $result['quoteItemData'][$index]['aps_product_subscription_frequency'] = null;
+            $result['quoteItemData'][$index]['aps_product_subscription_frequency_count'] = null;
+
+            if (!$isRecurringEnabled) {
+
+                continue;
+            }
 
             $quoteItem = $this->checkoutSession->getQuote()->getItemById($item['item_id']);
             $productEntityId = $quoteItem->getProduct()->getData('entity_id');
@@ -61,13 +81,9 @@ class Subscriptiondata
                 $result['quoteItemData'][$index]['aps_product_subscription_frequency'] = $prodApsSubIntervalCount['value'] == 1 ? $prodApsSubInterval['value'] : $prodApsSubInterval['value'].'s';
                 $result['quoteItemData'][$index]['aps_product_subscription_frequency_count'] = sprintf("%02d", $prodApsSubIntervalCount['value']);
                 
-            } else {
-
-                $result['quoteItemData'][$index]['aps_product_subscription'] = false;
-                $result['quoteItemData'][$index]['aps_product_subscription_frequency'] = null;
-                $result['quoteItemData'][$index]['aps_product_subscription_frequency_count'] = null;
             }
         }
+
         return $result;
     }
 }

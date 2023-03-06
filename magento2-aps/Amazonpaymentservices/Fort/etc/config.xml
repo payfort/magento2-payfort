@@ -97,14 +97,7 @@
             <aps_fort_stc>
                 <model>Amazonpaymentservices\Fort\Model\Method\Stc</model>
                 <active>0</active>
-                <title>STC</title>
-                <group>aps_fort</group>
-                <sort_order>80</sort_order>
-            </aps_fort_stc>
-            <aps_fort_stc>
-                <model>Amazonpaymentservices\Fort\Model\Method\Stc</model>
-                <active>0</active>
-                <title>STC</title>
+                <title>STCPay</title>
                 <group>aps_fort</group>
                 <sort_order>80</sort_order>
             </aps_fort_stc>

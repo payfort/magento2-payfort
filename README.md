@@ -5,6 +5,11 @@
 ## Getting Started
 We know that payment processing is critical to your business. With this plugin we aim to increase your payment processing capabilities. Do you have a business-critical questions? View our quick reference [documentation](https://paymentservices.amazon.com/docs/EN/index.html) for key insights covering payment acceptance, integration, and reporting.
 
+## Installation
+Simply download it from [Magento Marketplace](https://marketplace.magento.com/amazonpaymentservices-module-fort.html)
+or
+execute below command in your magento installation directory
+`composer require amazonpaymentservices/module-fort`
 
 ## Configuration and User Guide
 You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).

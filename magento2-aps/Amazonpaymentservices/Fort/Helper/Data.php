@@ -403,8 +403,11 @@ class Data extends \Magento\Payment\Helper\Data
             $this->_gatewayParams['command']        = $this->getMainConfigData('command');
             $this->_gatewayParams['digital_wallet'] = 'STCPAY';
             $this->_gatewayParams['return_url']     = $this->getReturnUrl('amazonpaymentservicesfort/payment/stcResponseOnline');
-            $this->_gatewayParams['token_name'] = $postData['stcToken'];
-            $this->_gatewayParams['remember_me'] = "YES";
+            $this->_gatewayParams['token_name']     = $postData['stcToken'];
+
+            if ($this->getConfig('payment/aps_fort_stc/token') == 1){
+                $this->_gatewayParams['remember_me'] = 'YES';
+            }
         } elseif ($integrationType == self::INTEGRATION_TYPE_REDIRECTION) {
             $baseCurrency                    = $this->getBaseCurrency();
             $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
@@ -3062,7 +3065,11 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_gatewayParams['customer_ip']    = $ip;
 
         $this->_gatewayParams['return_url']     = $this->getReturnUrl('amazonpaymentservicesfort/payment/stcResponse');
-        $this->_gatewayParams['remember_me']    = "YES";
+
+        if ($this->getConfig('payment/aps_fort_stc/token') == 1){
+            $this->_gatewayParams['remember_me'] = 'YES';
+        }
+
         $this->_gatewayParams['phone_number']   = $postData['mobileNumber'];
         $this->_gatewayParams = array_merge($this->_gatewayParams, $this->pluginParams());
         $signature = $this->calculateSignature($this->_gatewayParams, 'request');

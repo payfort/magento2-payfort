@@ -41,6 +41,7 @@ You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and i
 
 | Plugin Version | Release Notes |
 | :---: | :--- |
+| 2.4.5 | * Fix - Remember me parameter is controlled by STCPay tokenization configuration |
 | 2.4.4 | * Feature - Recurring functionality is controlled by configuration parameter |
 | 2.4.3 | * Fix - ApplePay Sha type is collected from ApplePay config <br/> * New - ValuV2 Installment Plan details are added to confirmation screen | 
 | 2.4.2 | * Valu payment option is updated | 

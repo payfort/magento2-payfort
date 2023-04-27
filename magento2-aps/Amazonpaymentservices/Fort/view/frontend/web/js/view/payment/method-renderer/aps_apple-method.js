@@ -54,7 +54,7 @@ define(
                 return this;
             },
             redirectAfterPlaceOrder: false,
-            
+
             beforeApplePay: function () {
                 document.getElementById("applePay").disabled = false;
                 if (window.ApplePaySession) {
@@ -71,27 +71,23 @@ define(
                     $("#applePay").remove();
                     $(".payment-method.apple-pay").remove();
                 }
-                
+
             },
             afterPlaceOrder : function () {
                 this.placeOrder();
                 var totals = quote.totals();
+                var grandTotal = totals.base_grand_total;
                 var runningAmount = (totals ? totals : quote)['subtotal'];
-                var priceFormat = quote.getPriceFormat();
-                priceFormat.pattern = "%s";
-                runningAmount = priceUtils.formatPrice(runningAmount, priceFormat, false);
-                runningAmount = runningAmount.replace(/,/g, '');
-                runningAmount = parseFloat(runningAmount);
+                var precision = quote.getPriceFormat().precision;
+                runningAmount = parseFloat(runningAmount).toFixed(precision);
 
                 var totalTax = (totals ? totals : quote)['tax_amount'];
-                totalTax = priceUtils.formatPrice(totalTax, priceFormat, false);
-                totalTax = totalTax.replace(/,/g, '');
                 totalTax = parseFloat(totalTax);
 
                 var runningPP = 0;
                 var displayPP = 0;
                 if (window.checkoutConfig.payment.apsFort.aps_apple.shippingconfig == 0) {
-                    
+
                     if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 1) {
                         displayPP = (totals ? totals : quote)['shipping_amount'];
                     } else if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 2) {
@@ -111,25 +107,17 @@ define(
                 }
 
                 runningPP = (totals ? totals : quote)['shipping_amount'];
-                runningPP = priceUtils.formatPrice(runningPP, priceFormat, false);
-                runningPP = runningPP.replace(/,/g, '');
-                runningPP = parseFloat(runningPP);
+                runningPP = parseFloat(runningPP).toFixed(precision);
 
-                displayPP = priceUtils.formatPrice(displayPP, priceFormat, false);
-                displayPP = displayPP.replace(/,/g, '');
-                displayPP = parseFloat(displayPP);
-                
+                displayPP = parseFloat(displayPP).toFixed(precision);
+
                 var runningShipDiscount = (totals ? totals : quote)['shipping_discount_amount'];
-                runningShipDiscount = priceUtils.formatPrice(runningShipDiscount, priceFormat, false);
-                runningShipDiscount = runningShipDiscount.replace(/,/g, '');
-                runningShipDiscount = parseFloat(runningShipDiscount);
+                runningShipDiscount = parseFloat(runningShipDiscount).toFixed(precision);
                 runningPP = runningPP - runningShipDiscount;
 
                 var discountAmount = (totals ? totals : quote)['discount_amount'];
-                discountAmount = priceUtils.formatPrice(discountAmount, priceFormat, false);
-                discountAmount = discountAmount.replace(/,/g, '');
-                discountAmount = parseFloat(discountAmount);
-                
+                discountAmount = parseFloat(discountAmount).toFixed(precision);
+
                 var currencyCode = (totals ? totals : quote)['quote_currency_code'];
 
                 var runningTotal    = function () {
@@ -138,9 +126,7 @@ define(
                     var totalTax1 = parseFloat(totalTax);
                     var discountAmount1 = parseFloat(discountAmount);
                     var tempTotals =  (runningAmount1 + runningPP1 + totalTax1 - discountAmount1);
-                    tempTotals = priceUtils.formatPrice(tempTotals, priceFormat, false);
-                    tempTotals = tempTotals.replace(/,/g, '');
-                    tempTotals = parseFloat(tempTotals);
+                    tempTotals = parseFloat(tempTotals).toFixed(precision);
                     return tempTotals;
                 }
                 var shippingOption = "";
@@ -150,7 +136,7 @@ define(
                 var shippingAddress = quote.shippingAddress();
                 //var countryCode = (shippingAddress ? shippingAddress : quote)['countryId'];
                 var countryCode = window.checkoutConfig.payment.apsFort.aps_apple.storeCountryCode;
-               
+
                 var newItemArray = [];
                 var x = 0;
                 var subTotal = 0.00;
@@ -158,7 +144,7 @@ define(
 
                     subTotal = subTotal + parseFloat(arrayItem.product_price_value * arrayItem.qty);
                 });
-                
+
                 newItemArray[x++] = {type: 'final',label: 'Subtotal', amount: runningAmount};
                 if (discountAmount > parseFloat(0)) {
                     newItemArray[x++] = {type: 'final',label: 'Discount', amount: discountAmount };
@@ -167,7 +153,7 @@ define(
                 totalTax = totalTax;
 
                 newItemArray[x++] = {type: 'final',label: 'Taxes', amount: totalTax };
-                
+
                 function getShippingOptions()
                 {
                     return [{label: 'Standard Shipping', amount: runningPP, detail: '3-5 days', identifier: 'domestic_std'}];
@@ -179,7 +165,7 @@ define(
                     lineItems: newItemArray,
                     total: {
                         label: storeName,
-                        amount: runningTotal()
+                        amount: grandTotal
                     },
                     supportedNetworks: window.checkoutConfig.payment.apsFort.aps_apple.appleSupportedNetwork.split(','),
                     merchantCapabilities: [ 'supports3DS' ]
@@ -220,8 +206,8 @@ define(
                 }
 
                 session.onpaymentmethodselected = function (event) {
-                    var newTotal = { type: 'final', label: storeName, amount: runningTotal() };
-                    
+                    var newTotal = { type: 'final', label: storeName, amount: grandTotal };
+
                     session.completePaymentMethodSelection(newTotal, newItemArray);
                 }
                 var paymentData = {};
@@ -245,7 +231,7 @@ define(
                 session.oncancel = function (event) {
                     window.location.href = window.checkoutConfig.payment.apsFort.aps_apple.cancelUrl;
                 }
-                
+
                 function sendPaymentToken(paymentToken)
                 {
                     return new Promise(function (resolve, reject) {
@@ -256,7 +242,7 @@ define(
                         session.abort();
                     });
                 }
-            
+
                 function sendPaymentToAps(data)
                 {
                     var formId = 'frm_aps_fort_apple_payment';
@@ -275,11 +261,11 @@ define(
                             value: v
                         }).appendTo($('#'+formId));
                     });
-                    
+
                     $('#'+formId).attr('action', window.checkoutConfig.payment.apsFort.aps_apple.appleToAps);
                     $('#'+formId).submit();
                 }
-                
+
                 session.begin();
             },
             isChecked: ko.computed(function () {

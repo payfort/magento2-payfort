@@ -12,7 +12,7 @@ execute below command in your magento installation directory
 `composer require amazonpaymentservices/module-fort`
 
 ## Configuration and User Guide
-You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
+You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
    
 
 ## Payment Options
@@ -41,6 +41,7 @@ You can download the archive [file](/magento2-aps-2.2.3.zip) of the plugin and i
 
 | Plugin Version | Release Notes |
 | :---: | :--- |
+| 2.4.6 | * Fix - Notification endpoints to consider auth and purchase success status codes |
 | 2.4.5 | * Fix - Remember me parameter is controlled by STCPay tokenization configuration |
 | 2.4.4 | * Feature - Recurring functionality is controlled by configuration parameter |
 | 2.4.3 | * Fix - ApplePay Sha type is collected from ApplePay config <br/> * New - ValuV2 Installment Plan details are added to confirmation screen | 

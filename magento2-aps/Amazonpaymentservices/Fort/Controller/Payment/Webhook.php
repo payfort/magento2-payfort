@@ -93,7 +93,7 @@ class Webhook extends \Magento\Framework\App\Action\Action implements CsrfAwareA
             $this->_helper->captureAuthorize($responseParams);
         } elseif ($responseCode == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_REFUND_STATUS) {
             $this->_helper->refundAps($responseParams);
-        } elseif ($responseCode == '02000') {
+        } elseif ($responseCode == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_AUTH_SUCCESS_STATUS || $responseCode == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS) {
             $this->_helper->handleFortResponse($responseParams, 'offline');
         }
         $result = [];

@@ -219,6 +219,8 @@ class Data extends \Magento\Payment\Helper\Data
     const PAYMENT_METHOD_CAPTURE_STATUS = '04000';
     const PAYMENT_METHOD_VOID_STATUS = '08000';
     const PAYMENT_METHOD_REFUND_STATUS = '06000';
+    const PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS = '14000';
+    const PAYMENT_METHOD_AUTH_SUCCESS_STATUS = '02000';
 
     const PAYMENT_METHOD = [
         \Amazonpaymentservices\Fort\Model\Method\Vault::CODE,

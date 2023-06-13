@@ -27,14 +27,32 @@
                     <span class="get-instructions"></span>
                 </div>
                 <div>
-                    <div>
+                    <div data-bind="visible: isDownpaymentEnabled()">
                         <label class="label" data-bind="
                             text: $t('Enter valU downpayment amount (Optional):')
                             ">
                         </label>
                     </div>
-                    <div class="down-payment-label">
-                        <input data-action="pf-downpayment" name="downPayment" class="down-payment secondary-text" type="number" autocomplete="off" data-bind="attr: {placeholder: $t('Enter valU downpayment amount (Optional)')}" value="0"/>
+                    <div class="down-payment-label" data-bind="visible: isDownpaymentEnabled()">
+                        <input data-action="pf-downpayment" name="downPayment" class="down-payment secondary-text" type="number" autocomplete="off" data-bind="attr: {placeholder: $t('Enter valU downpayment amount (Optional)')}, value: getDownpaymentValue()"/>
+                    </div>
+                    <div>
+                        <label class="label" data-bind="
+                            text: $t('Enter valU wallet amount (Optional):')
+                            ">
+                        </label>
+                    </div>
+                    <div class="wallet-amount-label">
+                        <input data-action="pf-walletAmount" name="walletAmount" class="wallet-amount secondary-text" type="number" autocomplete="off" data-bind="attr: {placeholder: $t('Enter valU wallet amount (Optional)')}" value="0"/>
+                    </div>
+                    <div>
+                        <label class="label" data-bind="
+                            text: $t('Enter valU cashback amount (Optional):')
+                            ">
+                        </label>
+                    </div>
+                    <div class="cashback-amount-label">
+                        <input data-action="pf-cashbackAmount" name="cashbackAmount" class="cashback-amount secondary-text" type="number" autocomplete="off" data-bind="attr: {placeholder: $t('Enter valU cashback amount (Optional)')}" value="0"/>
                     </div>
                     <span class="mobile-pre">+20</span><input data-action="pf-mobileNumber" name="mobileNumber" class="mobile-num primary-text" type="number" maxlength="19" maxlength="12" autocomplete="off" data-bind="attr: {placeholder: $t('Enter your mobile number')}"/>
                     <button class="action primary primary-btn req-otp" type = "submit" data-bind = "click: VerifyCustomer"><span data-bind="text: $t('Request OTP'), enable: (getCode() == isChecked())"></span></button>
@@ -50,9 +68,8 @@
                 </div>
             </div>
             <div data-action="valu-place-order" class="actions-toolbar valu-place-order _pf-hidden">
-                <div class="primary primary-div">
+                <div>
                     <input data-action="otp" name="otp" class="third-text" type="password" maxlength="10" data-bind="attr: {placeholder: $t('Enter OTP')}"/>
-
                     <button data-action="purchase-btn" class="action primary checkout purchase-btn" data-bind="click: ValuPurchase, enable: (getCode() == isChecked())">
                         <span data-bind="text: $t('Place Order')"></span>
                     </button>

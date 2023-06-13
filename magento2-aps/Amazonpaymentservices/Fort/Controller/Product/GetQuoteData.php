@@ -8,6 +8,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Currency;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
@@ -106,16 +107,37 @@ class GetQuoteData extends \Magento\Framework\App\Action\Action implements CsrfA
             $data['data']['totalPrice']  += $item->getRowTotal();
 
         }
-        $data['data']['totalPrice'] =  $this->modelCurrency->format($data['data']['totalPrice'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+        $data['data']['totalPrice'] =
+            $this->modelCurrency->format(
+                $data['data']['totalPrice'],
+                [
+                    'display'=> Currency::NO_SYMBOL
+                ],
+                false
+            );
         $data['data']['totalPrice'] = str_replace(",", "", $data['data']['totalPrice']);
         $data['data']['shippingAmount']  = 0;
         $data['data']['totalTax']  = 0;
         $data['data']['discountAmount']  = $quote->getSubtotal() - $quote->getSubtotalWithDiscount();
-        $data['data']['discountAmount'] =  $this->modelCurrency->format($data['data']['discountAmount'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+        $data['data']['discountAmount'] =
+            $this->modelCurrency->format(
+                $data['data']['discountAmount'],
+                [
+                    'display'=> Currency::NO_SYMBOL
+                ],
+                false
+            );
         $data['data']['discountAmount'] = str_replace(",", "", $data['data']['discountAmount']);
 
         $data['data']['total']  = $quote->getGrandTotal();
-        $data['data']['total'] =  $this->modelCurrency->format($data['data']['total'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+        $data['data']['total'] =
+            $this->modelCurrency->format(
+                $data['data']['total'],
+                [
+                    'display'=> Currency::NO_SYMBOL
+                ],
+                false
+            );
         $data['data']['total'] = str_replace(",", "", $data['data']['total']);
 
         $data['status'] = 'success';

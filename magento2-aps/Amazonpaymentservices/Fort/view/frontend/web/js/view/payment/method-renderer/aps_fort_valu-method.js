@@ -75,6 +75,12 @@ define(
             getInstructions: function () {
                 return window.checkoutConfig.payment.apsFort.aps_fort_valu.instructions;
             },
+            isDownpaymentEnabled: function () {
+                return !!Number(window.checkoutConfig.payment.apsFort.aps_fort_valu.downPayment);
+            },
+            getDownpaymentValue: function () {
+                return Number(window.checkoutConfig.payment.apsFort.aps_fort_valu.downPaymentValue);
+            },
             /**
              * @param {Function} handler
              */
@@ -97,6 +103,8 @@ define(
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otpCheck = "customerVerify";
                 var downPayment = $('[data-action="pf-downpayment"]').val();
+                var walletAmount = $('[data-action="pf-walletAmount"]').val();
+                var cashbackAmount = $('[data-action="pf-cashbackAmount"]').val();
                 $('.aps-valu .checkout-agreements .valu-check-err').remove('');
                 if ($(".aps-valu .checkout-agreements .required-entry").length) {
                     if (!$(".aps-valu .checkout-agreements .required-entry").is(':checked')) {
@@ -106,6 +114,14 @@ define(
                 }
                 if(!Number.isFinite(parseFloat(downPayment))){
                     $('[data-action="aps-otp-error"]').text($.mage.__('Please enter a valid downpayment amount.'));
+                    return false;
+                }
+                if(!Number.isFinite(parseFloat(walletAmount))){
+                    $('[data-action="aps-otp-error"]').text($.mage.__('Please enter a valid wallet amount.'));
+                    return false;
+                }
+                if(!Number.isFinite(parseFloat(cashbackAmount))){
+                    $('[data-action="aps-otp-error"]').text($.mage.__('Please enter a valid cashback amount.'));
                     return false;
                 }
                 if (!Number.isInteger(parseInt(mobileNumber))) {
@@ -137,11 +153,13 @@ define(
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otpCheck = "requestOtp";
                 var downPayment = $('[data-action="pf-downpayment"]').val();
+                var walletAmount = $('[data-action="pf-walletAmount"]').val();
+                var cashbackAmount = $('[data-action="pf-cashbackAmount"]').val();
                 $.ajax({
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otpCheck:otpCheck, downPayment:downPayment},
+                    data:{mobileNumber:mobileNumber,otpCheck:otpCheck, downPayment:downPayment, walletAmount:walletAmount, cashbackAmount:cashbackAmount},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {
@@ -229,6 +247,9 @@ define(
                 var mobileNumber = $('[data-action="pf-mobileNumber"]').val();
                 var otp = $('[data-action="otp"]').val();
                 var downPayment = $('[data-action="pf-downpayment"]').val();
+                var walletAmount = $('[data-action="pf-walletAmount"]').val();
+                var cashbackAmount = $('[data-action="pf-cashbackAmount"]').val();
+
                 if (otp.length > 10 || otp.length < 1) {
                     $('[data-action="pf-error-verify-otp"]').text($.mage.__('Invalid Valu OTP'));
                     return false;
@@ -253,7 +274,7 @@ define(
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxPurchaseUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otp:otp,tenure:tenure,valu_tenure_amount:valuAmount,valu_tenure_interest:valuInterest, downPayment:downPayment},
+                    data:{mobileNumber:mobileNumber,otp:otp,tenure:tenure,valu_tenure_amount:valuAmount,valu_tenure_interest:valuInterest, downPayment:downPayment, walletAmount:walletAmount, cashbackAmount:cashbackAmount},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {

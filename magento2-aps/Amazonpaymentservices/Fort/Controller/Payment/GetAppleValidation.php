@@ -93,6 +93,9 @@ class GetAppleValidation extends \Magento\Framework\App\Action\Action implements
     public function execute()
     {
         $responseParams = $this->getRequest()->getParams();
+
+        $apple_url = $this->validateAppleUrl($responseParams['valURL'] ?? '');
+
         $mediapath = $this->_filesystem->getPath('media');
         $certificate_key =  $mediapath.'/aps/certificate_keys/'.$this->_helper->getConfig('payment/aps_apple/apple_key_pem');
         $certificate_path = $mediapath.'/aps/certificate_keys/'.$this->_helper->getConfig('payment/aps_apple/apple_certificate_pem');
@@ -105,10 +108,29 @@ class GetAppleValidation extends \Magento\Framework\App\Action\Action implements
 
         $data = json_decode('{"merchantIdentifier":"'.$merchantidentifier.'", "domainName":"'.$domainName.'", "displayName":"'.$displayName.'"}');
 
-        $result = $this->_helper->callApi($data, $responseParams['valURL'], $certificate_key, $certificate_path, $certificate_pass);
+        $result = $this->_helper->callApi($data, $apple_url, $certificate_key, $certificate_path, $certificate_pass);
 
         $jsonResult = $this->_resultJsonFactory->create();
         $jsonResult->setData($result);
         return $jsonResult;
+    }
+
+    private function validateAppleUrl($apple_url)
+    {
+        $apple_url = filter_var($apple_url, FILTER_SANITIZE_URL);
+
+        if ( empty( $apple_url ) ) {
+            throw new \Exception( 'Apple pay url is missing' );
+        }
+        if ( ! filter_var( $apple_url, FILTER_VALIDATE_URL ) ) {
+            throw new \Exception( 'Apple pay url is invalid' );
+        }
+
+        $matched_apple = preg_match('/^https\:\/\/[^\.\/]+\.apple\.com\//', $apple_url);
+        if ( ! $matched_apple ) {
+            throw new \Exception( 'Apple pay url is invalid' );
+        }
+
+        return $apple_url;
     }
 }

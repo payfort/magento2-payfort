@@ -2,15 +2,23 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Product;
 
+use Amazonpaymentservices\Fort\Helper\Data;
+use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Sales\Model\Order;
+use Magento\Framework\Currency;
+use Magento\Framework\Event\ManagerInterface;
+use Magento\Framework\Filter\LocalizedToNormalized;
+use Magento\Framework\Locale\ResolverInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Zend\Uri\Uri;
 
 class AddProductToCart extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
@@ -20,7 +28,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
     protected $_checkoutSession;
 
     /**
-     * Helper
+     * Helper class property
      *
      * @var \Amazonpaymentservices\Fort\Helper\Data
      */
@@ -67,12 +75,21 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
      * @var \Zend\Uri\Uri
      */
     private $zendUri;
-    
+
     /**
-     * @param \Magento\Framework\App\Action\Context $context,
-     * @param \Magento\Checkout\Model\Session $checkoutSession,
-     * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort,
-     * @param \Magento\Framework\Controller\Result\JsonFactory
+     * Adding a product to cart
+     *
+     * @param Context $context
+     * @param Session $checkoutSession
+     * @param Data $helperFort
+     * @param JsonFactory
+     * @param Cart $cart
+     * @param StoreManagerInterface $storeManager
+     * @param ProductRepositoryInterface $productRepository
+     * @param ManagerInterface $eventManager
+     * @param \Magento\Directory\Model\Currency $modelCurrency
+     * @param ResolverInterface $localeResolverInterface
+     * @param Uri $zendUri
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -100,18 +117,36 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
         $this->localeResolverInterface = $localeResolverInterface;
         $this->zendUri = $zendUri;
     }
-    
+
+    /**
+     * @param RequestInterface $request
+     *
+     * @return InvalidRequestException|null
+     */
     public function createCsrfValidationException(
         RequestInterface $request
     ): ?InvalidRequestException {
             return null;
     }
 
+    /**
+     * @param RequestInterface $request
+     *
+     * @return bool|null
+     */
     public function validateForCsrf(RequestInterface $request): ?bool
     {
         return true;
     }
-    
+
+    /**
+     * Executes the command
+     *
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Json|\Magento\Framework\Controller\ResultInterface
+     *
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function execute()
     {
         $responseParams = $this->getRequest()->getParams();
@@ -124,7 +159,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
 
         if (isset($request['qty'])) {
             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $filter = new \Zend_Filter_LocalizedToNormalized(
+            $filter = new LocalizedToNormalized(
                 ['locale' => $this->localeResolverInterface->getLocale()]
             );
             $request['qty'] = $filter->filter($request['qty']);
@@ -174,16 +209,37 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
 
         }
         
-        $data['data']['totalPrice'] =  $this->modelCurrency->format($data['data']['totalPrice'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+        $data['data']['totalPrice'] =
+            $this->modelCurrency->format(
+                $data['data']['totalPrice'],
+                [
+                    'display'=> Currency::NO_SYMBOL
+                ],
+                false
+            );
         $data['data']['totalPrice'] = str_replace(",", "", $data['data']['totalPrice']);
         $data['data']['shippingAmount']  = 0;
         $data['data']['totalTax']  = 0;
         $data['data']['discountAmount']  = $quote->getSubtotal() - $quote->getSubtotalWithDiscount();
-        $data['data']['discountAmount'] =  $this->modelCurrency->format($data['data']['discountAmount'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+        $data['data']['discountAmount'] =
+            $this->modelCurrency->format(
+                $data['data']['discountAmount'],
+                [
+                    'display'=> Currency::NO_SYMBOL
+                ],
+                false
+            );
         $data['data']['discountAmount'] = str_replace(",", "", $data['data']['discountAmount']);
 
         $data['data']['total']  = $quote->getGrandTotal();
-        $data['data']['total'] =  $this->modelCurrency->format($data['data']['total'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+        $data['data']['total'] =
+            $this->modelCurrency->format(
+                $data['data']['total'],
+                [
+                    'display'=> Currency::NO_SYMBOL
+                ],
+                false
+            );
         $data['data']['total'] = str_replace(",", "", $data['data']['total']);
 
         $data['status'] = 'success';

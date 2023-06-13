@@ -86,7 +86,7 @@ class Cron extends \Magento\Payment\Helper\Data
      * @param array $orderData
      * @return array
      */
-    public function createCronOrder($qty, $subscriptionOrderId, $orderIncrementedId)
+    public function createCronOrder($qty, $subscriptionOrderId, $orderIncrementedId, $itemId)
     {
         try {
             $order = $this->_helper->getOrderById($orderIncrementedId);
@@ -121,17 +121,21 @@ class Cron extends \Magento\Payment\Helper\Data
             $quote->assignCustomer($customer);
             
             foreach ($order->getAllItems() as $item) {
-                //@codingStandardsIgnoreStart
-                $product = $this->_product->load($item['product_id']);
-                //@codingStandardsIgnoreEnd
-                $product->setPrice($item['base_price']);
-                $quote->addProduct(
-                    $product,
-                    (int) $qty
-                );
-                
+                if($item->getItemId() == $itemId) {
+                    //@codingStandardsIgnoreStart
+                    $product = $this->_product->load($item['product_id']);
+                    //@codingStandardsIgnoreEnd
+                    $product->setPrice($item['base_price']);
+                    $quote->addProduct(
+                        $product,
+                        (int) $qty
+                    );
+                }
             }
-            
+
+            if(empty($quote->getAllItems()))
+                throw new Exception('APS :: Order Item not found for subcription.');
+
             $quote->getBillingAddress()->addData($order->getBillingAddress()->getData());
             
             $quote->getShippingAddress()->addData($order->getShippingAddress()->getData());

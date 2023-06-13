@@ -49,7 +49,7 @@ class PlaceSubscriptionOrder
         foreach ($getAllSubscriptionOrders as $subscriptionOrder) {
             $order = [];
             $this->_helper->log('Subscription OrderPicked:'.$subscriptionOrder['order_increment_id']);
-            $this->_cronHelper->createCronOrder($subscriptionOrder['qty'], $subscriptionOrder['id'], $subscriptionOrder['order_increment_id']);
+            $this->_cronHelper->createCronOrder($subscriptionOrder['qty'], $subscriptionOrder['id'], $subscriptionOrder['order_increment_id'], $subscriptionOrder['item_id']);
         }
         
         return $this;

@@ -350,7 +350,20 @@
                         <config_path>payment/aps_fort_valu/purchase_limit</config_path>
                         <validate>required-entry validate-number validate-length minimum-length-1 maximum-length-5 validate-digits-range digits-range-1-99999</validate>
                     </field>
-                    <field id="sort_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="downpayment" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Downpayment</label>
+                        <source_model>Magento\Config\Model\Config\Source\Enabledisable</source_model>
+                        <config_path>payment/aps_fort_valu/downpayment_active</config_path>
+                    </field>
+                    <field id="downpayment_default_Value" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Downpayment Default Value</label>
+                        <config_path>payment/aps_fort_valu/downpayment_default_Value</config_path>
+                        <validate>validate-number validate-zero-or-greater</validate>
+                        <depends>
+                            <field id="downpayment">1</field>
+                        </depends>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Sort Order</label>
                         <frontend_class>validate-number</frontend_class>
                         <config_path>payment/aps_fort_valu/sort_order</config_path>

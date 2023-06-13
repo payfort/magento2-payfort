@@ -229,6 +229,8 @@ class PaymentConfigProvider implements ConfigProviderInterface
                     $this->config['payment']['apsFort'][$code]['ajaxPurchaseUrl']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/GetPurchaseData');
                     $this->config['payment']['apsFort'][$code]['response']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/response');
                     $this->config['payment']['apsFort'][$code]['storeName']  = $this->_storeManager->getStore()->getName();
+                    $this->config['payment']['apsFort'][$code]['downPayment']  = $this->apsHelper->getConfig('payment/aps_fort_valu/downpayment_active');
+                    $this->config['payment']['apsFort'][$code]['downPaymentValue']  = $this->apsHelper->getConfig('payment/aps_fort_valu/downpayment_default_Value');
                 }
                 if ($code == \Amazonpaymentservices\Fort\Model\Method\Apple::CODE) {
                     $this->config['payment']['apsFort'][$code]['shippingconfig'] = $this->apsHelper->getConfig('tax/calculation/shipping_includes_tax');

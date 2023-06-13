@@ -7,6 +7,7 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Currency;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Filesystem\DirectoryList as FileSystem;
@@ -126,23 +127,23 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
         $this->modelCurrency = $modelCurrency;
         $this->shippingRate = $shippingRate;
     }
-    
+
     public function createCsrfValidationException(
         RequestInterface $request
     ): ?InvalidRequestException {
-            return null;
+        return null;
     }
 
     public function validateForCsrf(RequestInterface $request): ?bool
     {
         return true;
     }
-    
+
     public function execute()
     {
         $responseParams = $this->getRequest()->getParams();
         $addressData = $responseParams['addressObject'];
-        
+
         $this->_helper->log('Apple Address:'.json_encode($addressData));
         $result = [];
         if (isset($addressData['countryCode']) && $this->_helper->getConfig('payment/aps_apple/allowspecific') != 0) {
@@ -167,16 +168,30 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
         $dataArr['taxes'] = $quote->getShippingAddress()->getData('tax_amount');
         $dataArr['taxes'] = str_replace(",", "", $dataArr['taxes']);
 
-        $dataArr['taxes'] =  $this->modelCurrency->format($dataArr['taxes'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+        $dataArr['taxes'] =
+            $this->modelCurrency->format(
+                $dataArr['taxes'],
+                [
+                    'display'=> Currency::NO_SYMBOL
+                ],
+                false
+            );
         $dataArr['taxes'] = str_replace(",", "", $dataArr['taxes']);
 
         if(isset($result[0]['amount'])) {
             $result[0]['amount'] = $quote->getShippingAddress()->getData('shipping_amount');
             $result[0]['amount'] = str_replace(",", "", $result[0]['amount']);
-            $result[0]['amount'] =  $this->modelCurrency->format($result[0]['amount'], ['display'=>\Zend_Currency::NO_SYMBOL], false);
+            $result[0]['amount'] =
+                $this->modelCurrency->format(
+                    $result[0]['amount'],
+                    [
+                        'display'=> Currency::NO_SYMBOL
+                    ],
+                    false
+                );
             $result[0]['amount'] = str_replace(",", "", $result[0]['amount']);
         }
-        
+
         $dataArr['data'] = $result;
         $dataArr['status'] = 'success';
 
@@ -199,13 +214,13 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
                 ->save();
             $quoteId = $quote->getId();
             $address = $quote->getShippingAddress();
-            
+
             $estimatedAddress = $this->estimatedAddressFactory->create();
             $estimatedAddress->setCountryId($address->getCountryId());
             $estimatedAddress->setPostcode($address->getPostcode());
             $estimatedAddress->setRegion((string)$address->getRegion());
             $estimatedAddress->setRegionId($address->getRegionId());
-            
+
             $rates = $this->shippingMethodManager->estimateByAddress($quote->getId(), $estimatedAddress);
             $result = [];
             foreach ($rates as $rate) {
@@ -224,12 +239,12 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
                 ->setCode($result[0]['id'])
                 ->getPrice(1);
             $shippingAddress = $quote->getShippingAddress();
-            
+
             $shippingAddress->setCollectShippingRates(true)
                 ->collectShippingRates()
                 ->setShippingMethod($result[0]['id']);
             $quote->getShippingAddress()->addShippingRate($this->shippingRate);
-            
+
             $this->quoteRepository->save($quote);
 
             // Collect Totals & Save Quote

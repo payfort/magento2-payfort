@@ -73,7 +73,10 @@ class GetPurchaseData extends \Magento\Framework\App\Action\Action implements Cs
         $valuTenureAmount = $this->getRequest()->getParam('valu_tenure_amount');
         $valuTenureInterest = $this->getRequest()->getParam('valu_tenure_interest');
         $downPayment = $this->getRequest()->getParam('downPayment');
-        $data = $this->_helper->merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment);
+        $wallet_amount = $this->getRequest()->getParam('walletAmount');
+        $cashback_amount = $this->getRequest()->getParam('cashbackAmount');
+
+        $data = $this->_helper->merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment,  $wallet_amount, $cashback_amount);
 
         $resultJson = $this->_jsonHelper->create();
         return $resultJson->setData($data);

@@ -675,7 +675,7 @@ class Data extends \Magento\Payment\Helper\Data
      * @param string $mobileNumber
      * @return array
      */
-    public function execGenOtp($order, $mobileNumber, $downPayment)
+    public function execGenOtp($order, $mobileNumber, $downPayment, $wallet_amount, $cashback_amount)
     {
         $orderId = $order->getRealOrderId();
 
@@ -695,7 +695,9 @@ class Data extends \Magento\Payment\Helper\Data
             $orderCurrency = $order->getOrderCurrency()->getCurrencyCode();
             $currency      = $this->getFortCurrency($baseCurrency, $orderCurrency);
             $amount        = $this->convertFortAmount($order, $currency);
-            $downPaymentAmount = $downPayment*100;
+            $downPaymentAmount = $downPayment > 0 ? $downPayment*100 : 0;
+            $wallet_amount = $wallet_amount > 0 ? $wallet_amount*100 : 0;
+            $cashback_amount = $cashback_amount > 0 ? $cashback_amount*100 : 0;
 
             $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
             $items = $cart->getAllItems();
@@ -717,7 +719,9 @@ class Data extends \Magento\Payment\Helper\Data
                 'currency'            => $currency,
                 'products'            => $products,
                 'total_downpayment'   => $downPaymentAmount,
-                'include_installments' => $include_installments
+                'include_installments' => $include_installments,
+                'wallet_amount'        => $wallet_amount,
+                'cashback_wallet_amount' => $cashback_amount
             ];
             $signature = $this->calculateSignature($postData, 'request');
             $postData['signature'] = $signature;
@@ -743,8 +747,6 @@ class Data extends \Magento\Payment\Helper\Data
                 $responseData['status'] = $response['status'];
                 $responseData['response_code'] = $response['response_code'];
                 $responseData['response_message'] = $response['response_message'];
-                $responseData['installment_detail'] = $response['installment_detail'];
-
             }
         } else {
             $responseData['status'] = self::VALU_API_FAILED_STATUS;
@@ -889,7 +891,7 @@ class Data extends \Magento\Payment\Helper\Data
      * @param string $tenure
      * @return array
      */
-    public function merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment)
+    public function merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment,  $wallet_amount, $cashback_amount)
     {
         $orderId = $order->getRealOrderId();
         $sessionData = $this->_custmerSession->getCustomValue();
@@ -899,7 +901,8 @@ class Data extends \Magento\Payment\Helper\Data
             $currency      = $this->getFortCurrency($baseCurrency, $orderCurrency);
             $amount        = $this->convertFortAmount($order, $currency);
             $downPaymentAmount = $downPayment*100;
-
+            $wallet_amount = $wallet_amount*100;
+            $cashback_amount = $cashback_amount*100;
             $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
 
             $customerEmail = '';
@@ -928,7 +931,9 @@ class Data extends \Magento\Payment\Helper\Data
                 'tenure'              => $tenure,
                 'purchase_description'=> "PurchaseWithEGP".$downPaymentAmount."downpaymentAnd".$tenure."MonthsTenure",
                 'total_down_payment'  => $downPaymentAmount,
-                'customer_code'       => $mobileNumber
+                'customer_code'       => $mobileNumber,
+                'wallet_amount'        => $wallet_amount,
+                'cashback_wallet_amount' => $cashback_amount
             ];
             $postData = array_merge($postData, $this->pluginParams());
             //calculate request signature
@@ -1387,7 +1392,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->getCurlClient()->setOption(CURLOPT_FAILONERROR, 1);
             $this->getCurlClient()->setOption(CURLOPT_ENCODING, "compress, gzip");
             $this->getCurlClient()->setOption(CURLOPT_RETURNTRANSFER, true);
-            $this->getCurlClient()->setOption(CURLOPT_FOLLOWLOCATION, 1);
+            $this->getCurlClient()->setOption(CURLOPT_FOLLOWLOCATION, 0);
             $this->getCurlClient()->setOption(CURLOPT_CONNECTTIMEOUT, 0);
             $this->getCurlClient()->setOption(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
            

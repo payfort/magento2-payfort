@@ -67,11 +67,14 @@ class GetUserData extends \Magento\Framework\App\Action\Action implements CsrfAw
         $mobileNumber = $this->getRequest()->getParam('mobileNumber');
         $otpCheck = $this->getRequest()->getParam('otpCheck');
         $downPayment = $this->getRequest()->getParam('downPayment');
+        $wallet_amount = $this->getRequest()->getParam('walletAmount');
+        $cashback_amount = $this->getRequest()->getParam('cashbackAmount');
+
         $data = [];
         if ($otpCheck == 'customerVerify') {
             $data = $this->_helper->merchantVerifyValuFort($mobileNumber);
         } elseif ($otpCheck == 'requestOtp') {
-            $data = $this->_helper->execGenOtp($order, $mobileNumber, $downPayment);
+            $data = $this->_helper->execGenOtp($order, $mobileNumber, $downPayment, $wallet_amount, $cashback_amount);
         }
         $resultJson = $this->_jsonHelper->create();
         return $resultJson->setData($data);

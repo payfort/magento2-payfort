@@ -82,6 +82,7 @@
                 <title>Buy Now, Pay Monthly</title>
                 <order_status>aps_fort_new</order_status>
                 <purchase_limit><![CDATA[500]]></purchase_limit>
+                <downpayment_default_Value><![CDATA[0]]></downpayment_default_Value>
                 <group>aps_fort</group>
                 <sort_order>60</sort_order>
             </aps_fort_valu>

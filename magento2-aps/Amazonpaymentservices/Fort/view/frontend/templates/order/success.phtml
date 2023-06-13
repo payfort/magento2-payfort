@@ -17,12 +17,17 @@
 	    $valuMonth = isset($valuData['valu_tenure']) ? $valuData['valu_tenure'] : '';
     	$valuEmi = isset($valuData['valu_tenure_amount']) ? $valuData['valu_tenure_amount'] : '';
     	$adminFee = isset($valuData['valu_tenure_interest']) ? $valuData['valu_tenure_interest'] : '';
+      $cashbackAmount = isset($valuData['cashback_wallet_amount']) ? $valuData['cashback_wallet_amount'] : '';
+      $loanNumber = isset($valuData['loan_number']) ? $valuData['loan_number'] : '';
+      $transactionId= isset($valuData['valu_transaction_id']) ? $valuData['valu_transaction_id'] : '';
 	?>
-  <div class="success-section">
-    
+  <p class="success-section">
+    <div style="clear: both;">Transaction Id: <?= $block->escapeHtml(__($transactionId)); ?> </div>
     <div style="clear: both;">Installment Plan : EGP <?= $block->escapeHtml(__(intval($valuEmi)/100)); ?> for <?= $block->escapeHtml(__($valuMonth)); ?> Months</div>
     <div style="clear: both;">Admin Fees : EGP <?= $block->escapeHtml(__(intval($adminFee)/100)); ?> </div>
-  </div>
+    <div style="clear: both;">Cashback Amount : EGP <?= $block->escapeHtml(__(intval($cashbackAmount)/100)); ?> </div>
+    <div style="clear: both;">Loan Number : <?= $block->escapeHtml(__($loanNumber)); ?> </div>
+  </p>
 
 
 <?php endif; ?>

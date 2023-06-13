@@ -64,6 +64,11 @@ class CreditmemoAddData
      * @var \Magento\Sales\Model\OrderRepository
      */
     protected $_order;
+
+    /**
+     * @var ConfigProvider
+     */
+    private $configProvider;
     
     public function __construct(
         \Amazonpaymentservices\Fort\Helper\Data $apsHelper,
@@ -72,7 +77,8 @@ class CreditmemoAddData
         CreditmemoRepositoryInterface $creditmemoRepository,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         \Amazonpaymentservices\Fort\Model\PaymentcaptureFactory $paymentCaptureFactory,
-        \Magento\Sales\Model\OrderRepository $order
+        \Magento\Sales\Model\OrderRepository $order,
+        \Magento\Tax\Model\Config $configProvider
     ) {
         $this->_helper = $apsHelper;
         $this->_request = $request;
@@ -81,6 +87,7 @@ class CreditmemoAddData
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->_paymentCaptureFactory = $paymentCaptureFactory;
         $this->_order = $order;
+        $this->configProvider = $configProvider;
     }
 
     public function beforeSave(
@@ -117,7 +124,7 @@ class CreditmemoAddData
             $adjustNegative = isset($postParams['creditmemo']['adjustment_negative']) ? ((float)$postParams['creditmemo']['adjustment_negative'] * $amountRate) : 0;
 
             $taxAmount = 0;
-            if($shipAmount > 0) {
+            if($shipAmount > 0 && !$this->configProvider->shippingPriceIncludesTax()) {
                 $shippingTax = $order->getShippingInclTax() - $order->getShippingAmount();
                 if($shippingTax > 0) {
                     $shippingTaxPer =  $shippingTax/$order->getShippingAmount()*100;

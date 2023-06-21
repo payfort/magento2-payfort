@@ -12,7 +12,7 @@ execute below command in your magento installation directory
 `composer require amazonpaymentservices/module-fort`
 
 ## Configuration and User Guide
-You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
+You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](https://github.com/payfort/magento2-payfort/wiki).
    
 
 ## Payment Options

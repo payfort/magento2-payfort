@@ -11,21 +11,24 @@ or
 execute below command in your magento installation directory
 `composer require amazonpaymentservices/module-fort`
 
-# Installation
+# Amazon Payment Services Account:
+If you don't have an APS account click here to sign up for Amazon Payment Services account
+https://paymentservices.amazon.com/
+Have any questions? Just get in touch -- email the team at integration-ps@amazon.com
+
+# Installation Steps
 1. Connect via SFTP and navigate to [your site root folder]
 1. Copy APS extension for Magento folder under app/code folder
 1. Compile Magento
 1. Follow the configuration steps mentioned in Step 3
+
 # Configuration
 Follow the below instruction to access configuration page of APS extension for Magento:
 1. Navigate to Stores → Configuration
 1. At left hand side click on Sales → Payment Methods
 1. Under Other Payment Methods section find a payment methods names as “Amazon Payment Services”
 1. Click on Configure button
-# Amazon Payment Services Account:
-If you don't have an APS account click here to sign up for Amazon Payment Services account
-https://paymentservices.amazon.com/
-Have any questions? Just get in touch -- email the team at integration-ps@amazon.com
+
    
 ## Payment Options
 

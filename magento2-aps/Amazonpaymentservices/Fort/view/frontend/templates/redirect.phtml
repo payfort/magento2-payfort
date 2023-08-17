@@ -44,7 +44,7 @@
             var apsFortStandard = (function () {
                  return {
                         showStandard: function (gatewayUrl) {
-                            if (jQuery("#aps_merchant_page").size()) {
+                            if (jQuery("#aps_merchant_page").length) {
                                 jQuery("#aps_merchant_page").remove();
                             }
                             jQuery("#review-buttons-container .btn-checkout").hide();

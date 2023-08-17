@@ -54,6 +54,26 @@ Follow the below instruction to access configuration page of APS extension for M
  ## Configuration and User Guide
 You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](https://github.com/payfort/magento2-payfort/wiki).
    
+## Changelog
+
+| Plugin Version | Release Notes |
+| :---: | :--- |
+| 2.4.8 | * Fix - jQuery deprecated size() function is replaced with length |
+| 2.4.7 | * Fix - Shipping tax is considered for the refund calculation <br/> * Fix - ApplePay url validation is added <br/> * Fix - item id is considered during subscription product cancellation|
+| 2.4.6 | * Fix - Notification endpoints to consider auth and purchase success status codes |
+| 2.4.5 | * Fix - Remember me parameter is controlled by STCPay tokenization configuration |
+| 2.4.4 | * Feature - Recurring functionality is controlled by configuration parameter |
+| 2.4.3 | * Fix - ApplePay Sha type is collected from ApplePay config <br/> * New - ValuV2 Installment Plan details are added to confirmation screen | 
+| 2.4.2 | * Valu payment option is updated | 
+| 2.4.1 | * Fix - Compliance changes for Magento v2.4.5 | 
+| 2.4.0 | * STCPay is added as a new payment option | 
+| 2.3.0 | * Fix - Customer login mandatory for Subscription products <br/> * Fix - Invoice generation on child orders resolved <br/> * Fix - Failed orders not showing in subscription listing <br/> * Fix - Subscriptions listing not showing proper status  <br/> * Fix - Country name issue with version dependency resolved <br/> * Fix - Shipping and billing region id issue resolved <br/> * Fix - Recurring cron issue for inactive products <br/> * Fix - Payment cron issue of Apple Code <br/> * Fix - Credit memo issue resolved <br/> * Fix - Mada bin changes |
+| 2.2.3 |   * Fix - Logout after redirection related to session is resolved <br/> * Fix - Apple Pay code simplification | 
+| 2.2.2 |   * Fix - Namespace change <br/> * Fix - Shipping and tax calculation corrections in Apple Pay of Product / Cart pages <br/> * Fix - Back button click handling after a successful transaction | 
+| 2.2.1 |   * Fix - Fixed Apple Pay floating point issue | 
+| 2.2.0 |   * New - Installments are embedded in Debit/Credit Card payment option | 
+| 2.1.0 |   * New - ApplePay is activated in Product and Cart pages | 
+| 2.0.0 |   * New - Integrated payment options: MasterCard, Visa, AMEX, mada, Meeza, KNET, NAPS, Visa Checkout, ApplePay, valU <br/> * New - Tokenization is enabled for Debit/Credit Cards and Installments <br/> * New - Partial/Full Refund, Single/Multiple Capture and Void events are managed in order details | 
 
 ## API Documentation
 This plugin has been implemented by using following [API library](https://paymentservices-reference.payfort.com/docs/api/build/index.html)

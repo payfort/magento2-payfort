@@ -41,6 +41,7 @@ You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and i
 
 | Plugin Version | Release Notes |
 | :---: | :--- |
+| 2.4.8 | * Fix - jQuery deprecated size() function is replaced with length |
 | 2.4.7 | * Fix - Shipping tax is considered for the refund calculation <br/> * Fix - ApplePay url validation is added <br/> * Fix - item id is considered during subscription product cancellation|
 | 2.4.6 | * Fix - Notification endpoints to consider auth and purchase success status codes |
 | 2.4.5 | * Fix - Remember me parameter is controlled by STCPay tokenization configuration |

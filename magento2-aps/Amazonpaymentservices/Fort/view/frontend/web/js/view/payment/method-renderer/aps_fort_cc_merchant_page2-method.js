@@ -507,7 +507,7 @@ define(
                                     msg;
                                 if (response.success) {
                                     var formId = 'frm_aps_fort_payment';
-                                    if (jQuery("#"+formId).size()) {
+                                    if (jQuery("#"+formId).length) {
                                         jQuery("#"+formId).remove();
                                     }
                                     $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');
@@ -556,7 +556,7 @@ define(
                             success: function (response) {
                                 if (response.success) {
                                     var formId = 'frm_aps_fort_payment';
-                                    if (jQuery("#"+formId).size()) {
+                                    if (jQuery("#"+formId).length) {
                                         jQuery("#"+formId).remove();
                                     }
                                     $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');
@@ -624,7 +624,7 @@ define(
                                     msg;
                                 if (response.success) {
                                     var formId = 'frm_aps_fort_payment';
-                                    if (jQuery("#"+formId).size()) {
+                                    if (jQuery("#"+formId).length) {
                                         jQuery("#"+formId).remove();
                                     }
                                     $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');
@@ -673,7 +673,7 @@ define(
                                     msg;
                                 if (response.success) {
                                     var formId = 'frm_aps_fort_payment';
-                                    if (jQuery("#"+formId).size()) {
+                                    if (jQuery("#"+formId).length) {
                                         jQuery("#"+formId).remove();
                                     }
                                     $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');
@@ -737,7 +737,7 @@ define(
                                     msg;
                                 if (response.success) {
                                     var formId = 'frm_aps_fort_payment';
-                                    if (jQuery("#"+formId).size()) {
+                                    if (jQuery("#"+formId).length) {
                                         jQuery("#"+formId).remove();
                                     }
                                     $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');
@@ -786,7 +786,7 @@ define(
                             success: function (response) {
                                 if (response.success) {
                                     var formId = 'frm_aps_fort_payment';
-                                    if (jQuery("#"+formId).size()) {
+                                    if (jQuery("#"+formId).length) {
                                         jQuery("#"+formId).remove();
                                     }
                                     $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');

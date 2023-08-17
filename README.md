@@ -11,10 +11,25 @@ or
 execute below command in your magento installation directory
 `composer require amazonpaymentservices/module-fort`
 
-## Configuration and User Guide
-You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
-   
+# Amazon Payment Services Account:
+If you don't have an APS account click here to sign up for Amazon Payment Services account
+https://paymentservices.amazon.com/
+Have any questions? Just get in touch -- email the team at integration-ps@amazon.com
 
+# Installation Steps
+1. Connect via SFTP and navigate to [your site root folder]
+1. Copy APS extension for Magento folder under app/code folder
+1. Compile Magento
+1. Follow the configuration steps mentioned in Step 3
+
+# Configuration
+Follow the below instruction to access configuration page of APS extension for Magento:
+1. Navigate to Stores → Configuration
+1. At left hand side click on Sales → Payment Methods
+1. Under Other Payment Methods section find a payment methods names as “Amazon Payment Services”
+1. Click on Configure button
+
+   
 ## Payment Options
 
 * Integration Types
@@ -35,8 +50,10 @@ You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and i
    * KNET
    * NAPS
    * Apple Pay
+ 
+ ## Configuration and User Guide
+You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](https://github.com/payfort/magento2-payfort/wiki).
    
-
 ## Changelog
 
 | Plugin Version | Release Notes |
@@ -57,7 +74,6 @@ You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and i
 | 2.2.0 |   * New - Installments are embedded in Debit/Credit Card payment option | 
 | 2.1.0 |   * New - ApplePay is activated in Product and Cart pages | 
 | 2.0.0 |   * New - Integrated payment options: MasterCard, Visa, AMEX, mada, Meeza, KNET, NAPS, Visa Checkout, ApplePay, valU <br/> * New - Tokenization is enabled for Debit/Credit Cards and Installments <br/> * New - Partial/Full Refund, Single/Multiple Capture and Void events are managed in order details | 
-
 
 ## API Documentation
 This plugin has been implemented by using following [API library](https://paymentservices-reference.payfort.com/docs/api/build/index.html)

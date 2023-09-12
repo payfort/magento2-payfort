@@ -52,7 +52,7 @@ Follow the below instruction to access configuration page of APS extension for M
    * Apple Pay
  
  ## Configuration and User Guide
-You can download the archive [file](/magento2-aps-2.4.6.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](https://github.com/payfort/magento2-payfort/wiki).
+You can download the archive [file](/magento2-aps-2.4.8.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](https://github.com/payfort/magento2-payfort/wiki).
    
 ## Changelog
 

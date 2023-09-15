@@ -12,9 +12,9 @@
                name="payment[method]"
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
-        <img data-action="setStcLogo" data-bind="attr: {alt: $t('STCPay Logo'),afterRender: setStcLogo()}"
-                 class="payment-icon" />
+        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span>
+            <img data-action="setStcLogo" data-bind="attr: {alt: getTitle(),afterRender: setStcLogo()}" class="payment-icon" />
+        </label>
     </div>
     <div class="error-ccform"></div>
     <div class="payment-method-content">

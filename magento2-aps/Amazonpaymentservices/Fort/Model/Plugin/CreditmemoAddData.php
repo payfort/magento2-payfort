@@ -15,6 +15,8 @@ namespace Amazonpaymentservices\Fort\Model\Plugin;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
 
 /**
  * Amazonpaymentservices Payment Apple Model
@@ -69,6 +71,16 @@ class CreditmemoAddData
      * @var ConfigProvider
      */
     private $configProvider;
+
+    /**
+     * @var StoreManagerInterface
+     */
+    protected $_storeManager;
+
+    /**
+     * @var ScopeConfigInterface
+     */
+    protected $_scopeConfig;
     
     public function __construct(
         \Amazonpaymentservices\Fort\Helper\Data $apsHelper,
@@ -78,7 +90,9 @@ class CreditmemoAddData
         SearchCriteriaBuilder $searchCriteriaBuilder,
         \Amazonpaymentservices\Fort\Model\PaymentcaptureFactory $paymentCaptureFactory,
         \Magento\Sales\Model\OrderRepository $order,
-        \Magento\Tax\Model\Config $configProvider
+        \Magento\Tax\Model\Config $configProvider,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     ) {
         $this->_helper = $apsHelper;
         $this->_request = $request;
@@ -88,6 +102,8 @@ class CreditmemoAddData
         $this->_paymentCaptureFactory = $paymentCaptureFactory;
         $this->_order = $order;
         $this->configProvider = $configProvider;
+        $this->_storeManager = $storeManager;
+        $this->_scopeConfig = $scopeConfig;
     }
 
     public function beforeSave(
@@ -173,7 +189,15 @@ class CreditmemoAddData
                 }
             }
 
-            $currencyCode = $order->getOrderCurrencyCode();
+            $configCurrency = $this->_scopeConfig->getValue('payment/aps_fort/gateway_currency');
+            $baseCurrency = $this->_storeManager->getStore()->getBaseCurrencyCode();
+            $this->_helper->log("\n\n 'Config Currency : ".$configCurrency."\n\n");
+            $this->_helper->log("\n\n 'Base Currency : ".$baseCurrency."\n\n");
+            if ($configCurrency === "base") {
+                $currencyCode = $baseCurrency;
+            } else {
+                $currencyCode = $order->getOrderCurrencyCode();
+            }
             
             $paymentMethod = $order->getPayment()->getMethod();
             if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {

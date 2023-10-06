@@ -77,7 +77,6 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
         $this->_orderConfig = $orderConfig;
-        $this->_isScopePrivate = true;
         $this->_helper = $helperFort;
         $this->_apsModel = $apsModel;
         $this->_resultJsonFactory  = $resultJsonFactory;
@@ -251,5 +250,9 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
             $dataArr['error_message'] = $response['error_message'];
         }
         return $dataArr;
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

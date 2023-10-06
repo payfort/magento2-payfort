@@ -10,6 +10,7 @@ define(
     [
         'ko',
         'jquery',
+        'uiRegistry',
         'Magento_Checkout/js/view/payment/default',
         'Magento_Checkout/js/model/quote',
         'Magento_Checkout/js/model/full-screen-loader',
@@ -18,7 +19,7 @@ define(
         'Magento_Customer/js/customer-data',
         'Magento_Catalog/js/price-utils'
     ],
-    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customerData, priceUtils) {
+    function (ko, $, registry, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customerData, priceUtils) {
         'use strict';
         var promise = '';
         $("#applePay").addClass(window.checkoutConfig.payment.apsFort.aps_apple.appleButtonClass);
@@ -54,13 +55,23 @@ define(
                 return this;
             },
             redirectAfterPlaceOrder: false,
-            
+
+            isApplePayChecked: function () {
+                var applePayRadio = document.getElementById("aps_apple");
+                return applePayRadio.checked;
+            },
             beforeApplePay: function () {
                 document.getElementById("applePay").disabled = false;
                 if (window.ApplePaySession) {
                     if (ApplePaySession.canMakePayments) {
                         $("#applePay").addClass(window.checkoutConfig.payment.apsFort.aps_apple.appleButtonClass);
-                        document.getElementById("applePay").style.display = "block";
+                        if (this.isApplePayChecked()) {
+                            document.getElementById("applePay").style.display = "block";
+                        }
+                        if($('.bss-onestepcheckout').length && this.isApplePayChecked()){
+                            var button = document.getElementsByClassName('btn-placeorder')[0];
+                            button.style = "display:none;";
+                        }
                     } else {
                         $(".apple-err").text('');
                         $("#applePay").remove();
@@ -71,9 +82,18 @@ define(
                     $("#applePay").remove();
                     $(".payment-method.apple-pay").remove();
                 }
-                
             },
             afterPlaceOrder : function () {
+                if(registry) {
+                    var shippingAddressComponent  = registry.get('checkout.steps.shipping-step.shippingAddress');
+                    var validateShippingInfomation;
+                    if ($('.selected-store-pickup').length) {
+                        validateShippingInfomation = true;
+                    } else {
+                        validateShippingInfomation = shippingAddressComponent.validateShippingInformation();
+                    }
+                    if(!validateShippingInfomation) return false;
+                }
                 this.placeOrder();
                 var totals = quote.totals();
                 var runningAmount = (totals ? totals : quote)['subtotal'];
@@ -91,7 +111,7 @@ define(
                 var runningPP = 0;
                 var displayPP = 0;
                 if (window.checkoutConfig.payment.apsFort.aps_apple.shippingconfig == 0) {
-                    
+
                     if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 1) {
                         displayPP = (totals ? totals : quote)['shipping_amount'];
                     } else if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 2) {
@@ -118,7 +138,7 @@ define(
                 displayPP = priceUtils.formatPrice(displayPP, priceFormat, false);
                 displayPP = displayPP.replace(/,/g, '');
                 displayPP = parseFloat(displayPP);
-                
+
                 var runningShipDiscount = (totals ? totals : quote)['shipping_discount_amount'];
                 runningShipDiscount = priceUtils.formatPrice(runningShipDiscount, priceFormat, false);
                 runningShipDiscount = runningShipDiscount.replace(/,/g, '');
@@ -129,7 +149,7 @@ define(
                 discountAmount = priceUtils.formatPrice(discountAmount, priceFormat, false);
                 discountAmount = discountAmount.replace(/,/g, '');
                 discountAmount = parseFloat(discountAmount);
-                
+
                 var currencyCode = (totals ? totals : quote)['quote_currency_code'];
 
                 var runningTotal    = function () {
@@ -150,7 +170,7 @@ define(
                 var shippingAddress = quote.shippingAddress();
                 //var countryCode = (shippingAddress ? shippingAddress : quote)['countryId'];
                 var countryCode = window.checkoutConfig.payment.apsFort.aps_apple.storeCountryCode;
-               
+
                 var newItemArray = [];
                 var x = 0;
                 var subTotal = 0.00;
@@ -158,7 +178,7 @@ define(
 
                     subTotal = subTotal + parseFloat(arrayItem.product_price_value * arrayItem.qty);
                 });
-                
+
                 newItemArray[x++] = {type: 'final',label: 'Subtotal', amount: runningAmount};
                 if (discountAmount > parseFloat(0)) {
                     newItemArray[x++] = {type: 'final',label: 'Discount', amount: discountAmount };
@@ -167,7 +187,7 @@ define(
                 totalTax = totalTax;
 
                 newItemArray[x++] = {type: 'final',label: 'Taxes', amount: totalTax };
-                
+
                 function getShippingOptions()
                 {
                     return [{label: 'Standard Shipping', amount: runningPP, detail: '3-5 days', identifier: 'domestic_std'}];
@@ -221,7 +241,7 @@ define(
 
                 session.onpaymentmethodselected = function (event) {
                     var newTotal = { type: 'final', label: storeName, amount: runningTotal() };
-                    
+
                     session.completePaymentMethodSelection(newTotal, newItemArray);
                 }
                 var paymentData = {};
@@ -245,7 +265,7 @@ define(
                 session.oncancel = function (event) {
                     window.location.href = window.checkoutConfig.payment.apsFort.aps_apple.cancelUrl;
                 }
-                
+
                 function sendPaymentToken(paymentToken)
                 {
                     return new Promise(function (resolve, reject) {
@@ -256,7 +276,7 @@ define(
                         session.abort();
                     });
                 }
-            
+
                 function sendPaymentToAps(data)
                 {
                     var formId = 'frm_aps_fort_apple_payment';
@@ -275,15 +295,21 @@ define(
                             value: v
                         }).appendTo($('#'+formId));
                     });
-                    
+
                     $('#'+formId).attr('action', window.checkoutConfig.payment.apsFort.aps_apple.appleToAps);
                     $('#'+formId).submit();
                 }
-                
+
                 session.begin();
             },
             isChecked: ko.computed(function () {
                 var checked = quote.paymentMethod() ? quote.paymentMethod().method : null;
+                if($('.bss-onestepcheckout').length){
+                    if(document.getElementById("applePay") && checked == 'aps_apple'){
+                        var button = document.getElementsByClassName('btn-placeorder')[0];
+                        button.style = "display:none;";
+                    }
+                }
                 if (window.checkoutConfig.payment.apsFort.configParams.gatewayCurrency == 'front') {
                     if (checked) {
                         $('.totals.charge').hide();

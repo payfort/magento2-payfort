@@ -113,7 +113,6 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
         $this->_orderConfig = $orderConfig;
-        $this->_isScopePrivate = true;
         $this->_helper = $helperFort;
         $this->_apsModel = $apsModel;
         $this->_resultJsonFactory  = $resultJsonFactory;
@@ -297,6 +296,10 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
             return $region->getId();
         }
 
+        return null;
+    }
+    public function getCacheLifetime()
+    {
         return null;
     }
 }

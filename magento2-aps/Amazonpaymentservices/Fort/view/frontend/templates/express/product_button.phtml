@@ -125,7 +125,7 @@ if ($checkActive) {
                 $(".apple-err").text('');
                 $("#applePayProd").remove();
             }
-
+            var cartData;
             $("#applePayProd").on("click",function(){
                 var form = $('#product_addtocart_form');
                 var request = [];
@@ -140,12 +140,24 @@ if ($checkActive) {
                     dataType: 'json',
                     success:function(data) {
                         if ( data.status === 'success' ) {
-                            iniApplePay(data.data);
+                            //iniApplePay(data.data);
+                            cartData = data.data;
                         } else {
                             console.log( data.error_msg );
                         }
                     }
                 });
+                var delay = (function() {
+                    var timer = 0;
+                    return function(callback, ms) {
+                        clearTimeout(timer);
+                        timer = setTimeout(callback, ms);
+                    };
+                })();
+                delay(function() {
+                    console.log('Wait for server response');  
+                }, 1000);
+                iniApplePay(cartData);
             });
             function iniApplePay (data) {
                 var shipData = {};
@@ -192,6 +204,7 @@ if ($checkActive) {
                 };
 
                 var supportedNetworks = supportedNetworks.split(',');
+                new Promise(resolve => setTimeout(resolve, 1000));
                 if(supportedNetworks.indexOf('mada') >= 0) {
                     var session = new ApplePaySession(5, paymentRequest);
                 } else {

@@ -11,7 +11,7 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Currency;
 use Magento\Framework\Event\ManagerInterface;
 use Magento\Framework\Filter\LocalizedToNormalized;
@@ -34,12 +34,6 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
      */
     protected $_helper;
     
-    /**
-     * JSON Helper
-     *
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $_jsonFactory;
 
     /**
      * @var \Magento\Checkout\Model\Cart
@@ -82,7 +76,6 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
      * @param Context $context
      * @param Session $checkoutSession
      * @param Data $helperFort
-     * @param JsonFactory
      * @param Cart $cart
      * @param StoreManagerInterface $storeManager
      * @param ProductRepositoryInterface $productRepository
@@ -95,7 +88,6 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
         \Magento\Framework\App\Action\Context $context,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Amazonpaymentservices\Fort\Helper\Data $helperFort,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Checkout\Model\Cart $cart,
         StoreManagerInterface $storeManager,
         ProductRepositoryInterface $productRepository,
@@ -106,9 +98,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
     ) {
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
-        $this->_isScopePrivate = true;
         $this->_helper = $helperFort;
-        $this->_jsonHelper = $jsonFactory;
         $this->cart = $cart;
         $this->storeManager = $storeManager;
         $this->productRepository = $productRepository;
@@ -244,7 +234,12 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
 
         $data['status'] = 'success';
         $this->_helper->log('Apple Json : '.json_encode($data));
-        $resultJson = $this->_jsonHelper->create();
-        return $resultJson->setData($data);
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        $resultJson->setData($data);
+        return $resultJson;;
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

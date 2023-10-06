@@ -23,7 +23,6 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
         \Magento\Directory\Model\CountryFactory $countryFactory,
         array $data = []
     ) {
-        $this->_isScopePrivate = true;
         $this->_orderCollectionFactory = $orderCollectionFactory;
         $this->_customerSession = $customerSession;
         $this->_orderConfig = $orderConfig;
@@ -225,5 +224,9 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
     {
         $country = $this->_countryFactory->create()->loadByCode($countryCode);
         return $country->getName();
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

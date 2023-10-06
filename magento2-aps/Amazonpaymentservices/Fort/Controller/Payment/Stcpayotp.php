@@ -7,7 +7,7 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Sales\Model\Order;
 
 class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
@@ -17,6 +17,13 @@ class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwar
      */
     protected $_checkoutSession;
 
+    protected $_cart;
+
+    /**
+     * @var \Magento\Quote\Model\QuoteManagement
+     */
+    protected $quoteManagement;
+
     /**
      * Helper
      *
@@ -25,29 +32,24 @@ class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwar
     protected $_helper;
     
     /**
-     * JSON Helper
-     *
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $_jsonFactory;
-    
-    /**
      * @param \Magento\Framework\App\Action\Context $context,
      * @param \Magento\Checkout\Model\Session $checkoutSession,
+     * @param \Magento\Checkout\Model\Cart $cart, 
+     * @param \Magento\Quote\Model\QuoteManagement $quoteManagement, 
      * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort,
-     * @param \Magento\Framework\Controller\Result\JsonFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Magento\Checkout\Model\Session $checkoutSession,
-        \Amazonpaymentservices\Fort\Helper\Data $helperFort,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory
+        \Magento\Checkout\Model\Cart $cart,
+        \Magento\Quote\Model\QuoteManagement $quoteManagement,
+        \Amazonpaymentservices\Fort\Helper\Data $helperFort
     ) {
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
-        $this->_isScopePrivate = true;
+        $this->_cart = $cart;
+        $this->quoteManagement = $quoteManagement;
         $this->_helper = $helperFort;
-        $this->_jsonHelper = $jsonFactory;
     }
     
     public function createCsrfValidationException(
@@ -63,11 +65,21 @@ class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwar
     
     public function execute()
     {
-        $order = $this->_checkoutSession->getLastRealOrder();
+        
+        $quote = $this->_cart->getQuote();
+        $this->_helper->log(json_encode($quote->getData()));
+        $quote->reserveOrderId()->save();
+        $orderId = $quote->getReservedOrderId();
+
         $mobileNumber = $this->getRequest()->getParam('mobileNumber');
         $data = [];
-        $data = $this->_helper->stcPayRequestOtp($order, $mobileNumber);
-        $resultJson = $this->_jsonHelper->create();
-        return $resultJson->setData($data);
+        $data = $this->_helper->stcPayRequestOtp($orderId, $mobileNumber);
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        $resultJson->setData($data);
+        return $resultJson;
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

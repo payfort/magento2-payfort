@@ -117,7 +117,7 @@
             } else {
                 $("#applePayCart").remove();
             }
-
+            var cartData;
             $("#applePayCart").on("click",function(){
                 $.ajax({
                     url: '<?= /* @noEscape */ $block->getQuoteData(); ?>',
@@ -126,12 +126,24 @@
                     dataType: 'json',
                     success:function(data) {
                         if ( data.status === 'success' ) {
-                            iniApplePay(data.data);
+                            //iniApplePay(data.data);
+                            cartData = data.data;
                         } else {
                             console.log( data.error_msg );
                         }
                     }
                 });
+                var delay = (function() {
+                    var timer = 0;
+                    return function(callback, ms) {
+                        clearTimeout(timer);
+                        timer = setTimeout(callback, ms);
+                    };
+                })();
+                delay(function() {
+                    console.log('Wait for server response');  
+                }, 1000);
+                iniApplePay(cartData);
             });
             function iniApplePay (data) {
                 var shipData = {};
@@ -181,6 +193,7 @@
                 };
 
                 var supportedNetworks = supportedNetworks.split(',');
+                new Promise(resolve => setTimeout(resolve, 1000));
                 if(supportedNetworks.indexOf('mada') >= 0) {
                     var session = new ApplePaySession(5, paymentRequest);
                 } else {

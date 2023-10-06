@@ -191,8 +191,9 @@ class CreditmemoAddData
 
             $configCurrency = $this->_scopeConfig->getValue('payment/aps_fort/gateway_currency');
             $baseCurrency = $this->_storeManager->getStore()->getBaseCurrencyCode();
-
-            if ($configCurrency === $baseCurrency) {
+            $this->_helper->log("\n\n 'Config Currency : ".$configCurrency."\n\n");
+            $this->_helper->log("\n\n 'Base Currency : ".$baseCurrency."\n\n");
+            if ($configCurrency === "base") {
                 $currencyCode = $baseCurrency;
             } else {
                 $currencyCode = $order->getOrderCurrencyCode();

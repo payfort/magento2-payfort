@@ -7,7 +7,7 @@ use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\ResultFactory;
 use Magento\Sales\Model\Order;
 
 class VaultDelete extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
@@ -24,12 +24,6 @@ class VaultDelete extends \Magento\Framework\App\Action\Action implements CsrfAw
      */
     protected $_helper;
     
-    /**
-     * JSON Helper
-     *
-     * @var \Magento\Framework\Controller\Result\JsonFactory
-     */
-    protected $_jsonFactory;
 
     /**
      *
@@ -53,15 +47,12 @@ class VaultDelete extends \Magento\Framework\App\Action\Action implements CsrfAw
         \Magento\Framework\App\Action\Context $context,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Amazonpaymentservices\Fort\Helper\Data $helperFort,
-        \Magento\Framework\Controller\Result\JsonFactory $jsonFactory,
         \Magento\Vault\Model\ResourceModel\PaymentToken $paymentToken,
         \Magento\Customer\Model\Session $modelSession
     ) {
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
-        $this->_isScopePrivate = true;
         $this->_helper = $helperFort;
-        $this->_jsonHelper = $jsonFactory;
         $this->paymentToken = $paymentToken;
         $this->modelSession = $modelSession;
     }
@@ -88,7 +79,12 @@ class VaultDelete extends \Magento\Framework\App\Action\Action implements CsrfAw
             $details = json_decode($tokenData['details']);
             $data = $this->_helper->tokenChangeStatus($tokenData['gateway_token'], $details->orderId, 'INACTIVE');
         }
-        $resultJson = $this->_jsonHelper->create();
-        return $resultJson->setData($data);
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+        $resultJson->setData($data);
+        return $resultJson;
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

@@ -1600,7 +1600,7 @@ class Data extends \Magento\Payment\Helper\Data
             $amount = $this->_cart->getQuote()->getBaseGrandTotal();
         }
         $decimal_points = $this->getCurrencyDecimalPoint($currencyCode);
-        $new_amount     = round($amount, $decimal_points);
+        $new_amount     = round((float)$amount, $decimal_points);
         $new_amount     = $new_amount * (pow(10, $decimal_points));
         return $new_amount;
     }
@@ -3009,12 +3009,15 @@ class Data extends \Magento\Payment\Helper\Data
         return ['url' => $gatewayUrl, 'params' => $gatewayParams];
     }
 
-    public function stcPayRequestOtp($order, $mobileNumber)
+    public function stcPayRequestOtp($orderId, $mobileNumber)
     {
         $refId = 'MA'.round(microtime(true) * 1000);
-        //$refId = '006200334';
+        //$refId = $orderId;
+        if ($this->getConfig('payment/aps_fort_stc/ref_id_as_order_id') == 1)
+        {
+            $refId = substr(uniqid($orderId.'APS'), 0, 40);
+        }
         $language = $this->getLanguage();
-        $orderId = $order->getRealOrderId();
         $baseCurrency                    = $this->getBaseCurrency();
         $orderCurrency                   = $this->_storeManager->getStore()->getCurrentCurrencyCode();
         $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
@@ -3056,6 +3059,8 @@ class Data extends \Magento\Payment\Helper\Data
             'access_code'         => $this->getMainConfigData('access_code'),
             'merchant_reference'  => $sessionData['refId'],
             'language'            => $language,
+            'order_description'   => $orderId,
+            'merchant_extra'      => $orderId
         ];
 
         $baseCurrency                    = $this->getBaseCurrency();

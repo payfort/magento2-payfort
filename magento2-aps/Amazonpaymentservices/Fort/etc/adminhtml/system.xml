@@ -415,16 +415,21 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/aps_fort_stc/active</config_path>
                     </field>
+                    <field id="stctoken" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Tokenisation Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort_stc/token</config_path>
+                    </field>
                     <field id="integration_type" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Integration Type</label>
                         <comment>STC Integration Type</comment>
                         <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Stcintegrationtype</source_model>
                         <config_path>payment/aps_fort_stc/integration_type</config_path>
                     </field>
-                    <field id="stctoken" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                        <label>Tokenisation Enabled</label>
+                    <field id="ref_id_as_order_id" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant Reference as Order Id</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                        <config_path>payment/aps_fort_stc/token</config_path>
+                        <config_path>payment/aps_fort_stc/ref_id_as_order_id</config_path>
                     </field>
                 </group>
                 <group id="aps_fort_cron" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">

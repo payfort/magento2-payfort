@@ -273,6 +273,7 @@ define(
                 $('.cc-form-error').remove();
                 if (customer.isLoggedIn() && window.checkoutConfig.payment.apsFort.aps_fort_vault.hasOwnProperty('data') == true && $("input[name='vaultHash']:checked").val() == undefined) {
                     $('.error-ccform').html($.mage.__('Please select a card.'));
+                    this.removeLoader();
                     return false;
                 } else if (customer.isLoggedIn() && window.checkoutConfig.payment.apsFort.aps_fort_vault.hasOwnProperty('data') == false) {
                     vault = 'newCard' ;
@@ -362,6 +363,7 @@ define(
                         if (vault != 'newCard') {
                             if ($("input[value='"+vault+"']").parent('.vault').find('.input-text').val().length === 0) {
                                 $("input[value='"+vault+"']").parent('.vault').find('.input-text').after('<span class="cvv-error">'+$.mage.__('CVV is mandatory')+'</span>');
+                                this.removeLoader();
                                 return false;
                             } else {
                                 this.placeOrder();
@@ -385,6 +387,12 @@ define(
                             this.placeOrder();
                         }
                     }
+                }
+            },
+            removeLoader: function(){
+                var loadingMask = document.querySelector('.loading-mask');
+                if (loadingMask) {
+                    loadingMask.style.display = 'none';
                 }
             },
             getInstallment: function () {

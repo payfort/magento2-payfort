@@ -11,6 +11,7 @@
     background-size: 60% !important;
     background-repeat: no-repeat !important;
     z-index: 999;
+    display: block !important;
 }
 
 .apple-pay-buy {

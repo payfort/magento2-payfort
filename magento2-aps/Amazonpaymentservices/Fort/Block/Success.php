@@ -21,7 +21,6 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     ) {
         $this->_checkoutSession = $checkoutSession;
         $this->_orderConfig = $orderConfig;
-        $this->_isScopePrivate = true;
         $this->httpContext = $httpContext;
 
         parent::__construct($context, $checkoutSession, $orderConfig, $httpContext, $data);
@@ -74,5 +73,9 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     public function getOrderNumber()
     {
         return $this->order->getIncrementId();
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

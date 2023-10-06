@@ -56,7 +56,6 @@ class Webhook extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
         $this->_orderConfig = $orderConfig;
-        $this->_isScopePrivate = true;
         $this->_helper = $helperFort;
         $this->_apsModel = $apsModel;
         $this->_resultJsonFactory  = $resultJsonFactory;
@@ -100,5 +99,9 @@ class Webhook extends \Magento\Framework\App\Action\Action implements CsrfAwareA
         $jsonResult = $this->_resultJsonFactory->create();
         $jsonResult->setData($result);
         return $jsonResult;
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

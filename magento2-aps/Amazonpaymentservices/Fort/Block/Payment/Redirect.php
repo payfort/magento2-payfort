@@ -57,7 +57,6 @@ class Redirect extends \Magento\Framework\View\Element\Template
         parent::__construct($context, $data);
         $this->_checkoutSession = $checkoutSession;
         $this->_orderConfig = $orderConfig;
-        $this->_isScopePrivate = true;
         $this->httpContext = $httpContext;
         $this->_helper = $helperFort;
     }
@@ -168,5 +167,9 @@ class Redirect extends \Magento\Framework\View\Element\Template
     {
         return $this->httpContext->getValue(Context::CONTEXT_AUTH)
             && $this->isVisible($order);
+    }
+    public function getCacheLifetime()
+    {
+        return null;
     }
 }

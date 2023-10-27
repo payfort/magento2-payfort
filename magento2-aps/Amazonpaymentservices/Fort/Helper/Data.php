@@ -66,13 +66,13 @@ class Data extends \Magento\Payment\Helper\Data
      * @var \Magento\Customer\Model\Session
      */
     protected $_custmerSession;
-    
+
     /**
      *
      * @var \Psr\Log\LoggerInterface
      */
     protected $_logger;
-    
+
     /**
      *
      * @var type
@@ -83,12 +83,12 @@ class Data extends \Magento\Payment\Helper\Data
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     protected $_storeManager;
-    
+
     /**
      * @var \Magento\Framework\Locale\ResolverInterface
      */
     protected $_localeResolver;
-    
+
     /**
      * @var OrderManagementInterface
      */
@@ -159,7 +159,7 @@ class Data extends \Magento\Payment\Helper\Data
     protected $_order;
 
     protected $_cart;
-    
+
     protected $invoiceService;
 
     protected $transaction;
@@ -184,7 +184,7 @@ class Data extends \Magento\Payment\Helper\Data
      * @var Resource Connection
      */
     public $_connection;
-    
+
     protected $_date;
 
     protected $creditmemoSender;
@@ -214,6 +214,7 @@ class Data extends \Magento\Payment\Helper\Data
     const PAYMENT_METHOD_VALU = 'aps_fort_valu';
     const PAYMENT_METHOD_VISACHECKOUT = 'aps_fort_visaco';
     const PAYMENT_METHOD_STC = 'aps_fort_stc';
+    const PAYMENT_METHOD_TABBY = 'aps_fort_tabby';
     const VALU_API_FAILED_STATUS  = '15777';
     const VALU_API_FAILED_RESPONSE_CODE  = '15777';
     const PAYMENT_METHOD_CAPTURE_STATUS = '04000';
@@ -231,7 +232,8 @@ class Data extends \Magento\Payment\Helper\Data
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
         \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE
+        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE
     ];
 
     const APS_ONHOLD_RESPONSE_CODES = [
@@ -254,7 +256,7 @@ class Data extends \Magento\Payment\Helper\Data
         '13006',
         '17006',
     ];
-          
+
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Framework\View\LayoutFactory $layoutFactory,
@@ -352,12 +354,12 @@ class Data extends \Magento\Payment\Helper\Data
         $this->transaction = $transaction;
         $this->apsCookieUpdate();
     }
-    
+
     public function setMethodCode($code)
     {
         $this->_code = $code;
     }
-    
+
     public function getConfig($config_path)
     {
         return $this->scopeConfig->getValue(
@@ -365,7 +367,7 @@ class Data extends \Magento\Payment\Helper\Data
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
-    
+
     public function getMainConfigData($config_field)
     {
         return $this->scopeConfig->getValue(
@@ -373,7 +375,7 @@ class Data extends \Magento\Payment\Helper\Data
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
     }
-    
+
     public function isApsPaymentMethod($paymentMethod)
     {
         if (preg_match('#^aps\_fort\_#', $paymentMethod)) {
@@ -381,7 +383,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return false;
     }
-    
+
     public function getPaymentRequestParams($order, $integrationType = self::INTEGRATION_TYPE_REDIRECTION, $postData = [])
     {
         $paymentMethod = $order->getPayment()->getMethod();
@@ -410,7 +412,24 @@ class Data extends \Magento\Payment\Helper\Data
             if ($this->getConfig('payment/aps_fort_stc/token') == 1){
                 $this->_gatewayParams['remember_me'] = 'YES';
             }
-        } elseif ($integrationType == self::INTEGRATION_TYPE_REDIRECTION) {
+        } elseif ($paymentMethod == self::PAYMENT_METHOD_TABBY) {
+            $baseCurrency                    = $this->getBaseCurrency();
+            $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
+            $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
+            $amount                          = $this->convertFortAmount($order, $currency);
+            $this->_gatewayParams['currency']       = strtoupper($currency);
+            $this->_gatewayParams['amount']         = $amount;
+            $this->_gatewayParams['customer_email'] = trim($order->getCustomerEmail());
+            $this->_gatewayParams['command']        = $this->getMainConfigData('command');
+            $this->_gatewayParams['payment_option'] = 'TABBY';
+            $this->_gatewayParams['return_url']     = $this->getReturnUrl('amazonpaymentservicesfort/payment/tabbyResponseOnline');
+
+            $ip = $this->getVisitorIp();
+            $this->_gatewayParams['customer_ip'] = $ip;
+            $this->_gatewayParams['order_description'] = $orderId;
+            $this->_gatewayParams['phone_number'] = $order->getBillingAddress()->getTelephone();
+
+        }elseif ($integrationType == self::INTEGRATION_TYPE_REDIRECTION) {
             $baseCurrency                    = $this->getBaseCurrency();
             $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
             $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
@@ -429,7 +448,7 @@ class Data extends \Magento\Payment\Helper\Data
             $amount                          = $this->convertFortAmount($order, $currency);
             $this->_gatewayParams['return_url']      = $this->getReturnUrl('amazonpaymentservicesfort/payment/installmentStandardPageResponse');
             $this->_gatewayParams['service_command'] = 'TOKENIZATION';
-            
+
             $sessionData['issuer_code'] = $postData['issuer_code'];
             $sessionData['plan_code'] = $postData['plan_code'];
             $sessionData['installment_amount'] = $postData['installment_amount'];
@@ -438,9 +457,9 @@ class Data extends \Magento\Payment\Helper\Data
             $order->setData('aps_params', json_encode($sessionData));
             $order->setApsParams(json_encode($sessionData));
             $order->save();
-            
+
             $this->_custmerSession->setCustomValue($sessionData);
-            
+
         } elseif (($paymentMethod == self::PAYMENT_METHOD_CC) && $this->getConfig('payment/aps_installment/integration_type') == self::INTEGRATION_TYPE_EMBEDED && isset($postData['issuer_code'])) {
 
             $this->_gatewayParams['return_url']      = $this->getReturnUrl('amazonpaymentservicesfort/payment/installmentStandardPageResponse');
@@ -454,9 +473,9 @@ class Data extends \Magento\Payment\Helper\Data
             $order->setData('aps_params', json_encode($sessionData));
             $order->setApsParams(json_encode($sessionData));
             $order->save();
-            
+
             $this->_custmerSession->setCustomValue($sessionData);
-        
+
         } elseif ($integrationType == self::INTEGRATION_TYPE_STANDARD || $integrationType == self::INTEGRATION_TYPE_HOSTED) {
             $this->_gatewayParams['service_command'] = 'TOKENIZATION';
             $this->_gatewayParams['return_url']      = $this->getReturnUrl('amazonpaymentservicesfort/payment/merchantPageResponse');
@@ -474,7 +493,7 @@ class Data extends \Magento\Payment\Helper\Data
         $gatewayUrl = $this->getGatewayUrl();
         $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($this->_gatewayParams, 1);
         $this->log($logMsg);
-        
+
         return ['url' => $gatewayUrl, 'params' => $this->_gatewayParams];
     }
 
@@ -518,17 +537,17 @@ class Data extends \Magento\Payment\Helper\Data
             $gatewayParams['command']        = $this->getMainConfigData('command');
             $gatewayParams['return_url']     = $this->getReturnUrl('amazonpaymentservicesfort/payment/responseOnline');
             $gatewayParams['token_name']      = $tokenName;
-            
+
             $gatewayParams = array_merge($gatewayParams, $this->pluginParams());
             $signature = $this->calculateSignature($gatewayParams, 'request');
             $gatewayParams['signature'] = $signature;
-            
+
         } elseif ($integrationType == self::INTEGRATION_TYPE_STANDARD || $integrationType == self::INTEGRATION_TYPE_HOSTED) {
             $baseCurrency                    = $this->getBaseCurrency();
             $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
             $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
             $amount                          = $this->convertFortAmount($order, $currency);
-            
+
             $ip = $this->getVisitorIp();
             $gatewayParams['customer_ip']    = $ip;
             $gatewayParams['eci']            = 'ECOMMERCE';
@@ -536,7 +555,7 @@ class Data extends \Magento\Payment\Helper\Data
             $gatewayParams['amount']         = $amount;
             $gatewayParams['customer_email'] = trim($order->getCustomerEmail());
             $gatewayParams['command']        = $this->getMainConfigData('command');
-            
+
             $gatewayParams['card_security_code']     = $cvv;
             $gatewayParams['return_url']      = $this->getReturnUrl('amazonpaymentservicesfort/payment/merchantPageVaultResponse');
             $gatewayParams['token_name']      = $tokenName;
@@ -563,7 +582,7 @@ class Data extends \Magento\Payment\Helper\Data
         //$response = $this->callApi($gatewayUrl, $gatewayParams);
         $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($gatewayParams, 1);
         $this->log($logMsg);
-        
+
         return ['url' => $gatewayUrl, 'params' => $gatewayParams];
     }
 
@@ -583,7 +602,7 @@ class Data extends \Magento\Payment\Helper\Data
         $orderCurrency                   = $order->getOrderCurrency()->getCurrencyCode();
         $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
         $amount                          = $this->convertFortAmount($order, $currency);
-        
+
         $ip = $this->getVisitorIp();
         $gatewayParams['customer_ip']    = $ip;
         $gatewayParams['eci']            = 'ECOMMERCE';
@@ -600,7 +619,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $sessionData['installment_amount'] = $postParams['installment_amount'];
         $sessionData['installment_interest'] = $postParams['installment_interest'];
-        
+
         $this->_custmerSession->setCustomValue($sessionData);
         $gatewayParams = array_merge($gatewayParams, $this->pluginParams());
 
@@ -635,15 +654,15 @@ class Data extends \Magento\Payment\Helper\Data
             'payment_option'      => 'VALU',
             'phone_number'        => $mobileNumber
         ];
-        
+
         //calculate request signature
         $signature = $this->calculateSignature($postData, 'request');
         $postData['signature'] = $signature;
-       
+
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        
+
         $this->log("Fort Valu Customer Verify Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
-        
+
         $response = $this->callApi($postData, $gatewayUrl);
         $responseData = [];
         if (!$response) {
@@ -664,7 +683,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $debugMsg = "Fort Valu Customer Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
         $this->log($debugMsg);
-        
+
         return $responseData;
     }
 
@@ -690,7 +709,7 @@ class Data extends \Magento\Payment\Helper\Data
             $discountAmount = $order->getBaseDiscountAmount();
             $orderData = $cart;
             $shippingAmount = (float)$orderData->getShippingAmount();
-            
+
             $baseCurrency  = $this->getBaseCurrency();
             $orderCurrency = $order->getOrderCurrency()->getCurrencyCode();
             $currency      = $this->getFortCurrency($baseCurrency, $orderCurrency);
@@ -726,7 +745,7 @@ class Data extends \Magento\Payment\Helper\Data
             $signature = $this->calculateSignature($postData, 'request');
             $postData['signature'] = $signature;
             $this->log("Fort Valu Generate OTP Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
-            
+
             $response = $this->callApi($postData, $gatewayUrl);
             $debugMsg = "Fort Valu Generate OTP Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
             $this->log($debugMsg);
@@ -789,7 +808,7 @@ class Data extends \Magento\Payment\Helper\Data
             } else {
                 $categoryName = $_item->getName();
             }
-            
+
             $tax = ($taxAmount / $totalItems ) * $_item->getQtyOrdered();
             $shipping = (($shippingAmount / $totalItems ) * $_item->getQtyOrdered());
 
@@ -860,9 +879,9 @@ class Data extends \Magento\Payment\Helper\Data
             $postData['signature'] = $signature;
 
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
-            
+
             $this->log("Fort Valu OTP Verify Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
-            
+
             $response = $this->callApi($postData, $gatewayUrl);
             $debugMsg = "Fort Valu OTP Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
             $this->log($debugMsg);
@@ -911,7 +930,7 @@ class Data extends \Magento\Payment\Helper\Data
             } else {
                 $customerEmail = $order->getCustomerEmail();
             }
-            
+
             $storeName = $this->_storeManager->getStore()->getName();
             $language = $this->getLanguage();
             $postData = [
@@ -943,13 +962,13 @@ class Data extends \Magento\Payment\Helper\Data
             $sessionData['valu_tenure'] = $tenure;
             $sessionData['valu_tenure_amount'] = $valuTenureAmount;
             $sessionData['valu_tenure_interest'] = $valuTenureInterest;
-            
+
             $this->_custmerSession->setCustomValue($sessionData);
-        
+
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
-            
+
             $this->log("Fort Valu Purchase Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
-            
+
             $response = $this->callApi($postData, $gatewayUrl);
             $responseData = [];
             if (!$response) {
@@ -1020,7 +1039,7 @@ class Data extends \Magento\Payment\Helper\Data
         $amount                          = $this->convertFortAmountCart($currency);
         $gatewayParams['currency']       = strtoupper($currency);
         $gatewayParams['amount']         = $amount;
-        
+
         $signature = $this->calculateSignature($gatewayParams, 'request');
         $gatewayParams['signature'] = $signature;
 
@@ -1029,16 +1048,16 @@ class Data extends \Magento\Payment\Helper\Data
         $this->log($logMsg);
 
         $response = $this->callApi($gatewayParams, $gatewayUrl);
-        
+
         return $response;
     }
-    
+
     public function getPaymentPageRedirectData($order)
     {
-        
+
         return $this->getPaymentRequestParams($order, self::INTEGRATION_TYPE_REDIRECTION);
     }
-    
+
     public function getOrderCustomerName($order)
     {
         $customerName = '';
@@ -1049,11 +1068,11 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return trim($customerName);
     }
-    
+
     public function isStandardMethod($order)
     {
         $paymentMethod = $order->getPayment()->getMethod();
-        
+
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Cc::CODE && $this->getConfig('payment/aps_fort_cc/integration_type') == \Amazonpaymentservices\Fort\Model\Config\Source\Integrationtypeoptions::STANDARD) {
             return true;
         } elseif (($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Installment::CODE) && $this->getConfig('payment/aps_installment/integration_type') == \Amazonpaymentservices\Fort\Model\Config\Source\Integrationtypeoptions::STANDARD) {
@@ -1061,10 +1080,10 @@ class Data extends \Magento\Payment\Helper\Data
         } elseif ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Vault::CODE && $this->getConfig('payment/aps_fort_cc/integration_type') == \Amazonpaymentservices\Fort\Model\Config\Source\Integrationtypeoptions::STANDARD) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     public function isHostedMethod($order)
     {
         $paymentMethod = $order->getPayment()->getMethod();
@@ -1077,7 +1096,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return false;
     }
-    
+
     public function merchantPageNotifyFort($fortParams, $order)
     {
         //send host to host
@@ -1104,7 +1123,7 @@ class Data extends \Magento\Payment\Helper\Data
             'language'              => $language,
             'return_url'            => $return_url,
         ];
-        
+
         if (isset($fortParams['remember_me'])) {
             $postData['remember_me'] = $fortParams['remember_me'];
         }
@@ -1120,7 +1139,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $postData['command'] = \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE;
             }
         }
-        
+
         $customer_name = $this->getOrderCustomerName($order);
         if (!empty($customer_name)) {
             $postData['customer_name'] = $customer_name;
@@ -1129,17 +1148,17 @@ class Data extends \Magento\Payment\Helper\Data
         //calculate request signature
         $signature = $this->calculateSignature($postData, 'request');
         $postData['signature'] = $signature;
-       
+
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        
+
         $this->log("standardNotifyFort: Request Params : " . json_encode($postData, 1));
         $this->log("standardNotifyFort: Gateway URL : " . $gatewayUrl);
-        
+
         $response = $this->callApi($postData, $gatewayUrl);
 
         $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($response, 1);
         $this->log($debugMsg);
-        
+
         return $response;
     }
 
@@ -1186,14 +1205,14 @@ class Data extends \Magento\Payment\Helper\Data
                 $apsParams = json_decode($apsParams, 1);
             }
         }
-        
+
         if (!empty($apsParams['plan_code'])) {
             $postData['plan_code'] = $apsParams['plan_code'];
         }
         if (!empty($apsParams['issuer_code'])) {
             $postData['issuer_code'] = $apsParams['issuer_code'];
         }
-        
+
         if (!empty($responseParams['token_name'])) {
             $postData['token_name'] = $responseParams['token_name'];
         }
@@ -1205,7 +1224,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
 
         $paymentMethod = $order->getPayment()->getMethod();
-        
+
         $customer_name = $this->getOrderCustomerName($order);
         if (!empty($customer_name)) {
             $postData['customer_name'] = $customer_name;
@@ -1218,7 +1237,7 @@ class Data extends \Magento\Payment\Helper\Data
         //calculate request signature
         $signature = $this->calculateSignature($postData, 'request');
         $postData['signature'] = $signature;
-       
+
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
         $this->log("installmentPageNotifyFort: Response Params : " . json_encode($responseParams, 1));
         $this->log("installmentPageNotifyFort: Request Params : " . json_encode($postData, 1));
@@ -1227,7 +1246,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($response, 1);
         $this->log($debugMsg);
-        
+
         return $response;
     }
 
@@ -1262,7 +1281,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
 
         $paymentMethod = $order->getPayment()->getMethod();
-        
+
         $customer_name = $this->getOrderCustomerName($order);
         if (!empty($customer_name)) {
             $postData['customer_name'] = $customer_name;
@@ -1271,7 +1290,7 @@ class Data extends \Magento\Payment\Helper\Data
         //calculate request signature
         $signature = $this->calculateSignature($postData, 'request');
         $postData['signature'] = $signature;
-       
+
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
         $this->log("visaCheckoutPageNotifyFort: Request Params : " . json_encode($postData, 1));
         $this->log("visaCheckoutPageNotifyFort: Gateway URL : " . $gatewayUrl);
@@ -1279,7 +1298,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($response, 1);
         $this->log($debugMsg);
-        
+
         return $response;
     }
 
@@ -1303,14 +1322,14 @@ class Data extends \Magento\Payment\Helper\Data
             'currency'              => strtoupper($orderCurrency),
             'language'              => $language
         ];
-        
+
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Apple::CODE) {
             $postData['access_code'] = $this->getConfig('payment/aps_apple/apple_access_code');
             $signature = $this->calculateSignature($postData, 'request', 'apple_pay');
         } else {
             $signature = $this->calculateSignature($postData, 'request');
         }
-        
+
         $postData['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
         $this->log("APS Capture: Request Params : " . json_encode($postData, 1));
@@ -1318,7 +1337,7 @@ class Data extends \Magento\Payment\Helper\Data
         $response = $this->callApi($postData, $gatewayUrl);
         $debugMsg = "APs Capture Response Params ($paymentMethod)"."\n".json_encode($response, 1);
         $this->log($debugMsg);
-        
+
         return $response;
     }
 
@@ -1326,7 +1345,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $order = $this->_order->load($responseParams['orderId']);
         $paymentMethod = $order->getPayment()->getMethod();
-        
+
         $orderId = $responseParams['orderNumber'];
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
             $orderId = $order->getApsValuRef();
@@ -1356,7 +1375,7 @@ class Data extends \Magento\Payment\Helper\Data
         $response = $this->callApi($postData, $gatewayUrl);
         $debugMsg = "APs Void Response Params ($paymentMethod)"."\n".json_encode($response, 1);
         $this->log($debugMsg);
-        
+
         return $response;
     }
 
@@ -1382,7 +1401,7 @@ class Data extends \Magento\Payment\Helper\Data
         $response = $this->callApi($postData, $gatewayUrl);
         $debugMsg = "APs Vault Status Response Params :"."\n".json_encode($response, 1);
         $this->log($debugMsg);
-        
+
         return $response;
     }
 
@@ -1395,7 +1414,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->getCurlClient()->setOption(CURLOPT_FOLLOWLOCATION, 0);
             $this->getCurlClient()->setOption(CURLOPT_CONNECTTIMEOUT, 0);
             $this->getCurlClient()->setOption(CURLOPT_PROTOCOLS, CURLPROTO_HTTPS);
-           
+
             if (!empty($certificate_key)) {
                 $this->getCurlClient()->setOption(CURLOPT_SSLKEY, $certificate_key);
             }
@@ -1406,9 +1425,9 @@ class Data extends \Magento\Payment\Helper\Data
                 $this->getCurlClient()->setOption(CURLOPT_SSLKEYPASSWD, $certificate_pass);
             }
             $this->getCurlClient()->addHeader("Content-Type", "application/json;charset=UTF-8");
-            
+
             $this->getCurlClient()->post($gatewayUrl, json_encode($postData));
-            
+
             $response = $this->getCurlClient()->getBody();
             $this->log("CURL Response :". json_encode($response));
             $array_result = json_decode($response, true);
@@ -1416,7 +1435,7 @@ class Data extends \Magento\Payment\Helper\Data
                 return false;
             }
             return $array_result;
-            
+
         } catch (\Exception $e) {
             $this->log("Call API :".$e->getMessage());
             return false;
@@ -1427,7 +1446,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         return $this->_curl;
     }
-    
+
     /** @return string */
     private function getVisitorIp()
     {
@@ -1472,13 +1491,13 @@ class Data extends \Magento\Payment\Helper\Data
                 $shaString .= "$k=$v";
             }
         }
-        
+
         if ($signType == 'request') {
             $shaString = $shaInPassPhrase . $shaString . $shaInPassPhrase;
         } else {
             $shaString = $shaOutPassPhrase . $shaString . $shaOutPassPhrase;
         }
-        
+
         if ($shaType == \Amazonpaymentservices\Fort\Model\Config\Source\Shaoptions::SHA256 || $shaType == \Amazonpaymentservices\Fort\Model\Config\Source\Shaoptions::SHA512) {
             $shaType = str_replace('-', '', $shaType);
             $signature = hash($shaType, $shaString);
@@ -1528,7 +1547,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $gateway_currency = $this->getGatewayCurrency();
         $new_amount     = 0;
-        
+
         if ($gateway_currency == 'front') {
             $amount = $order->getGrandTotal();
         } else {
@@ -1563,7 +1582,7 @@ class Data extends \Magento\Payment\Helper\Data
     public function convertAmount($amount, $currencyCode)
     {
         $new_amount     = 0;
-        
+
         $decimal_points = $this->getCurrencyDecimalPoint($currencyCode);
         $new_amount     = round($amount, $decimal_points);
         $new_amount     = $new_amount * (pow(10, $decimal_points));
@@ -1593,7 +1612,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $gateway_currency = $this->getGatewayCurrency();
         $new_amount     = 0;
-        
+
         if ($gateway_currency == 'front') {
             $amount = $this->_cart->getQuote()->getGrandTotal();
         } else {
@@ -1604,7 +1623,7 @@ class Data extends \Magento\Payment\Helper\Data
         $new_amount     = $new_amount * (pow(10, $decimal_points));
         return $new_amount;
     }
-    
+
     /**
      * @param string $currency
      * @param integer
@@ -1635,17 +1654,17 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return $gatewayCurrency;
     }
-    
+
     public function getBaseCurrency()
     {
         return $this->_storeManager->getStore()->getBaseCurrencyCode();
     }
-    
+
     public function getFrontCurrency()
     {
         return $this->_storeManager->getStore()->getCurrentCurrencyCode();
     }
-    
+
     public function getFortCurrency($baseCurrencyCode, $currentCurrencyCode)
     {
         $gateway_currency = $this->getMainConfigData('gateway_currency');
@@ -1655,7 +1674,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return $currencyCode;
     }
-    
+
     public function getGatewayUrl($type = 'redirection')
     {
         $testMode = $this->getMainConfigData('sandbox_mode');
@@ -1664,7 +1683,7 @@ class Data extends \Magento\Payment\Helper\Data
         } else {
             $gatewayUrl = $testMode ? $this->_gatewaySandboxHost.'FortAPI/paymentPage' : $this->_gatewayHost.'FortAPI/paymentPage';
         }
-        
+
         return $gatewayUrl;
     }
 
@@ -1676,19 +1695,19 @@ class Data extends \Magento\Payment\Helper\Data
         } else {
             $gatewayUrl = 'https://assets.secure.checkout.visa.com/checkout-widget/resources/js/integration/v1/sdk.js';
         }
-        
+
         return $gatewayUrl;
     }
-    
+
     public function getReturnUrl($path)
     {
         return $this->_storeManager->getStore()->getBaseUrl().$path;
     }
-    
+
     public function getLanguage()
     {
         $language = $this->_localeResolver->getLocale();
-        
+
         if (substr($language, 0, 2) == 'ar') {
             $language = 'ar';
         } else {
@@ -1696,7 +1715,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return $language;
     }
-    
+
     /**
      * Restores quote
      *
@@ -1755,7 +1774,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         return $this->_productMetadata->getVersion();
     }
-    
+
     /**
      * Cancel last placed order with specified comment message
      *
@@ -1774,7 +1793,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return false;
     }
-    
+
     /**
      * Cancel order with specified comment message
      *
@@ -1796,7 +1815,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return $gotoSection;
     }
-    
+
     public function orderFailed($order, $reason, $responseCode = '')
     {
         if ($order->getState() != $order::STATE_PROCESSING) {
@@ -1907,7 +1926,7 @@ class Data extends \Magento\Payment\Helper\Data
         } else {
             $quote->getBillingAddress()->setEmail($this->_custmerSession->getCustomer()->getEmail());
         }
-        
+
         $quote->getBillingAddress()->setTelephone($customerData->phoneNumber);
         if (!empty($customerData->postalCode)) {
             $quote->getBillingAddress()->setPostcode($customerData->postalCode);
@@ -1929,7 +1948,7 @@ class Data extends \Magento\Payment\Helper\Data
         } else {
             $quote->setCustomerEmail($this->_custmerSession->getCustomer()->getEmail());
         }
-        
+
         $quote->setCustomerFirstname($customerData->givenName);
         $quote->setCustomerLastname($customerData->familyName);
         if (!$this->_custmerSession->isLoggedIn()) {
@@ -1942,7 +1961,7 @@ class Data extends \Magento\Payment\Helper\Data
         //$quote = $this->_cart->getQuote();
         $order = $this->quoteManagement->submit($quote);
         $orderId = $order->getRealOrderId();
-        
+
         $baseCurrency  = $this->getBaseCurrency();
         $orderCurrency = $order->getOrderCurrency()->getCurrencyCode();
         $currency      = $this->getFortCurrency($baseCurrency, $orderCurrency);
@@ -2020,6 +2039,9 @@ class Data extends \Magento\Payment\Helper\Data
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
             $orderId = $order->getApsStcRef();
         }
+        if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE) {
+            $orderId = $order->getApsTabbyRef();
+        }
         $data = [
             "command"             => 'REFUND',
             "access_code"         => $this->getMainConfigData('access_code'),
@@ -2029,7 +2051,7 @@ class Data extends \Magento\Payment\Helper\Data
             "currency"            => strtoupper($currencyCode),
             "language"            => $language
         ];
-        
+
         $signature = '';
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Apple::CODE) {
             $data['access_code'] = $this->getConfig('payment/aps_apple/apple_access_code');
@@ -2056,7 +2078,7 @@ class Data extends \Magento\Payment\Helper\Data
             $access_code = $this->getConfig('payment/aps_apple/apple_access_code');
             $merchant_identifier = $this->getConfig('payment/aps_apple/merchant_identifier');
         }
-        
+
         $data = [
             "query_command"       => 'CHECK_STATUS',
             "access_code"         => $access_code,
@@ -2064,14 +2086,14 @@ class Data extends \Magento\Payment\Helper\Data
             "merchant_reference"  => $orderId,
             "language"            => $language
         ];
-        
+
         $data['signature'] = $this->calculateSignature($data, 'request', $type);
         $this->log('APS verify order request:'. json_encode($data));
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
         $result = $this->callApi($data, $gatewayUrl);
         return $result;
     }
-    
+
     public function processOrder($order, $responseParams)
     {
         $this->log('process order');
@@ -2103,15 +2125,15 @@ class Data extends \Magento\Payment\Helper\Data
 
             $payment->setAdditionalData(json_encode($responseParams));
             $payment->save();
-            
+
             $this->log('process order2');
             $invoice = $this->createInvoice($order, $responseParams);
-            
+
             $order->setState($order::STATE_PROCESSING)->save();
             $order->setStatus($order::STATE_PROCESSING)->save();
-            
+
             $this->sendOrderEmail($order);
-            
+
             $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order has been paid.', true);
             $order->save();
             $this->log('process order2');
@@ -2122,7 +2144,28 @@ class Data extends \Magento\Payment\Helper\Data
                 $year = substr($responseParams['expiry_date'], 0, 2);
                 $month = substr($responseParams['expiry_date'], 2, 4);
                 $paymentMethodCode = Payment::CODE;
-                
+
+                $hashKey = $responseParams['token_name'];
+                if ($order->getCustomerId()) {
+                    $hashKey = $order->getCustomerId();
+                }
+                $hashKey .= $paymentMethodCode
+                    . 'card'
+                    . '{"type":"'.$responseParams['payment_option'].'","maskedCC":"'.$responseParams['card_number'].'","expirationDate":"'.$year."\/".$month.'","orderId":"'.$responseParams['merchant_reference'].'"}';
+
+                $publicHash = $this->_encryptorInterface->getHash($hashKey);
+
+                $tokenobjectManagerDuplicate = $this->_paymentToken->getByGatewayToken($responseParams['token_name'], $paymentMethodCode, $order->getCustomerId());
+                $this->log('process order5');
+                $this->saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month);
+            }
+            if ($paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
+                $this->log('process order3');
+                $this->log('process order4');
+                $year = substr($responseParams['expiry_date'], 0, 2);
+                $month = substr($responseParams['expiry_date'], 2, 4);
+                $paymentMethodCode = Payment::CODE;
+
                 $hashKey = $responseParams['token_name'];
                 if ($order->getCustomerId()) {
                     $hashKey = $order->getCustomerId();
@@ -2140,7 +2183,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->log('process order8');
             $this->sendInvoiceEmail($invoice);
             $this->apsSubscriptionOrder($order, 1);
-            
+
             return true;
         }
         return false;
@@ -2173,7 +2216,7 @@ class Data extends \Magento\Payment\Helper\Data
             $_paymentToken->setGatewayToken($responseParams['token_name']);
             $_paymentToken->setCreatedAt(date('Y-m-d H:i:s'));
             $_paymentToken->setExpiresAt(date("Y-m-d", strtotime(date("Y-m-d", strtotime(date('Y-m-d H:i:s'))) . " + 365 day")));
-            
+
             $_paymentToken->setTokenDetails('{"type":"'.$responseParams['payment_option'].'","maskedCC":"'.$responseParams['card_number'].'","expirationDate":"'.$year."\/".$month.'","orderId":"'.$responseParams['merchant_reference'].'"}');
             $_paymentToken->setIsActive(true);
             $_paymentToken->setIsVisible(true);
@@ -2220,7 +2263,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         return $this->_getUrl($route, $params);
     }
-    
+
     /**
      * Get order object
      *
@@ -2231,7 +2274,7 @@ class Data extends \Magento\Payment\Helper\Data
         $order_info = $this->_order->loadByIncrementId($order_id);
         return $order_info;
     }
-    
+
     /**
      * @param array  $fortParams
      * @param string integrationType
@@ -2240,7 +2283,7 @@ class Data extends \Magento\Payment\Helper\Data
     public function handleFortResponse($fortParams = [], $responseMode = 'online', $integrationType = self::INTEGRATION_TYPE_REDIRECTION, $responseSource = '')
     {
         try {
-            
+
             $responseParams  = $fortParams;
             $success         = false;
             if (empty($responseParams)) {
@@ -2260,7 +2303,7 @@ class Data extends \Magento\Payment\Helper\Data
             }
 
             $orderId = $this->getOrderId($responseParams);
-            
+
             $order = $this->getOrderById($orderId);
             $paymentMethod = $order->getPayment()->getMethod();
             $this->log("Pay method ($paymentMethod)" . json_encode($responseParams, 1));
@@ -2279,9 +2322,9 @@ class Data extends \Magento\Payment\Helper\Data
             if (!empty($responseParams['digital_wallet']) && $responseParams['digital_wallet']=='APPLE_PAY') {
                 $signType = 'apple_pay';
             }
-            
+
             $responseSignature = $this->calculateSignature($responseGatewayParams, 'response', $signType);
-            
+
             // check the signature
             if (strtolower($responseSignature) !== strtolower($signature)) {
                 return $this->invalidSignature($signature, $responseSignature, $order);
@@ -2328,7 +2371,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $orderId = $responseParams['merchant_reference'];
         if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'VALU') {
-            
+
             $collections = $this->_salesCollectionFactory->create()
                 ->addAttributeToSelect('*')
                 ->addFieldToFilter('aps_valu_ref', ['eq'=>$responseParams['merchant_reference']]);
@@ -2336,7 +2379,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $orderId = $collection->getIncrementId();
             }
         }
-        if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'STCPAY') {
+        if ((isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'STCPAY') || (isset($responseParams['digital_wallet']) && $responseParams['digital_wallet'] == 'STCPAY')) {
             
             $collections = $this->_salesCollectionFactory->create()
                 ->addAttributeToSelect('*')
@@ -2344,13 +2387,13 @@ class Data extends \Magento\Payment\Helper\Data
             foreach ($collections as $collection) {
                 $orderId = $collection->getIncrementId();
             }
-        }
-
-        if (isset($responseParams['digital_wallet']) && $responseParams['digital_wallet'] == 'STCPAY') {
             
+        }
+        if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'TABBY') {
+
             $collections = $this->_salesCollectionFactory->create()
                 ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_stc_ref', ['eq'=>$responseParams['merchant_reference']]);
+                ->addFieldToFilter('aps_tabby_ref', ['eq'=>$responseParams['merchant_reference']]);
             foreach ($collections as $collection) {
                 $orderId = $collection->getIncrementId();
             }
@@ -2401,7 +2444,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         return true;
     }
-    
+
     /**
      * Log the error on the disk
      */
@@ -2453,7 +2496,7 @@ class Data extends \Magento\Payment\Helper\Data
             $saveData['payment_type'] = 'capture';
         } elseif ($responseParams['response_code'] == self::PAYMENT_METHOD_VOID_STATUS) {
             $saveData['payment_type'] = 'void';
-            
+
             $reason = __("Order is fully refund");
             $orders->setStatus($orders::STATE_CLOSED);
             $orders->setState($orders::STATE_CLOSED);
@@ -2512,7 +2555,7 @@ class Data extends \Magento\Payment\Helper\Data
             $createdAt = $creditmemo->getCreatedAt();
             $todayDate = $this->_date->gmtDate();
             $differenceInSeconds = strtotime($todayDate) - strtotime($createdAt);
-            
+
             if ($differenceInSeconds < 60 && ($amount/$amountRate) == $adjustment) {
                 $this->log('Refund Already done for this order.'.json_encode($responseParams));
                 $flag = 1;
@@ -2525,7 +2568,7 @@ class Data extends \Magento\Payment\Helper\Data
         } else {
             $orderTotal = $orders->getGrandTotal()/$amountRate;
             $this->log('Order total:'.$orderTotal);
-            
+
             $this->log('Credit Memo total:'.$creditMemoTotal);
             if ($orderTotal == $creditMemoTotal) {
                 $this->log('Order Refund status');
@@ -2548,12 +2591,12 @@ class Data extends \Magento\Payment\Helper\Data
         $creditMemoData['adjustment_negative'] = 0;
         $creditMemoData['comment_text'] = json_encode($responseParams);
         $creditMemoData['send_email'] = 1;
-        
+
         $itemToCredit = [];
         foreach ($orders->getAllItems() as $item) {
             $itemToCredit[$item->getId()] = ['qty'=>0];
         }
-        
+
         $creditMemoData['items'] = $itemToCredit;
         try {
             $orderIncId = $orders->getId();
@@ -2571,7 +2614,7 @@ class Data extends \Magento\Payment\Helper\Data
                         __('The credit memo\'s total must be positive.')
                     );
                 }
-                
+
                 if (!empty($creditMemoData['comment_text'])) {
                     $creditmemo->addComment(
                         $creditMemoData['comment_text'],
@@ -2582,7 +2625,7 @@ class Data extends \Magento\Payment\Helper\Data
                     $creditmemo->setCustomerNote($creditMemoData['comment_text']);
                     $creditmemo->setCustomerNoteNotify(isset($creditMemoData['comment_customer_notify']));
                 }
-                
+
                 $creditmemoManagement = $this->_objectManager->create(
                     \Magento\Sales\Api\CreditmemoManagementInterface::class
                 );
@@ -2590,7 +2633,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $creditmemoManagement->refund($creditmemo, (bool)$creditMemoData['do_offline']);
 
                 $orderTotal = $orders->getGrandTotal()/$amountRate;
-                
+
                 $searchCriteria = $this->searchCriteriaBuilder
                 ->addFilter('order_id', $orderIncId)->create();
                 $creditmemos = $this->creditmemoRepository->getList($searchCriteria);
@@ -2599,11 +2642,11 @@ class Data extends \Magento\Payment\Helper\Data
                 $flag = 0;
                 foreach ($creditmemos as $creditmemo) {
                     $adjustment = $creditmemo->getBaseGrandTotal();
-                    
+
                     $creditMemoTotal1 += $adjustment;
                 }
                 $this->log('Order total:'.$orderTotal);
-                
+
                 $this->log('Credit Memo total:'.$creditMemoTotal1);
 
                 if ($orderTotal == $creditMemoTotal1) {
@@ -2654,15 +2697,15 @@ class Data extends \Magento\Payment\Helper\Data
 
         $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
         $apsSubIntervalCount = $connection->fetchRow($query);
-        
+
         foreach ($order->getAllItems() as $item) {
-            
+
             /* @isSubscriptionProduct */
             $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
             $prodApsSubEnabled = $connection->fetchRow($query);
-            
+
             if (!empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
-                
+
                 /* @Subscription Interval */
                 $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
                 $prodApsSubInterval = $connection->fetchRow($query);
@@ -2670,10 +2713,10 @@ class Data extends \Magento\Payment\Helper\Data
                 /* @Subscription Interval Count*/
                 $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
                 $prodApsSubIntervalCount = $connection->fetchRow($query);
-                
+
                 $subscriptionStartDate = date('Y-m-d', strtotime('now'));
                 $nextPaymentDate = date('Y-m-d', strtotime('+'.$prodApsSubIntervalCount['value'].' '.$prodApsSubInterval['value'], strtotime('now')));
-                
+
                 $this->apsSubscriptionDataSave($item, $order, $subscriptionStartDate, $nextPaymentDate, $status);
             }
         }
@@ -2737,7 +2780,7 @@ class Data extends \Magento\Payment\Helper\Data
 
             $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
             $apsSubIntervalCount = $connection->fetchRow($query);
-            
+
             foreach ($newOrder->getAllItems() as $item) {
                 $this->saveSubscriptionData($item, $apsSubEnabled, $apsSubInterval, $apsSubIntervalCount, $subscriptionOrderId, $status, $newOrder);
             }
@@ -2747,7 +2790,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->cancelSubscription($subscriptionOrderId);
             $this->log("Cron Job failed for Order:".$order->getId());
             $this->log($e->getMessage());
-            
+
             return false;
         }
     }
@@ -2758,20 +2801,20 @@ class Data extends \Magento\Payment\Helper\Data
         $connection = $this->_connection->getConnection();
         $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
         $prodApsSubEnabled = $connection->fetchRow($query);
-        
+
         /* @Subscription Interval */
         $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
         $prodApsSubInterval = $connection->fetchRow($query);
-        
+
         /* @Subscription Interval Count*/
         $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
         $prodApsSubIntervalCount = $connection->fetchRow($query);
-        
+
         $date_now = date('Y-m-d H:i:s', strtotime('now'));
         $nextPaymentDate = date('Y-m-d', strtotime('+'.$prodApsSubIntervalCount['value'].' '.$prodApsSubInterval['value'], strtotime('now')));
 
         $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApssubscriptionsFactory')->create();
-        
+
         $model->load($subscriptionOrderId);
 
         if ($status == 1) {
@@ -2781,11 +2824,11 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $model->setUpdatedAt($date_now);
         $model->save();
-        
+
         $this->log('Order Next_Payment_Date is updated in aps_subscriptions table.');
 
         $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApssubscriptionordersFactory')->create();
-        
+
         $model->setApsSubscriptionId($subscriptionOrderId);
         $model->setOrderId($newOrder->getId());
         $model->setOrderIncrementId($newOrder->getIncrementId());
@@ -2814,6 +2857,7 @@ class Data extends \Magento\Payment\Helper\Data
                     $tokenName = $card['token_name'];
                 }
             }
+
             $language = $this->getLanguage();
             $baseCurrency = $this->getBaseCurrency();
             $orderCurrency = $newOrder->getOrderCurrency()->getCurrencyCode();
@@ -2837,6 +2881,9 @@ class Data extends \Magento\Payment\Helper\Data
             if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
                 $gatewayParams['digital_wallet'] = "STCPAY";
             }
+            if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE) {
+                $gatewayParams['payment_option'] = "TABBY";
+            }
             $signature = $this->calculateSignature($gatewayParams, 'request');
             $gatewayParams['signature'] = $signature;
             $this->log('API PARAM: '.json_encode($gatewayParams));
@@ -2844,15 +2891,15 @@ class Data extends \Magento\Payment\Helper\Data
             $responseParams = $this->callApi($gatewayParams, $gatewayUrl);
             $payment = $invoice = '';
             if ($responseParams['response_code'] == '14000') {
-            
+
                 $payment = $newOrder->getPayment();
                 $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
                 $payment->setAdditionalInformation($responseParams['merchant_reference']);
                 $payment->setAdditionalData(json_encode($responseParams));
                 $payment->save();
-                
+
                 try {
-                    
+
                     $this->log('Gerenating Invoice: '.$newOrder->getId());
                     $this->log('OrderData:'.json_encode($newOrder->getData()));
 
@@ -2915,10 +2962,10 @@ class Data extends \Magento\Payment\Helper\Data
         /** This function is use in payment methods to remove methods while item is subscription */
         $items = $this->_cart->getQuote()->getAllItems();
         $connection = $this->_connection->getConnection();
-        
+
         $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
         $apsSubEnabled = $connection->fetchRow($query);
-        
+
         foreach ($items as $item) {
             $productEntityId = $item->getProductId();
 
@@ -2992,7 +3039,7 @@ class Data extends \Magento\Payment\Helper\Data
         $amount                          = $this->convertFortAmount($order, $currency);
         $gatewayParams['currency']       = strtoupper($currency);
         $gatewayParams['amount']         = $amount;
-        
+
         $gatewayParams['customer_email'] = trim($order->getCustomerEmail());
         $gatewayParams['command'] = \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE;
         $gatewayParams['digital_wallet'] = 'STCPAY';
@@ -3047,7 +3094,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $paymentMethod = $order->getPayment()->getMethod();
         $sessionData = $this->_custmerSession->getCustomValue();
-        
+
         $orderId = $order->getRealOrderId();
         $language = $this->getLanguage();
         $order->setData('aps_stc_ref', $sessionData['refId']);
@@ -3086,14 +3133,14 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_gatewayParams = array_merge($this->_gatewayParams, $this->pluginParams());
         $signature = $this->calculateSignature($this->_gatewayParams, 'request');
         $this->_gatewayParams['signature'] = $signature;
-        
+
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
         $this->log("Request Data STC:".json_encode($this->_gatewayParams));
         $responseParams = $this->callApi($this->_gatewayParams, $gatewayUrl);
-        
+
         $integrationType = self::INTEGRATION_TYPE_REDIRECTION;
         $success = $this->handleFortResponse($responseParams, 'online', $integrationType);
-        
+
         $returnUrl = '';
         if ($success) {
             $this->stcSaveCard($order, $responseParams);
@@ -3138,5 +3185,46 @@ class Data extends \Magento\Payment\Helper\Data
                 ]
             );
         }
+    }
+    public function getTabbyRequestParams($order, $integrationType)
+    {
+        $language = $this->getLanguage();
+        $orderId = $order->getRealOrderId();
+        $order->setData('aps_tabby_ref', $orderId);
+        $order->setApsTabbyRef($orderId);
+        $order->save();
+        $gatewayParams = [
+            'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
+            'access_code'         => $this->getMainConfigData('access_code'),
+            'language'            => $language,
+            'merchant_reference'  => $orderId,
+        ];
+        $baseCurrency                    = $this->getBaseCurrency();
+        $orderCurrency                   = $this->_storeManager->getStore()->getCurrentCurrencyCode();
+        $currency                        = $this->getFortCurrency($baseCurrency, $orderCurrency);
+        $amount                          = $this->convertFortAmount($order, $currency);
+        $gatewayParams['currency']       = strtoupper($currency);
+        $gatewayParams['amount']         = $amount;
+
+        $gatewayParams['customer_email'] = trim($order->getCustomerEmail());
+        $gatewayParams['command'] = \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE;
+        $gatewayParams['payment_option'] = 'TABBY';
+
+        $ip = $this->getVisitorIp();
+        $gatewayParams['customer_ip'] = $ip;
+        $gatewayParams['order_description'] = $orderId;
+        $gatewayParams['phone_number'] = $order->getBillingAddress()->getTelephone();
+
+        $gatewayParams['return_url']      = $this->getReturnUrl('amazonpaymentservicesfort/payment/tabbyResponseOnline');
+        $gatewayParams = array_merge($gatewayParams, $this->pluginParams());
+
+        $signature = $this->calculateSignature($gatewayParams, 'request');
+        $gatewayParams['signature'] = $signature;
+
+        $gatewayUrl = $this->getGatewayUrl();
+        $logMsg = "Request Params for payment method (TABBY) \n\n" . json_encode($gatewayParams, 1);
+        $this->log($logMsg);
+
+        return ['url' => $gatewayUrl, 'params' => $gatewayParams];
     }
 }

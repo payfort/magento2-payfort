@@ -1,7 +1,7 @@
 {
     "name": "amazonpaymentservices/module-fort",
     "description": "APS integration with payment gateway",
-    "version": "2.4.9",
+    "version": "2.5.0",
     "type": "magento2-module",
     "license": [
         "MIT"

@@ -16,7 +16,8 @@ class View extends \Magento\Backend\Block\Template
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
         \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE
+        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE
     ];
 
     public function isApsPaymentMethod($paymentMethod)
@@ -40,7 +41,7 @@ class View extends \Magento\Backend\Block\Template
             $sendData['additionalData'] = json_decode($data, true);
         }
         $sendData['payment'] = $order->getPayment()->toArray();
-        
+
         return $sendData;
     }
 

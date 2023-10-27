@@ -30,14 +30,14 @@ class Redirect extends \Magento\Framework\View\Element\Template
      * @var \Amazonpaymentservices\Fort\Helper\Data
      */
     protected $_helper;
-    
+
     /**
      * Path to template file in theme.
      *
      * @var string
      */
     protected $_template = 'redirect.phtml';
-    
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Checkout\Model\Session $checkoutSession
@@ -108,6 +108,8 @@ class Redirect extends \Magento\Framework\View\Element\Template
                 }
             } elseif ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
                 $arrPaymentPageData = $this->_helper->getStcRequestParams($order, $helper::INTEGRATION_TYPE_REDIRECTION);
+            } elseif ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE) {
+                $arrPaymentPageData = $this->_helper->getTabbyRequestParams($order, $helper::INTEGRATION_TYPE_REDIRECTION);
             } else {
                 if ($this->_helper->isStandardMethod($order)) {
                     $this->_template = 'merchant-page.phtml';
@@ -121,7 +123,7 @@ class Redirect extends \Magento\Framework\View\Element\Template
             $order->addStatusHistoryComment('AmazonpaymentservicesFort :: redirecting to payment page with Method: '.$paymentMethod);
             $order->save();
         }
-        
+
         $this->addData(
             [
                 'order_ok' => $order_is_ok,

@@ -91,35 +91,37 @@ class Cron extends \Magento\Payment\Helper\Data
         try {
             $order = $this->_helper->getOrderById($orderIncrementedId);
             $this->_helper->log('OrderID:'.$order->getId());
-            
+
             $newOrder = '';
             $paymentMethod = $order->getPayment()->getMethod();
-            
-            if (empty($order->getPayment()->getExtensionAttributes()->getVaultPaymentToken()) || ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE && empty($order->getApsStcRef()))) {
+
+            if (empty($order->getPayment()->getExtensionAttributes()->getVaultPaymentToken())
+                || ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE && empty($order->getApsStcRef()))
+                || ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE && empty($order->getApsTabbyRef()))) {
                 $this->log('Payment Data not found. Failed to create order');
                 $this->_helper->cancelSubscription($subscriptionOrderId);
                 return false;
             }
-            
+
             $tokenName = $order->getPayment()->getExtensionAttributes()->getVaultPaymentToken()->getGatewayToken();
             $tokenId = $order->getPayment()->getExtensionAttributes()->getVaultPaymentToken()->getEntityId();
             $remoteIp = $order->getRemoteIp();
-            
+
             $store = $this->_storeManager->load($order->getStoreId());
             $store->setCurrentCurrencyCode($order->getOrderCurrencyCode());
 
             $customer = $this->customerFactory->create();
             $customer->setWebsiteId($order->getStore()->getWebsiteId());
             $customer->loadByEmail($order->getCustomerEmail());
-            
+
             $quote = $this->quote->create();
             $quote->setStore($store);
-            
+
             $customer = $this->customerRepository->getById($customer->getEntityId());
             $quote->setCurrency();
             $quote->setQuoteCurrencyCode($order->getOrderCurrencyCode());
             $quote->assignCustomer($customer);
-            
+
             foreach ($order->getAllItems() as $item) {
                 if($item->getItemId() == $itemId) {
                     //@codingStandardsIgnoreStart
@@ -137,9 +139,9 @@ class Cron extends \Magento\Payment\Helper\Data
                 throw new Exception('APS :: Order Item not found for subcription.');
 
             $quote->getBillingAddress()->addData($order->getBillingAddress()->getData());
-            
+
             $quote->getShippingAddress()->addData($order->getShippingAddress()->getData());
-            
+
             $quote->getShippingAddress()
                 ->setShippingMethod($order->getShippingMethod())
                 ->setCollectShippingRates(true);
@@ -151,10 +153,10 @@ class Cron extends \Magento\Payment\Helper\Data
             $quote->setPaymentMethod(\Amazonpaymentservices\Fort\Model\Method\Vault::CODE);
             $quote->setInventoryProcessed(true);
             $quote->save();
-            
+
             $quote->getPayment()->importData(['method' => \Amazonpaymentservices\Fort\Model\Method\Vault::CODE]);
             $quote->collectTotals()->save();
-            
+
             $newOrder = $this->quoteManagement->submit($quote);
             $newOrder->setEmailSent(0);
             $increment_id = $newOrder->getRealOrderId();
@@ -168,7 +170,7 @@ class Cron extends \Magento\Payment\Helper\Data
             $this->_helper->cancelSubscription($subscriptionOrderId);
             $this->_helper->log("Cron Job failed for Order:".$order->getId());
             $this->_helper->log($e->getMessage());
-            
+
             return false;
         }
     }
@@ -192,16 +194,16 @@ class Cron extends \Magento\Payment\Helper\Data
         if ($isRecurringEnabled && !empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
 
             $this->_helper->log('New ORderNUmber:'.$newOrder->getRealOrderId());
-            
+
             $apsPaymentResponse = $this->_helper->apsSubscriptionPaymentApi($newOrder, $tokenName, $order, $remoteIp);
-            
+
             if ($apsPaymentResponse['response_code'] == '14000') {
                 $newOrder->setState($newOrder::STATE_PROCESSING)->save();
                 $newOrder->setStatus($newOrder::STATE_PROCESSING)->save();
                 $newOrder->addStatusToHistory($newOrder::STATE_PROCESSING, 'APS :: Order has been paid.', true);
                 $newOrder->save();
                 $this->_helper->log('OrderData:'.json_encode($newOrder->getData()));
-                
+
                 $connection->insert(
                     $this->_connection->getTableName('vault_payment_token_order_payment_link'),
                     [
@@ -209,7 +211,7 @@ class Cron extends \Magento\Payment\Helper\Data
                         'payment_token_id' => $tokenId
                     ]
                 );
-                
+
                 $this->_helper->log('Order status is chenged from PENDING to PROCESSING.');
                 $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 1, $order);
             } else {

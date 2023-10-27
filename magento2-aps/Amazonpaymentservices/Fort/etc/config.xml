@@ -2,7 +2,7 @@
 <!--
 /**
  * Config XML
- * 
+ *
  * @category Aps
  * @package  Aps_Fort
  * @author   Aps <email@example.com>
@@ -102,13 +102,14 @@
                 <group>aps_fort</group>
                 <sort_order>80</sort_order>
             </aps_fort_stc>
-            <aps_fort_stc>
-                <model>Amazonpaymentservices\Fort\Model\Method\Stc</model>
+            <aps_fort_tabby>
+                <model>Amazonpaymentservices\Fort\Model\Method\Tabby</model>
                 <active>0</active>
-                <title>STC</title>
+                <title>Pay in 4. No interest, no fees.</title>
+                <integration_type>redirection</integration_type>
                 <group>aps_fort</group>
-                <sort_order>80</sort_order>
-            </aps_fort_stc>
+                <sort_order>90</sort_order>
+            </aps_fort_tabby>
         </payment>
     </default>
 </config>

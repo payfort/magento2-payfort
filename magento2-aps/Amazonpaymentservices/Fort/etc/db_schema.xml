@@ -62,5 +62,8 @@
         <column xsi:type="varchar" name="aps_stc_ref"  length="50" nullable="true" comment="APS STC Reference Number" />
         <column xsi:type="varchar" name="aps_valu_ref"  length="50" nullable="true" comment="APS Valu Reference Number" />
         <column xsi:type="varchar" name="aps_params"  length="255" nullable="true" comment="APS Valu / Install params" />
+        <index referenceId="index_aps_stc_ref" indexType="btree">
+            <column name="aps_stc_ref"/>
+        </index>
    </table>
 </schema>

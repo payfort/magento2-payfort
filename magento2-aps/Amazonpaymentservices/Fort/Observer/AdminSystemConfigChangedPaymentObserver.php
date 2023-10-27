@@ -31,7 +31,7 @@ class AdminSystemConfigChangedPaymentObserver implements ObserverInterface
      * @var \Magento\Config\Model\ResourceModel\Config
      */
     protected $resourceConfig;
-    
+
     /**
      * App Config
      *
@@ -83,7 +83,7 @@ class AdminSystemConfigChangedPaymentObserver implements ObserverInterface
             $this->saveCommonConfig($configKey, $configVal, $scope, $scopeId);
         }
     }
-    
+
     /**
      * Save Common Config
      *
@@ -105,5 +105,6 @@ class AdminSystemConfigChangedPaymentObserver implements ObserverInterface
         $this->resourceConfig->saveConfig('payment/aps_fort_valu/'.$configKey, $configValue, $scope, $scopeId);
         $this->resourceConfig->saveConfig('payment/aps_fort_visaco/'.$configKey, $configValue, $scope, $scopeId);
         $this->resourceConfig->saveConfig('payment/aps_fort_stc/'.$configKey, $configValue, $scope, $scopeId);
+        $this->resourceConfig->saveConfig('payment/aps_fort_tabby/'.$configKey, $configValue, $scope, $scopeId);
     }
 }

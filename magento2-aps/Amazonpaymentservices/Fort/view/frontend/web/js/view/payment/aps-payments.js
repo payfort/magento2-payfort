@@ -54,6 +54,10 @@ define(
             {
                 type: 'aps_fort_stc',
                 component: window.checkoutConfig.payment.apsFort.aps_fort_stc.integrationType == 'hosted' ? 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_stc-merchant' : 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_stc'
+            },
+            {
+                type: 'aps_fort_tabby',
+                component: 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_tabby'
             }
         );
 

@@ -87,7 +87,7 @@
                         <source_model>Amazonpaymentservices\Fort\Model\Adminhtml\Source\CcType</source_model>
                         <config_path>payment/aps_fort/cctypes</config_path>
                     </field>
-                       
+
                 </group>
                 <group id="aps_fort_cc" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Credit / Debit Cards</label>
@@ -284,7 +284,7 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/aps_apple/cart_button</config_path>
                     </field>
-                    
+
                 </group>
                 <group id="aps_installment" translate="label" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Installments</label>
@@ -432,7 +432,15 @@
                         <config_path>payment/aps_fort_stc/ref_id_as_order_id</config_path>
                     </field>
                 </group>
-                <group id="aps_fort_cron" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="aps_fort_tabby" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Tabby</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_fort_tabby/active</config_path>
+                    </field>
+                </group>
+                <group id="aps_fort_cron" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Cron Setup</label>
                     <field id="cron_command" translate="label" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <frontend_model>Amazonpaymentservices\Fort\Block\Adminhtml\System\Config\Field\CronCommand</frontend_model>
@@ -443,7 +451,7 @@
                         <config_path>payment/aps_fort_cron/interval</config_path>
                     </field>
                 </group>
-                <group id="aps_recurring_enabled" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="aps_recurring_enabled" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Recurring Payments / Subscription Products</label>
                     <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Enabled</label>

@@ -12,6 +12,7 @@
  **/
 namespace Amazonpaymentservices\Fort\Model;
 
+use Amazonpaymentservices\Fort\Model\Config\Source\Tabbyintegrationtype;
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\UrlInterface;
@@ -54,7 +55,8 @@ class PaymentConfigProvider implements ConfigProviderInterface
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
         \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE
+        \Amazonpaymentservices\Fort\Model\Method\Stc::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE
     ];
 
     /**
@@ -109,7 +111,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
      * @var PaymentHelper
      */
     protected $paymentHelper;
-    
+
     /**
      * @var UrlInterface
      */
@@ -126,7 +128,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
     protected $_store;
 
     protected $session;
-    
+
     protected $paymenttokenmanagement;
 
     protected $config;
@@ -188,18 +190,21 @@ class PaymentConfigProvider implements ConfigProviderInterface
         $stcIntegrationType = $this->methods[\Amazonpaymentservices\Fort\Model\Method\Stc::CODE]->getConfigData('integration_type');
         $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Stc::CODE]['integrationType'] = $stcIntegrationType;
 
+        $tabbyIntegrationType = Tabbyintegrationtype::REDIRECTION;
+        $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Tabby::CODE]['integrationType'] = $tabbyIntegrationType;
+
         $vaultIntegrationType = $this->methods[\Amazonpaymentservices\Fort\Model\Method\Vault::CODE]->getConfigData('integration_type');
         $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Vault::CODE]['integrationType'] = $vaultIntegrationType;
-       
+
         $active = $this->methods[\Amazonpaymentservices\Fort\Model\Method\Installment::CODE]->getConfigData('active');
         $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Installment::CODE]['active'] = $active;
 
         $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Installment::CODE]['ajaxInstallmentUrl']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/getPaymentData');
         $this->config['payment']['apsFort'][\Amazonpaymentservices\Fort\Model\Method\Installment::CODE]['vaultInstallment']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/getVaultInstallment');
-        
+
         $this->getCardImages();
         $this->getCardLogo();
-        
+
         foreach ($this->_methodCodes as $code) {
             $this->config['payment']['apsFort']['allpayment'][] = $code;
             if ($this->methods[$code]->isAvailable()) {
@@ -218,6 +223,11 @@ class PaymentConfigProvider implements ConfigProviderInterface
                     $this->config['payment']['apsFort'][$code]['ajaxOtpUrl']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/stcpayotp');
                     $this->config['payment']['apsFort'][$code]['tokenstatus']  = $this->apsHelper->getConfig('payment/aps_fort_stc/token');
                     $this->stcConfig($code);
+                }
+                if ($code == \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE) {
+                    $this->config['payment']['apsFort'][$code]['tabbyLogo'] = $this->getTabbyLogo();
+                    $this->config['payment']['apsFort'][$code]['tokenstatus']  = 0;
+                    $this->tabbyConfig($code);
                 }
                 if ($code == \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE) {
                     $this->visaConfig($code);
@@ -285,6 +295,10 @@ class PaymentConfigProvider implements ConfigProviderInterface
             $this->config['payment']['apsFort'][$code]['data'] = [];
         }
     }
+    private function tabbyConfig($code)
+    {
+        $this->config['payment']['apsFort'][$code]['data'] = [];
+    }
 
     private function getCardImages()
     {
@@ -311,7 +325,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
                 }
             }
             $this->config['payment']['apsFort']['logoImg'][$this->_cardShortName[$key]] = $this->getCardTypeImg($value);
-            
+
         }
     }
 
@@ -322,7 +336,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
         $this->config['payment']['apsFort'][$code]['installmentResponse']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/installmentStandardPageResponse');
         $this->config['payment']['apsFort'][$code]['bankLogo']  = $this->apsHelper->getConfig('payment/aps_installment/bank_logo');
         $this->config['payment']['apsFort'][$code]['issuerCode']  = $this->apsHelper->getConfig('payment/aps_installment/issuer_code');
-        
+
         if ($installIntegrationType == \Amazonpaymentservices\Fort\Helper\Data::INTEGRATION_TYPE_HOSTED) {
             $this->config['payment']['apsFort'][$code]['ajaxUrl']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/getPaymentData');
             $this->config['payment']['apsFort'][$code]['vaultInstallment']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/getVaultInstallment');
@@ -463,13 +477,18 @@ class PaymentConfigProvider implements ConfigProviderInterface
         $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/stcpay.png');
         return $output;
     }
+    protected function getTabbyLogo()
+    {
+        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/tabby-badge.png');
+        return $output;
+    }
 
     protected function getValuConfig()
     {
         $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/valu_logo.png');
         return $output;
     }
-    
+
     public function getViewFileUrl($fileId, array $params = [])
     {
         return $this->_assetRepository->getUrlWithParams($fileId, $params);

@@ -15,8 +15,10 @@ class View extends \Magento\Backend\Block\Template
         \Amazonpaymentservices\Fort\Model\Method\Apple::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\OmanNet::CODE,
         \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Stc::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Benefit::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE
     ];
 

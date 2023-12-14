@@ -163,18 +163,18 @@ if ($checkActive) {
                 var shipData = {};
                 var storeName = '<?= /* @noEscape */ $storeName; ?>';
                 var supportedNetworks = '<?= /* @noEscape */ $supportedNetwork;?>';
-                var runningAmount = data.totalPrice;
-                var runningShipping = data.shippingAmount;
-                var totalTax = data.totalTax;
-                var discountAmount = data.discountAmount;
-                var appleTotal = data.total;
+                var runningAmount = data.totalPriceUnformatted ? data.totalPriceUnformatted : data.totalPrice;
+                var runningShipping = data.shippingAmountUnformatted ? data.shippingAmountUnformatted : data.shippingAmount;
+                var totalTax = data.totalTaxUnformatted ? data.totalTaxUnformatted : data.totalTax;
+                var discountAmount = data.discountAmountUnformatted ? data.discountAmountUnformatted : data.discountAmount;
+                var appleTotal = data.totalUnformatted ? data.totalUnformatted : data.total;
                 
                 var newItemArray = [];
                 var runningTotal = function(data) { 
-                    runningAmount = parseFloat(data.totalPrice);
-                    runningShipping = parseFloat(data.shippingAmount);
-                    totalTax = parseFloat(data.totalTax);
-                    discountAmount = parseFloat(data.discountAmount);
+                    runningAmount = parseFloat(data.totalPriceUnformatted ? data.totalPriceUnformatted : data.totalPrice);
+                    runningShipping = parseFloat(data.shippingAmountUnformatted ? data.shippingAmountUnformatted : data.shippingAmount);
+                    totalTax = parseFloat(data.totalTaxUnformatted ? data.totalTaxUnformatted : data.totalTax);
+                    discountAmount = parseFloat(data.discountAmountUnformatted ? data.discountAmountUnformatted : data.discountAmount);
                     
                     newItemArray[0] = {type: 'final',label: 'Subtotal', amount: runningAmount};
                     var x= 1;
@@ -252,8 +252,10 @@ if ($checkActive) {
                             if(dataShip.data.hasOwnProperty(0)) {
                                 shipData = dataShip.data;
                                 data.shippingAmount = parseFloat(dataShip.data[0].amount);
+                                data.shippingAmountUnformatted = parseFloat(dataShip.data[0].amount);
                             }
                             data.totalTax = parseFloat(dataShip.taxes);
+                            data.totalTaxUnformatted = parseFloat(dataShip.taxes);
                             
                             var finalTotal = {
                                 label: storeName,

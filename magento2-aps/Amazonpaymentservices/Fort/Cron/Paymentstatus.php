@@ -20,7 +20,9 @@ class Paymentstatus
         \Amazonpaymentservices\Fort\Model\Method\Apple::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Installment::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE
+        \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\OmanNet::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Benefit::CODE
     ];
 
     public function __construct(
@@ -68,20 +70,27 @@ class Paymentstatus
         $response = $this->_helper->checkOrderStatus($orderId, $paymentMethod);
         $this->_logger->debug('APS CHECK_VERIFY_CARD_STATUS Response : '.json_encode($response));
 
-        if (!empty($response['response_code']) && $response['response_code'] === '12000') {
+        if (
+            ($response['response_code'] ?? '') === '12000'
+            || ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_AUTH_SUCCESS_STATUS
+            || ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS
+        ) {
+            $this->_helper->log('process order 2');
+            $this->_helper->handleSendingInvoice($order, $response);
+
             $order->setState($order::STATE_PROCESSING)->save();
             $order->setStatus($order::STATE_PROCESSING)->save();
             
             $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order status changed.', true);
             $order->save();
             $this->_logger->debug('APS order status changed '.$order->getId());
-        } else {
+        } elseif ($this->_helper->canCancelOrder($order)) {
             $order->setState($order::STATE_CANCELED)->save();
             $order->setStatus($order::STATE_CANCELED)->save();
-            
-            $order->addStatusToHistory($order::STATE_CANCELED, 'APS :: Order status changed.', true);
+
+            $order->addStatusToHistory($order::STATE_CANCELED, 'APS :: Order status changed. Cancelled because of unrecognized response code.', true);
             $order->save();
-            $this->_logger->debug('APS order status changed '.$order->getId());
+            $this->_logger->debug('APS order status changed '.$order->getId() . '. Cancelled because of unrecognized response code.');
         }
     }
 }

@@ -59,6 +59,7 @@ class Redirect extends \Magento\Framework\View\Element\Template
         $this->_orderConfig = $orderConfig;
         $this->httpContext = $httpContext;
         $this->_helper = $helperFort;
+        $this->_isScopePrivate = true;
     }
 
     /**
@@ -96,6 +97,11 @@ class Redirect extends \Magento\Framework\View\Element\Template
         $form_data  = '';
         $form_url   = '';
         $arrPaymentPageData = [];
+        $this->_helper->log('Redirect 2');
+        $this->_helper->log(json_encode($order));
+        $this->_helper->log($order_is_ok);
+        $this->_helper->log($order->getState());
+        $this->_helper->log($order_error_message);
         if ($order_is_ok) {
             $helper = $this->_helper;
             $paymentMethod= $order->getPayment()->getMethod();

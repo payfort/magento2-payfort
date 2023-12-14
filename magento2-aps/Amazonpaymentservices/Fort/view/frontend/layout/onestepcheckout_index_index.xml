@@ -40,6 +40,12 @@
                                                                         <item name="aps_installment" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
                                                                         </item>
+                                                                        <item name="aps_omannet" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                        </item>
+                                                                        <item name="aps_benefit" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">false</item>
+                                                                        </item>
                                                                     </item>
                                                                 </item>
                                                             </item>

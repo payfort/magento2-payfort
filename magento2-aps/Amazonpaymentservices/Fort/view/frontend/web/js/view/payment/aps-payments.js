@@ -56,6 +56,14 @@ define(
                 component: window.checkoutConfig.payment.apsFort.aps_fort_stc.integrationType == 'hosted' ? 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_stc-merchant' : 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_stc'
             },
             {
+                type: 'aps_omannet',
+                component: 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_omannet-method'
+            },
+            {
+                type: 'aps_benefit',
+                component: 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_benefit-method'
+            },
+            {
                 type: 'aps_fort_tabby',
                 component: 'Amazonpaymentservices_Fort/js/view/payment/method-renderer/aps_fort_tabby'
             }

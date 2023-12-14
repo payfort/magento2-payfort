@@ -120,6 +120,12 @@ class CreditmemoAddData
                 throw new \Exception('Payment Method not allow for refund.');
             }
 
+            //Need to check for omannet and benefit.
+            if (\Amazonpaymentservices\Fort\Model\Method\Benefit::CODE == $paymentMethod or \Amazonpaymentservices\Fort\Model\Method\OmanNet::CODE == $paymentMethod) {
+                $this->_helper->log("\n\n Payment Method (".$paymentMethod.") not allow for refund for order id ".$postParams['order_id']." \n\n");
+                throw new \Exception('Payment Method not allow for refund.');
+            }
+
             $orderId = $order->getId();
             $orderTotal = $order->getGrandTotal();
             $orderIncrementId = $order->getIncrementId();
@@ -158,7 +164,7 @@ class CreditmemoAddData
             }
             $this->_helper->log("Creditmemo with Shipping Tax amount : ".$taxAmount);
 
-            $amount += $shipAmount + $adjustAmount - $adjustNegative + $taxAmount;
+            $amount += ($shipAmount - $order->getShippingDiscountAmount()) + $adjustAmount - $adjustNegative + $taxAmount;
 
             if (( \Amazonpaymentservices\Fort\Model\Method\Naps::CODE == $paymentMethod) && $amount != $orderTotal) {
                 $this->_helper->log("\n\n Partial Refund is not allowed for this payment method(".$paymentMethod."). (order id: ".$postParams['order_id'].") \n\n");

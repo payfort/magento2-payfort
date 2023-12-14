@@ -369,6 +369,23 @@
                         <config_path>payment/aps_fort_valu/sort_order</config_path>
                     </field>
                 </group>
+                <group id="aps_omannet" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>OmanNet</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_omannet/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_omannet/title</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_omannet/sort_order</config_path>
+                    </field>
+                </group>
                 <group id="aps_fort_visacheckout" translate="label" type="text" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Visa Checkout</label>
                     <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
@@ -438,6 +455,23 @@
                         <label>Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <config_path>payment/aps_fort_tabby/active</config_path>
+                    </field>
+                </group>
+                <group id="aps_benefit" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Benefit</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/aps_benefit/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/aps_benefit/title</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <frontend_class>validate-number</frontend_class>
+                        <config_path>payment/aps_benefit/sort_order</config_path>
                     </field>
                 </group>
                 <group id="aps_fort_cron" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">

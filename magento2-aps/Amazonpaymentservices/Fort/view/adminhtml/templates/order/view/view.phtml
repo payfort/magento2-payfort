@@ -192,25 +192,23 @@ if ($isAvailable) {
                 <?php } ?>
             </td>
         </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('KNET third party transaction number')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['third_party_transaction_number'])) { ?>
+        <?php if (isset($data['additionalData']['third_party_transaction_number'])) : ?>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__($data['additionalData']['payment_option'] . ' third party transaction number')); ?></strong></td>
+                <td>
                     <?= /* @noEscape */ ($data['additionalData']['third_party_transaction_number']); ?>
-                <?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('KNET Reference Number')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['knet_ref_number'])) { ?>
+                </td>
+            </tr>
+        <?php endif ?>
+        <?php if (isset($data['additionalData']['knet_ref_number'])) : ?>
+            <tr>
+                <td><strong><?= $block->escapeHtml(__('KNET Reference Number')); ?></strong></td>
+                <td>
                     <?= /* @noEscape */ ($data['additionalData']['knet_ref_number']); ?>
-                <?php } ?>
-            </td>
-        </tr>
-        <?php
-    }
-    ?>
+                </td>
+            </tr>
+        <?php endif ?>
+    <?php } ?>
     </table>
 </div>
 <?php } ?>

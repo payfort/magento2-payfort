@@ -56,6 +56,8 @@ class PaymentConfigProvider implements ConfigProviderInterface
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
         \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Stc::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\OmanNet::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Benefit::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE
     ];
 
@@ -231,6 +233,12 @@ class PaymentConfigProvider implements ConfigProviderInterface
                 }
                 if ($code == \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE) {
                     $this->visaConfig($code);
+                }
+                if ($code == \Amazonpaymentservices\Fort\Model\Method\Benefit::CODE) {
+                    $this->config['payment']['apsFort'][$code]['benefitLogo'] = $this->getBenefitLogo();
+                }
+                if ($code == \Amazonpaymentservices\Fort\Model\Method\OmanNet::CODE) {
+                    $this->config['payment']['apsFort'][$code]['omanNetLogo'] = $this->getOmanNetLogo();
                 }
                 if ($code == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
                     $this->config['payment']['apsFort'][$code]['valuLogo'] = $this->getValuConfig();
@@ -489,6 +497,18 @@ class PaymentConfigProvider implements ConfigProviderInterface
         return $output;
     }
 
+    protected function getBenefitLogo()
+    {
+        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/benefit-logo.png');
+        return $output;
+    }
+
+        protected function getOmanNetLogo()
+    {
+        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/omannet-logo.png');
+        return $output;
+    }
+    
     public function getViewFileUrl($fileId, array $params = [])
     {
         return $this->_assetRepository->getUrlWithParams($fileId, $params);

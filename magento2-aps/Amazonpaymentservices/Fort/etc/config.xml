@@ -24,7 +24,7 @@
                 <gateway_currency>base</gateway_currency>
                 <group>aps_fort</group>
                 <cctypes>AE,VI,MC,MZ,MD</cctypes>
-                <mada_regex>440647|440795|446404|457865|968208|457997|474491|636120|417633|468540|468541|468542|468543|968201|446393|409201|458456|484783|462220|455708|410621|455036|486094|486095|486096|504300|440533|489318|489319|445564|968211|410685|406996|432328|428671|428672|428673|968206|446672|543357|434107|407197|407395|412565|431361|604906|521076|529415|535825|543085|524130|554180|549760|968209|524514|529741|537767|535989|536023|513213|520058|558563|588982|589005|531095|530906|532013|968204|422817|422818|422819|428331|483010|483011|483012|589206|968207|419593|439954|530060|531196|420132|421141|588845|403024|968205|42689700|406136</mada_regex>
+                <mada_regex>|22331122|440647|440795|446404|457865|968208|457997|474491|636120|417633|468540|468541|468542|468543|968201|446393|409201|458456|484783|462220|455708|410621|455036|486094|486095|486096|504300|440533|489318|489319|445564|968211|410685|406996|432328|428671|428672|428673|968206|446672|543357|434107|407197|407395|412565|431361|604906|521076|529415|535825|543085|524130|554180|549760|968209|524514|529741|537767|535989|536023|513213|520058|558563|588982|589005|531095|530906|532013|968204|422817|422818|422819|428331|483010|483011|483012|589206|968207|419593|439954|530060|531196|420132|421141|588845|403024|968205|42689700|406136</mada_regex>
                 <meeza_regex>507803[0-6][0-9]|507808[3-9][0-9]|507809[0-9][0-9]|507810[0-2][0-9]</meeza_regex>
             </aps_fort>
             <aps_apple>
@@ -86,6 +86,14 @@
                 <group>aps_fort</group>
                 <sort_order>60</sort_order>
             </aps_fort_valu>
+            <aps_omannet>
+                <model>Amazonpaymentservices\Fort\Model\Method\OmanNet</model>
+                <active>0</active>
+                <title>OmanNet</title>
+                <group>aps_fort</group>
+                <sort_order>40</sort_order>
+                <!--<instructions>You will be redirected to the Aps website when you place an order.</instructions>-->
+            </aps_omannet>
             <aps_fort_visaco>
                 <model>Amazonpaymentservices\Fort\Model\Method\VisaCheckout</model>
                 <active>0</active>
@@ -110,6 +118,14 @@
                 <group>aps_fort</group>
                 <sort_order>90</sort_order>
             </aps_fort_tabby>
+            <aps_benefit>
+                <model>Amazonpaymentservices\Fort\Model\Method\Benefit</model>
+                <active>0</active>
+                <title>Benefit</title>
+                <group>aps_fort</group>
+                <sort_order>100</sort_order>
+                <!--<instructions>You will be redirected to the Aps website when you place an order.</instructions>-->
+            </aps_benefit>
         </payment>
     </default>
 </config>

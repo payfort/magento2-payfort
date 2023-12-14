@@ -405,7 +405,7 @@ define(
                         var getCode = this.getCode();
                         var cardId = "#" + getCode + "_cc_number";
                         var cardNumber = $(cardId).val();
-                        cardNumber = cardNumber.substring(0, 6);
+                        cardNumber = cardNumber.substring(0, 8);
                         if ($(cardId).val().length >= 15) {
                             $('[data-action="widget-cc-insta-grid"]').html(sliderText);
                             $.ajax({

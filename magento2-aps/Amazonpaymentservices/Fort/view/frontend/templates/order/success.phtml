@@ -31,3 +31,25 @@
 
 
 <?php endif; ?>
+
+
+
+<?php if ($block->isOmanNetPaymentMethod()): ?>
+
+  <?php $OmanNetData = $block->getOmanNetParmeters();
+    $thirdRefNo = isset($OmanNetData['third_party_transaction_number']) ? $OmanNetData['third_party_transaction_number'] : '';
+  ?>
+
+  <div class="success-section">
+  <div style="clear: both;">OmanNet third party transaction number : <?= $block->escapeHtml(__($thirdRefNo)); ?></div>
+
+<?php endif; ?>
+
+<?php if ($block->isBenefitPaymentMethod()): ?>
+  <?php $benefitData = $block->getBenefitParmeters();
+    $thirdRefNo = isset($benefitData['third_party_transaction_number']) ? $benefitData['third_party_transaction_number'] : '';
+  ?>
+  <div class="success-section">
+    <p style="clear: both;">BENEFIT third party transaction number : <?= $block->escapeHtml(__($thirdRefNo)); ?></p>
+  </div>
+<?php endif; ?>

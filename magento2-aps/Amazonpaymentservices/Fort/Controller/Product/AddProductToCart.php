@@ -196,9 +196,8 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
         
         foreach ($quote->getAllItems() as $item) {
             $data['data']['totalPrice']  += $item->getRowTotal();
-
         }
-        
+        $data['data']['totalPriceUnformatted'] = (string)$data['data']['totalPrice'];
         $data['data']['totalPrice'] =
             $this->modelCurrency->format(
                 $data['data']['totalPrice'],
@@ -209,8 +208,11 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
             );
         $data['data']['totalPrice'] = str_replace(",", "", $data['data']['totalPrice']);
         $data['data']['shippingAmount']  = 0;
+        $data['data']['shippingAmountUnformatted']  = (string)$data['data']['shippingAmount'];
         $data['data']['totalTax']  = 0;
+        $data['data']['totalTaxUnformatted']  = (string)$data['data']['totalTax'];
         $data['data']['discountAmount']  = $quote->getSubtotal() - $quote->getSubtotalWithDiscount();
+        $data['data']['discountAmountUnformatted']  = (string)$data['data']['discountAmount'];
         $data['data']['discountAmount'] =
             $this->modelCurrency->format(
                 $data['data']['discountAmount'],
@@ -222,6 +224,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
         $data['data']['discountAmount'] = str_replace(",", "", $data['data']['discountAmount']);
 
         $data['data']['total']  = $quote->getGrandTotal();
+        $data['data']['totalUnformatted']  = (string)$data['data']['total'];
         $data['data']['total'] =
             $this->modelCurrency->format(
                 $data['data']['total'],
@@ -230,6 +233,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
                 ],
                 false
             );
+
         $data['data']['total'] = str_replace(",", "", $data['data']['total']);
 
         $data['status'] = 'success';

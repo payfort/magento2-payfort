@@ -12,7 +12,7 @@ execute below command in your magento installation directory
 `composer require amazonpaymentservices/module-fort`
 
 ## Configuration and User Guide
-You can download the archive [file](/magento2-aps-2.5.0.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
+You can download the archive [file](/magento2-aps-2.6.0.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
    
 
 ## Payment Options
@@ -35,13 +35,19 @@ You can download the archive [file](/magento2-aps-2.5.0.zip) of the plugin and i
    * KNET
    * NAPS
    * Apple Pay
+   * STCPay
+   * Tabby
+   * OmanNet
+   * Benefit
    
 
 ## Changelog
 
 | Plugin Version | Release Notes |
 | :---: | :--- |
-| 2.5.0 | * New - Tabby is added as a new payment option <br/> * Fix - StcPay reference field index is added | 
+| 2.6.0 | * New - Benefit and OmanNet are added as a new payment options | 
+| 2.5.1 | * Fix - Webhook Handling <br/> * Fix - Cron check status to consider Success scenarios <br/> * Fix - Response handling to consider order cancellation only if order state is in list of failure or pending to avoid cancelling success cases. <br/> * Fix - ApplePay discount values fix| 
+| 2.5.0 | * New - Tabby is added as a new payment option | 
 | 2.4.9 | * Fix - SameSite cookie handling <br/> * Fix - ApplePay is now enabled with Magento payment option checkbox <br/> * Fix - Refund considers Base/Front currencies <br/> * Fix - STCPay to use order id which is enabled via configuration <br/> * Fix - PHP8.2 Compatibility changes|
 | 2.4.8 | * Fix - jQuery deprecated size() function is replaced with length |
 | 2.4.7 | * Fix - Shipping tax is considered for the refund calculation <br/> * Fix - ApplePay url validation is added <br/> * Fix - item id is considered during subscription product cancellation|

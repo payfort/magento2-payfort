@@ -103,8 +103,10 @@ class AdminSystemConfigChangedPaymentObserver implements ObserverInterface
         $this->resourceConfig->saveConfig('payment/aps_knet/'.$configKey, $configValue, $scope, $scopeId);
         $this->resourceConfig->saveConfig('payment/aps_apple/'.$configKey, $configValue, $scope, $scopeId);
         $this->resourceConfig->saveConfig('payment/aps_fort_valu/'.$configKey, $configValue, $scope, $scopeId);
+        $this->resourceConfig->saveConfig('payment/aps_omannet/'.$configKey, $configValue, $scope, $scopeId);
         $this->resourceConfig->saveConfig('payment/aps_fort_visaco/'.$configKey, $configValue, $scope, $scopeId);
         $this->resourceConfig->saveConfig('payment/aps_fort_stc/'.$configKey, $configValue, $scope, $scopeId);
+        $this->resourceConfig->saveConfig('payment/aps_benefit/'.$configKey, $configValue, $scope, $scopeId);
         $this->resourceConfig->saveConfig('payment/aps_fort_tabby/'.$configKey, $configValue, $scope, $scopeId);
     }
 }

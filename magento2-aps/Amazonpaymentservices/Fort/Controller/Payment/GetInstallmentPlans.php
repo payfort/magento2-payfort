@@ -99,10 +99,31 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
     public function execute()
     {
         $responseParams = $this->getRequest()->getParams();
-        $arrPaymentPageData = $this->_helper->getInstallmentPlan();
+        //$arrPaymentPageData = $this->_helper->getInstallmentPlan();
+        $arrPaymentPageData = [];
         $installmentData = [];
-        $cardNumber = '';
+        $cardNumberOrToken = '';
+
         if (!empty($responseParams['cardNumber'])) {
+            $cardNumberOrToken = $responseParams['cardNumber'];
+            $arrPaymentPageData = $this->_helper->getInstallmentPlan($cardNumberOrToken,\Amazonpaymentservices\Fort\Helper\Data::INSTALLMENTS_PLAN_CARD);
+        } elseif (!empty($responseParams['vaultSelected'])) {
+            $customerId = $this->_customerSession->getCustomer()->getId();
+            $tokenData = $this->_paymentToken->getByPublicHash($responseParams['vaultSelected'], $customerId);
+            $tokenName = '';
+            if (!empty($tokenData)) {
+                $details = json_decode($tokenData['details'], 1);
+                $this->_helper->log("Token details");
+                $this->_helper->log($details);
+                $cardNumberOrToken = substr($details['maskedCC'], 0, 6);
+                $arrPaymentPageData = $this->_helper->getInstallmentPlan($cardNumberOrToken,\Amazonpaymentservices\Fort\Helper\Data::INSTALLMENTS_PLAN_TOKEN);
+            }
+        } else{
+            $arrPaymentPageData = $this->_helper->getInstallmentPlan();
+        }
+        $installmentData = $this->installmentData($arrPaymentPageData, $cardNumberOrToken);
+
+        /*if (!empty($responseParams['cardNumber'])) {
             $cardNumber = $responseParams['cardNumber'];
             $installmentData = $this->installmentData($arrPaymentPageData, $responseParams['cardNumber']);
         } elseif (!empty($responseParams['vaultSelected'])) {
@@ -111,10 +132,11 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
             $tokenName = '';
             if (!empty($tokenData)) {
                 $details = json_decode($tokenData['details'], 1);
+
                 $cardNumber = substr($details['maskedCC'], 0, 6);
                 $installmentData = $this->installmentData($arrPaymentPageData, $cardNumber);
             }
-        }
+        }*/
         $responseData = [];
         if (isset($installmentData['success']) && $installmentData['success'] === true) {
             $responseData = $this->getInstallmentHandler($installmentData);

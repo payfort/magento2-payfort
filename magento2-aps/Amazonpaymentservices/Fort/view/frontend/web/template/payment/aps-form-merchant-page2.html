@@ -57,14 +57,14 @@
         afterRender: afterVaultRender
         ">
             <input type="radio"
-            name="vaultHash"
-            class="radio"
-            value="newCard" 
-            data-bind="
-                click: newCard"
+                   name="vaultHash"
+                   class="radio"
+                   value="newCard"
+                   data-bind="
+            click: newCard, attr: { 'id': 'newCard'+ getCode() }"
             />
             <label class="label" data-bind="
-            text: $t('Add New Card')
+            text: $t('Add New Card'), attr: { 'for': 'newCard'+ getCode() }
             ">
             </label>
         </div>

@@ -32,7 +32,13 @@
         <method name="aps_fort_valu">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
+        <method name="aps_omannet">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
         <method name="aps_fort_vault">
+            <allow_multiple_address>0</allow_multiple_address>
+        </method>
+        <method name="aps_benefit">
             <allow_multiple_address>0</allow_multiple_address>
         </method>
     </methods>

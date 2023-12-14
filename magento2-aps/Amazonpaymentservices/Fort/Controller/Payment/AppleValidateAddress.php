@@ -142,6 +142,7 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
     {
         $responseParams = $this->getRequest()->getParams();
         $addressData = $responseParams['addressObject'];
+        $countryCode = null;
 
         $this->_helper->log('Apple Address:'.json_encode($addressData));
         $result = [];
@@ -150,6 +151,7 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
             $countryCode = explode(',', $countryCode);
             $this->_helper->log('Apple Config: Country');
             if (in_array($addressData['countryCode'], $countryCode)) {
+                $countryCode = $addressData['countryCode'];
                 $result = $this->getShippingRates($addressData);
             } else {
                 $dataArr['error_msg'] = __('Country not allowed for shipping');
@@ -159,11 +161,25 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
         }
         $quote = $this->_cart->getQuote();
 
+        if($countryCode) {
+            $quote->getShippingAddress()->setRegionCode($countryCode);
+        }
+        if(isset($addressData['postalCode'])) {
+            $quote->getShippingAddress()->setPostcode($addressData['postalCode']);
+        }
+
         if(!empty($result[0]['id'])) {
             $quote->getShippingAddress()->setShippingMethod($result[0]['id']);
             $quote->save();
         }
         $quote = $this->_cart->getQuote();
+
+        $quote->getShippingAddress()->setCountryId($addressData['countryCode']);
+        $quote->save();
+        $quote = $this->_cart->getQuote();
+        $quote->setTotalsCollectedFlag(false);
+        $quote->collectTotals();
+
         $dataArr['taxes'] = $quote->getShippingAddress()->getData('tax_amount');
         $dataArr['taxes'] = str_replace(",", "", $dataArr['taxes']);
 

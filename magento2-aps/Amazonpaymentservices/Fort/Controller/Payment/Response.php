@@ -50,6 +50,10 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
             $integrationType = $helper->getConfig('payment/aps_apple/integration_type');
         } elseif ($paymentMethod == $helper::PAYMENT_METHOD_VISACHECKOUT) {
             $integrationType = $helper->getConfig('payment/aps_fort_visaco/integration_type');
+        } elseif ($paymentMethod == $helper::PAYMENT_METHOD_OMANNET) {
+            $integrationType = $helper->getConfig('payment/aps_omannet/integration_type');
+        } elseif ($paymentMethod == $helper::PAYMENT_METHOD_BENEFIT) {
+            $integrationType = $helper->getConfig('payment/aps_benefit/integration_type');
         }
         
         $success = $helper->handleFortResponse($responseParams, 'offline', $integrationType);

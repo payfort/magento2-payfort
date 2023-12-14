@@ -96,20 +96,20 @@ define(
                 }
                 this.placeOrder();
                 var totals = quote.totals();
-                var runningAmount = (totals ? totals : quote)['subtotal'];
+                var runningAmount = (totals ? totals : quote)['subtotal'], runningAmountFormatted = '';
                 var priceFormat = quote.getPriceFormat();
                 priceFormat.pattern = "%s";
-                runningAmount = priceUtils.formatPrice(runningAmount, priceFormat, false);
-                runningAmount = runningAmount.replace(/,/g, '');
+                runningAmountFormatted = priceUtils.formatPrice(runningAmount, priceFormat, false);
+                // runningAmount = runningAmount.replace(/,/g, '');
                 runningAmount = parseFloat(runningAmount);
 
-                var totalTax = (totals ? totals : quote)['tax_amount'];
-                totalTax = priceUtils.formatPrice(totalTax, priceFormat, false);
-                totalTax = totalTax.replace(/,/g, '');
+                var totalTax = (totals ? totals : quote)['tax_amount'], totalTaxFormatted = '';
+                totalTaxFormatted = priceUtils.formatPrice(totalTax, priceFormat, false);
+                // totalTax = totalTax.replace(/,/g, '');
                 totalTax = parseFloat(totalTax);
 
-                var runningPP = 0;
-                var displayPP = 0;
+                var runningPP = 0, runningPPFormatted = '';
+                var displayPP = 0, displayPPFormatted = '';
                 if (window.checkoutConfig.payment.apsFort.aps_apple.shippingconfig == 0) {
 
                     if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 1) {
@@ -131,23 +131,21 @@ define(
                 }
 
                 runningPP = (totals ? totals : quote)['shipping_amount'];
-                runningPP = priceUtils.formatPrice(runningPP, priceFormat, false);
-                runningPP = runningPP.replace(/,/g, '');
+                runningPPFormatted = priceUtils.formatPrice(runningPP, priceFormat, false);
+                // runningPP = runningPP.replace(/,/g, '');
                 runningPP = parseFloat(runningPP);
 
-                displayPP = priceUtils.formatPrice(displayPP, priceFormat, false);
-                displayPP = displayPP.replace(/,/g, '');
+                displayPPFormatted = priceUtils.formatPrice(displayPP, priceFormat, false);
+                // displayPP = displayPP.replace(/,/g, '');
                 displayPP = parseFloat(displayPP);
-
-                var runningShipDiscount = (totals ? totals : quote)['shipping_discount_amount'];
-                runningShipDiscount = priceUtils.formatPrice(runningShipDiscount, priceFormat, false);
-                runningShipDiscount = runningShipDiscount.replace(/,/g, '');
+                var runningShipDiscount = Math.abs( (totals ? totals : quote)['shipping_discount_amount']), runningShipDiscountFormatted = '';
+                runningShipDiscountFormatted = priceUtils.formatPrice(runningShipDiscount, priceFormat, false);
+                // runningShipDiscount = runningShipDiscount.replace(/,/g, '');
                 runningShipDiscount = parseFloat(runningShipDiscount);
-                runningPP = runningPP - runningShipDiscount;
 
-                var discountAmount = (totals ? totals : quote)['discount_amount'];
-                discountAmount = priceUtils.formatPrice(discountAmount, priceFormat, false);
-                discountAmount = discountAmount.replace(/,/g, '');
+                var discountAmount = Math.abs( (totals ? totals : quote)['discount_amount']), discountAmountFormatted = '' ;
+                discountAmountFormatted = priceUtils.formatPrice(discountAmount, priceFormat, false);
+                // discountAmount = discountAmount.replace(/,/g, '');
                 discountAmount = parseFloat(discountAmount);
 
                 var currencyCode = (totals ? totals : quote)['quote_currency_code'];
@@ -157,9 +155,9 @@ define(
                     var runningPP1 = parseFloat(runningPP);
                     var totalTax1 = parseFloat(totalTax);
                     var discountAmount1 = parseFloat(discountAmount);
-                    var tempTotals =  (runningAmount1 + runningPP1 + totalTax1 - discountAmount1);
-                    tempTotals = priceUtils.formatPrice(tempTotals, priceFormat, false);
-                    tempTotals = tempTotals.replace(/,/g, '');
+                    var tempTotals =  (runningAmount1 + runningPP1 + totalTax1 - discountAmount1), tempTotalsFormatted = '';
+                    tempTotalsFormatted = priceUtils.formatPrice(tempTotals, priceFormat, false);
+                    // tempTotals = tempTotals.replace(/,/g, '');
                     tempTotals = parseFloat(tempTotals);
                     return tempTotals;
                 }
@@ -184,13 +182,12 @@ define(
                     newItemArray[x++] = {type: 'final',label: 'Discount', amount: discountAmount };
                 }
                 newItemArray[x++] = {type: 'final',label: 'Shipping Fees', amount: displayPP };
-                totalTax = totalTax;
 
                 newItemArray[x++] = {type: 'final',label: 'Taxes', amount: totalTax };
 
                 function getShippingOptions()
                 {
-                    return [{label: 'Standard Shipping', amount: runningPP, detail: '3-5 days', identifier: 'domestic_std'}];
+                    return [{label: 'Standard Shipping', amount: runningPPFormatted, detail: '3-5 days', identifier: 'domestic_std'}];
                 }
                 var storeName = window.checkoutConfig.payment.apsFort.aps_apple.storeName;
                 var paymentRequest = {

@@ -12,7 +12,7 @@ execute below command in your magento installation directory
 `composer require amazonpaymentservices/module-fort`
 
 ## Configuration and User Guide
-You can download the archive [file](/magento2-aps-2.6.0.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
+You can download the archive [file](/magento2-aps-2.6.1.zip) of the plugin and install it to Magento. Detailed guide is included in the repository [here](/Magento%20Extension%20User%20Guide_v1.1.pdf).
    
 
 ## Payment Options
@@ -45,6 +45,7 @@ You can download the archive [file](/magento2-aps-2.6.0.zip) of the plugin and i
 
 | Plugin Version | Release Notes |
 | :---: | :--- |
+| 2.6.1 | * Fix - Webhook, Check status common internal function to cancel failed orders are updated with order getState method | 
 | 2.6.0 | * New - Benefit and OmanNet are added as a new payment options | 
 | 2.5.1 | * Fix - Webhook Handling <br/> * Fix - Cron check status to consider Success scenarios <br/> * Fix - Response handling to consider order cancellation only if order state is in list of failure or pending to avoid cancelling success cases. <br/> * Fix - ApplePay discount values fix| 
 | 2.5.0 | * New - Tabby is added as a new payment option | 

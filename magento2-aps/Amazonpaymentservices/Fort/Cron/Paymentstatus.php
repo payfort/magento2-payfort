@@ -71,9 +71,9 @@ class Paymentstatus
         $this->_logger->debug('APS CHECK_VERIFY_CARD_STATUS Response : '.json_encode($response));
 
         if (
-            ($response['response_code'] ?? '') === '12000'
-            || ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_AUTH_SUCCESS_STATUS
-            || ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS
+            ( ($response['response_code'] ?? '') === '12000') &&
+             ( ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_AUTH_SUCCESS_STATUS
+            || ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS)
         ) {
             $this->_helper->log('process order 2');
             $this->_helper->handleSendingInvoice($order, $response);
@@ -84,7 +84,7 @@ class Paymentstatus
             $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order status changed.', true);
             $order->save();
             $this->_logger->debug('APS order status changed '.$order->getId());
-        } elseif ($this->_helper->canCancelOrder($order)) {
+        } elseif (($response['status'] ?? '') === '12' && $this->_helper->canCancelOrder($order)) {
             $order->setState($order::STATE_CANCELED)->save();
             $order->setStatus($order::STATE_CANCELED)->save();
 

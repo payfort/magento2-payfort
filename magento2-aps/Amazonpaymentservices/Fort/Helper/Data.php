@@ -3261,7 +3261,7 @@ class Data extends \Magento\Payment\Helper\Data
      */
     public function canCancelOrder($order)
     {
-        return in_array($order->getStatus(), [
+        return in_array($order->getState(), [
             $order::STATE_NEW,
             $order::STATE_PENDING_PAYMENT,
             $order::STATE_HOLDED,

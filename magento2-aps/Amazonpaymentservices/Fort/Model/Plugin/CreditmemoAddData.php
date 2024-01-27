@@ -51,6 +51,11 @@ class CreditmemoAddData
      * @var CreditmemoRepositoryInterface
      */
     private $creditmemoRepository;
+    
+    /**
+     * @var ConfigProvider
+     */
+    private $configProvider;
 
     /**
      * @var SearchCriteriaBuilder
@@ -87,6 +92,7 @@ class CreditmemoAddData
         \Magento\Framework\App\RequestInterface $request,
         \Magento\Framework\Message\ManagerInterface $messageManager,
         CreditmemoRepositoryInterface $creditmemoRepository,
+        \Magento\Tax\Model\Config $configProvider,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         \Amazonpaymentservices\Fort\Model\PaymentcaptureFactory $paymentCaptureFactory,
         \Magento\Sales\Model\OrderRepository $order,
@@ -98,6 +104,7 @@ class CreditmemoAddData
         $this->_request = $request;
         $this->_messageManager = $messageManager;
         $this->creditmemoRepository = $creditmemoRepository;
+        $this->configProvider = $configProvider
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->_paymentCaptureFactory = $paymentCaptureFactory;
         $this->_order = $order;

@@ -51,6 +51,11 @@ class Subscriptiondata
             }
 
             $quoteItem = $this->checkoutSession->getQuote()->getItemById($item['item_id']);
+            
+            if (!$quoteItem) {
+                continue;    
+            }
+            
             $productEntityId = $quoteItem->getProduct()->getData('entity_id');
 
             $resource = ObjectManager::getInstance()->get('Magento\Framework\App\ResourceConnection');

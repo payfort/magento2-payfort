@@ -1,0 +1,56 @@
+<?php
+    // @codingStandardsIgnoreFile
+
+    /** @var \Payfort\Fort\Block\Payment\Redirect $block */
+
+    $form_data = $block->getFormData();
+    $form_url = $block->getFormUrl();
+?>
+<div class="payfortfort-checkout">
+    <?php
+    if( !$block->getOrderOk() )
+    {
+        ?>
+        <p><?php echo $block->getErrorMessage()?></p>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <a class="action primary continue" href="<?php /* @escapeNotVerified */ echo $block->getUrl() ?>"><span><?php /* @escapeNotVerified */ echo __('Continue Shopping') ?></span></a>
+            </div>
+        </div>
+        <?php
+    } else
+    {
+        ?>
+        <div class="pf-iframe-background" id="div-pf-iframe">
+            <div class="pf-iframe-container">
+                <span class="pf-close-container">
+                    <i class="fa fa-times-circle pf-iframe-close" onclick="payfortFortMerchantPage.closePopup()" style="display:none"></i>
+                </span>
+                <i class="fa fa-spinner fa-spin pf-iframe-spin"></i>
+                <div class="pf-iframe" id="pf_iframe_content"></div>
+            </div>
+        </div>
+        <form name="payfort_payment_form" id="payfort_payment_form" method="post" action="<?php echo $form_url; ?>" style="display:none">
+            <!-- general parameters -->
+            <?php 
+                $form_data['form_key'] = 'abcd';
+                foreach ($form_data as $k => $v): ?>
+                <input type="hidden" name="<?php echo $k ?>" value="<?php echo $v ?>">
+            <?php endforeach; ?>
+        </form>
+        
+        <input type="hidden" id="payfort_cancel_url" value="<?php echo $block->getUrl('payfortfort/payment/merchantPageCancel')?>"/>
+        <script type="text/javascript">
+            require(['jquery', 'payfort_fort'],function($){
+                'use strict';
+                $(document).ready(function ($) {
+                    $('#payfort_payment_form input[name=form_key]').attr("disabled", "disabled");
+                    var gatewayUrl = $('#payfort_payment_form').attr('action');
+                    payfortFortMerchantPage.showMerchantPage(gatewayUrl);
+                });
+            });
+        </script>
+        <?php
+    }
+    ?>
+</div>

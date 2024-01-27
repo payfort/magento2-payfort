@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Payfort_Fort default configuration
+*
+* @category    Payfort
+* @package     Payfort_Fort
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="admin_system_config_changed_section_payment">
+        <observer name="payfort_fort_admin_system_config_changed_section_payment" instance="Payfort\Fort\Observer\AdminSystemConfigChangedPaymentObserver"/>
+    </event>
+</config>

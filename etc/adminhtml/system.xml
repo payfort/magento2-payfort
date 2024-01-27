@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Payfort_Fort admin configuration
+*
+* @category    Payfort
+* @package     Payfort_Fort
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="payment">
+            <group id="payfort_fort_group" translate="label" type="text" sortOrder="600" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>PayFort Fort Payment Methods</label>
+                <group id="payfort_fort" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PayFort (Global Configurations)</label>
+                    <comment>
+                        <![CDATA[<a href="https://www.payfort.com" target="_blank">Click here to sign up for Payfort account</a>]]>
+                    </comment>
+                    <!--<field id="active" translate="label" type="select" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                    </field>-->
+                    <field id="language" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Langugae</label>
+                        <source_model>Payfort\Fort\Model\Config\Source\Languageoptions</source_model>
+                        <config_path>payment/payfort_fort/language</config_path>
+                    </field>
+                    <field id="merchant_identifier" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Merchant Identifier</label>
+                        <config_path>payment/payfort_fort/merchant_identifier</config_path>
+                    </field>
+                    <field id="access_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Access Code</label>
+                        <config_path>payment/payfort_fort/access_code</config_path>
+                    </field>
+                    <field id="sha_type" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Hash Algorithm</label>
+                        <comment>The hash algorithm will be used.</comment>
+                        <source_model>Payfort\Fort\Model\Config\Source\Shaoptions</source_model>
+                        <config_path>payment/payfort_fort/sha_type</config_path>
+                    </field>
+                    <field id="sha_in_pass_phrase" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Request SHA phrase</label>
+                        <config_path>payment/payfort_fort/sha_in_pass_phrase</config_path>
+                        <!--<backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>-->
+                    </field>
+                    <field id="sha_out_pass_phrase" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Response SHA phrase</label>
+                        <config_path>payment/payfort_fort/sha_out_pass_phrase</config_path>
+                        <!--<backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>-->
+                    </field>
+                    <field id="command" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Command</label>
+                        <source_model>Payfort\Fort\Model\Config\Source\Commandoptions</source_model>
+                        <config_path>payment/payfort_fort/command</config_path>
+                    </field>
+                    <field id="debug" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Debug</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Log file path: var/log/debug.log</comment>
+                        <config_path>payment/payfort_fort/debug</config_path>
+                    </field>
+                    <field id="sandbox_mode" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sandbox mode</label>
+                        <comment>Testing or live mode.</comment>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/payfort_fort/sandbox_mode</config_path>
+                    </field>
+                    <field id="gateway_currency" translate="label" type="select" sortOrder="91" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Gateway Currency</label>
+                        <comment>The currency that will be sent to the Fort</comment>
+                        <source_model>Payfort\Fort\Model\Config\Source\Gatewaycurrencyoptions</source_model>
+                        <config_path>payment/payfort_fort/gateway_currency</config_path>
+                    </field>
+                    <!--<field id="more_info" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>More info</label>
+                    </field>-->
+                    <field id="allowspecific" translate="label" type="allowspecific" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Applicable Countries</label>
+                        <source_model>Magento\Payment\Model\Config\Source\Allspecificcountries</source_model>
+                        <config_path>payment/payfort_fort/allowspecific</config_path>
+                    </field>
+                    <field id="specificcountry" translate="label" type="multiselect" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Payment from Specific Countries</label>
+                        <source_model>Magento\Directory\Model\Config\Source\Country</source_model>
+                        <config_path>payment/payfort_fort/specificcountry</config_path>
+                    </field>
+                    <field id="min_order_total" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Minimum Order Total</label>
+                        <config_path>payment/payfort_fort/min_order_total</config_path>
+                    </field>
+                    <field id="max_order_total" translate="label" type="text" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Maximum Order Total</label>
+                        <comment>Leave empty to disable limit</comment>
+                        <config_path>payment/payfort_fort/max_order_total</config_path>
+                    </field>
+                    <field id="host_to_host_url" translate="label" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <frontend_model>Payfort\Fort\Block\Adminhtml\System\Config\Field\hostToHostUrl</frontend_model>
+                    </field>
+                </group>
+                <group id="smart2pay_order_settings" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PayFort - Order Related Settings</label>
+                    <field id="order_status" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>New Order Status</label>
+                        <source_model>Magento\Sales\Model\Config\Source\Order\Status\NewStatus</source_model>
+                        <config_path>payment/payfort_fort/order_status</config_path>
+                    </field>
+                    <field id="order_status_on_fail" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Order status on FAIL</label>
+                        <source_model>Payfort\Fort\Model\Config\Source\Order\Status\Canceled</source_model>
+                        <config_path>payment/payfort_fort/order_status_on_fail</config_path>
+                    </field>
+                </group>
+                <group id="payfort_fort_cc" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PayFort Credit / Debit Cards Payment Method</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/payfort_fort_cc/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/payfort_fort_cc/title</config_path>
+                    </field>
+                    <field id="integration_type" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Integration Type</label>
+                        <comment>Credit \ Debit Card Integration Type</comment>
+                        <source_model>Payfort\Fort\Model\Config\Source\Integrationtypeoptions</source_model>
+                        <config_path>payment/payfort_fort_cc/integration_type</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <config_path>payment/payfort_fort_cc/sort_order</config_path>
+                    </field>
+                    <!--<field id="instructions" translate="label" type="textarea" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Instructions</label>
+                    </field>-->
+                </group>
+                <group id="payfort_fort_installments" translate="label" type="text" sortOrder="35" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PayFort Credit / Installments</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/payfort_fort_installments/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/payfort_fort_installments/title</config_path>
+                    </field>
+                    <field id="integration_type" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Integration Type</label>
+                        <comment>Installments Integration Type</comment>
+                        <source_model>Payfort\Fort\Model\Config\Source\InstallmentsIntegrationtypeoptions</source_model>
+                        <config_path>payment/payfort_fort_installments/integration_type</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <config_path>payment/payfort_fort_installments/sort_order</config_path>
+                    </field>
+                    <!--<field id="instructions" translate="label" type="textarea" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Instructions</label>
+                    </field>-->
+                </group>
+                <group id="payfort_fort_sadad" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PayFort Sadad Payment Method</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/payfort_fort_sadad/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/payfort_fort_sadad/title</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <config_path>payment/payfort_fort_sadad/sort_order</config_path>
+                    </field>
+                    <!--<field id="instructions" translate="label" type="textarea" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Instructions</label>
+                    </field>-->
+                </group>
+                <group id="payfort_fort_naps" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>PayFort NAPS Payment Method</label>
+                    <field id="active" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/payfort_fort_naps/active</config_path>
+                    </field>
+                    <field id="title" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Title</label>
+                        <config_path>payment/payfort_fort_naps/title</config_path>
+                    </field>
+                    <field id="sort_order" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Sort Order</label>
+                        <config_path>payment/payfort_fort_naps/sort_order</config_path>
+                    </field>
+                    <!--<field id="instructions" translate="label" type="textarea" sortOrder="62" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Instructions</label>
+                    </field>-->
+                </group>
+            </group>
+        </section>
+    </system>
+</config>

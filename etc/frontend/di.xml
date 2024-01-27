@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!--
+/**
+* Payfort_Fort admin configuration
+*
+* @category    Payfort
+* @package     Payfort_Fort
+*/
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Url\SecurityInfo">
+        <arguments>
+            <argument name="secureUrlList" xsi:type="array">
+                <item name="payfortfort" xsi:type="string">/payfortfort/</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Checkout\Model\CompositeConfigProvider">
+        <arguments>
+            <argument name="configProviders" xsi:type="array">
+                <item name="payfort_fort_config_provider" xsi:type="object">Payfort\Fort\Model\PaymentConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

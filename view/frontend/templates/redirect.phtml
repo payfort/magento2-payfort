@@ -1,0 +1,49 @@
+<?php
+    // @codingStandardsIgnoreFile
+
+    /** @var \Payfort\Fort\Block\Payment\Redirect $block */
+
+    $form_data = $block->getFormData();
+    $form_url = $block->getFormUrl();
+?>
+<div class="payfortfort-checkout">
+    <?php
+    if( !$block->getOrderOk() )
+    {
+        ?>
+        <p><?php echo $block->getErrorMessage()?></p>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <a class="action primary continue" href="<?php /* @escapeNotVerified */ echo $block->getUrl() ?>"><span><?php /* @escapeNotVerified */ echo __('Continue Shopping') ?></span></a>
+            </div>
+        </div>
+        <?php
+    } else
+    {
+        ?>
+        <p><?php echo __( 'Processing order #%1... Please wait.', $block->escapeHtml( $block->getOrderId() ) ) ?></p>
+        
+        <img src="<?php echo $block->getViewFileUrl( 'Payfort_Fort::images/ajax-loader.gif' );?>" /><br/>
+        <?php echo __( 'Redirecting...' );?>
+        <form id="frm_payfort_fort_redirect" action="<?php echo $form_url?>" method="POST" style="display: none">
+        <?php
+                $form_data['form_key'] = 'abcd';
+                foreach ($form_data as $key => $val) {
+                    echo "<input type='hidden' name='{$key}' value='{$val}' />";
+                }
+        ?>
+        </form>
+        <script type="text/javascript">
+            require([
+                'jquery'
+            ], function(jQuery) {
+                jQuery(document).ready(function ($) {
+                    $('#frm_payfort_fort_redirect input[name=form_key]').attr("disabled", "disabled");
+                    jQuery('#frm_payfort_fort_redirect').submit();
+                });
+            });
+        </script>
+        <?php
+    }
+    ?>
+</div>

@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css" src_type="url"/>
+        <css src="Payfort_Fort::css/merchant-page.css"/>
+    </head>
+    <body>
+        <referenceBlock name="minicart" remove="true"/>
+        <referenceContainer name="header.panel" remove="true"/>
+        <referenceBlock name="top.search" remove="true"/>
+        <referenceBlock name="catalog.compare.link" remove="true"/>
+        <referenceBlock name="catalog.topnav" remove="true"/>
+        <referenceContainer name="footer-container" remove="true"/>
+
+        <referenceContainer name="content">
+            <block class="Payfort\Fort\Block\Payment\Redirect" template="Payfort_Fort::redirect.phtml" cacheable="false" />
+        </referenceContainer>
+    </body>
+</page>

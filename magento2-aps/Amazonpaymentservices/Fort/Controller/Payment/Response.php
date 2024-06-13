@@ -2,6 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -20,18 +21,18 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
     {
         return true;
     }
-    
+
     public function execute()
     {
         $valu = $this->getRequest()->getParam('payment_option');
         $responseParams     = $this->getRequest()->getParams();
         $orderId = $this->checkOrderId($valu, $responseParams);
-        
+
         $order = $this->getOrderById($orderId);
-        
+
         $responseCode = isset($responseParams['response_code']) ? $responseParams['response_code'] : '';
         $helper = $this->getHelper();
-        
+
         $integrationType    = $helper::INTEGRATION_TYPE_REDIRECTION;
         $paymentMethod      = $order->getPayment()->getMethod();
         if ($paymentMethod == $helper::PAYMENT_METHOD_CC) {
@@ -55,7 +56,7 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
         } elseif ($paymentMethod == $helper::PAYMENT_METHOD_BENEFIT) {
             $integrationType = $helper->getConfig('payment/aps_benefit/integration_type');
         }
-        
+
         $success = $helper->handleFortResponse($responseParams, 'offline', $integrationType);
         if ($success) {
             $returnUrl = $helper->getUrl('checkout/onepage/success');
@@ -64,6 +65,12 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
                 $returnUrl = $helper->getUrl('checkout/onepage/success');
             } else {
                 $returnUrl = $this->getHelper()->getUrl('checkout/cart');
+
+                $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
+
+                if ($orderAfterPayment === OrderOptions::DELETE_ORDER && !$helper->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
+                    $helper->deleteOrder($order);
+                }
             }
         }
 
@@ -71,7 +78,7 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
         $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
         $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
         $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
-        
+
         $this->orderRedirect($returnUrl);
     }
 
@@ -90,17 +97,7 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
 
     private function getOrderId($orderId)
     {
-        $orderId = '';
-        if (empty($orderId)) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $orderCollectionFactory = $objectManager->get('\Magento\Sales\Model\ResourceModel\Order\CollectionFactory');
-            $collections = $orderCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_valu_ref', ['eq'=>$this->getRequest()->getParam('merchant_reference')]);
-            foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
-            }
-        }
-        return $orderId;
+        $helper = $this->getHelper();
+        return $helper->getApsParamsIncrementIdByReference('aps_valu_ref', $this->getRequest()->getParam('merchant_reference'));
     }
 }

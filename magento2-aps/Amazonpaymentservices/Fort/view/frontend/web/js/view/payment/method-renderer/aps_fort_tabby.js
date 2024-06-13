@@ -15,7 +15,8 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
-        'Magento_Customer/js/model/customer'
+        'Magento_Customer/js/model/customer',
+        'mage/translate'
     ],
     function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customer) {
         'use strict';
@@ -26,7 +27,7 @@ define(
                 template: 'Amazonpaymentservices_Fort/payment/aps-tabby'
             },
             getTitle: function () {
-                return window.checkoutConfig.payment.apsFort.aps_fort_tabby.title
+                return $.mage.__(window.checkoutConfig.payment.apsFort.aps_fort_tabby.title)
             },
             getTabbyToken: function () {
                 return [];

@@ -11,6 +11,21 @@ class SwitchSameSite
     private $affectedKeys = [];
 
     /**
+     * @var \Magento\Framework\App\ProductMetadataInterface
+     */
+    protected $_productMetadata;
+
+    /**
+     * @param \Magento\Framework\App\ProductMetadataInterface $productMetadata
+     */
+    public function __construct(
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata
+    )
+    {
+        $this->_productMetadata = $productMetadata;
+    }
+
+    /**
      * @param PhpCookieManager $subject
      * @param string $name
      * @param string $value
@@ -23,9 +38,15 @@ class SwitchSameSite
                          $value,
         PublicCookieMetadata $metadata = null
     ) {
+        $magentoVersion = $this->_productMetadata->getVersion();
+
         if ($this->isAffectedKeys($name)) {
             $metadata->setSecure(true);
-            $metadata->setSameSite('None');
+
+            if ($magentoVersion >= '2.3.7') {
+                // only added in Magento 2.3.7
+                $metadata->setSameSite('None');
+            }
         }
 
         return [$name, $value, $metadata];

@@ -2,6 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -28,10 +29,17 @@ class OrderCancel extends \Amazonpaymentservices\Fort\Controller\Checkout implem
         $order = $this->_checkoutSession->getLastRealOrder();
         if ($order->getState() != $order::STATE_PROCESSING) {
             $success = $helper->orderFailed($order, 'Payment cancelled by user', '');
-            $helper->restoreQuote();
+            $helper->restoreQuote($order);
             $this->messageManager->addError(__('Payment cancelled by user'));
         }
         $returnUrl = $helper->getUrl('checkout/cart');
+
+        $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
+
+        $responseParams = $this->getRequest()->getParams();
+        if ($orderAfterPayment === OrderOptions::DELETE_ORDER && !$helper->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
+            $helper->deleteOrder($order);
+        }
         
         $this->_checkoutSession->setLastOrderId($order->getId());
         $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());

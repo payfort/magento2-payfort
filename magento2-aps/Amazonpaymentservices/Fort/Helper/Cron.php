@@ -12,6 +12,27 @@
  **/
 namespace Amazonpaymentservices\Fort\Helper;
 
+use Amazonpaymentservices\Fort\Model\Method\Stc;
+use Amazonpaymentservices\Fort\Model\Method\Vault;
+use Exception;
+use Magento\Catalog\Model\Product;
+use Magento\Customer\Api\CustomerRepositoryInterface;
+use Magento\Customer\Model\CustomerFactory;
+use Magento\Framework\App\Config\Initial;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Data\Form\FormKey;
+use Magento\Framework\ObjectManagerInterface;
+use Magento\Framework\View\LayoutFactory;
+use Magento\Payment\Model\Config;
+use Magento\Payment\Model\Method\Factory;
+use Magento\Quote\Model\Quote\Address\Rate;
+use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\QuoteManagement;
+use Magento\Sales\Model\Service\OrderService;
+use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\Store;
+
 /**
  * Amazonpaymentservices Payment Helper
  * php version 7.3.*
@@ -28,7 +49,7 @@ class Cron extends \Magento\Payment\Helper\Data
     protected $_shippingRate;
 
     /**
-     * @var \Magento\Framework\ObjectManagerInterface
+     * @var ObjectManagerInterface
      */
     protected $_objectManager;
 
@@ -37,36 +58,65 @@ class Cron extends \Magento\Payment\Helper\Data
      */
     protected $_connection;
 
+    protected $_storeManager;
+
+    protected $_product;
+
+    protected $_formkey;
+
+    protected $quote;
+
+    protected $quoteManagement;
+
+    protected $customerFactory;
+
+    protected $customerRepository;
+
+    protected $orderService;
+
     /**
-     * @param Magento\Framework\App\Helper\Context $context
-     * @param \Magento\Store\Model\Store $storeManager
-     * @param Magento\Catalog\Model\Product $product
-     * @param Magento\Framework\Data\Form\FormKey $formKey $formkey,
-     * @param Magento\Quote\Model\Quote $quote,
-     * @param Magento\Customer\Model\CustomerFactory $customerFactory,
-     * @param Magento\Sales\Model\Service\OrderService $orderService,
+     * @param Context $context
+     * @param LayoutFactory $layoutFactory
+     * @param Factory $paymentMethodFactory
+     * @param Emulation $appEmulation
+     * @param Config $paymentConfig
+     * @param Initial $initialConfig
+     * @param Store $storeManager
+     * @param Product $product
+     * @param FormKey $formkey
+     * @param QuoteFactory $quote ,
+     * @param QuoteManagement $quoteManagement
+     * @param CustomerFactory $customerFactory ,
+     * @param CustomerRepositoryInterface $customerRepository
+     * @param OrderService $orderService ,
+     * @param Data $helper
+     * @param ResourceConnection $connect
+     * @param Rate $shippingRate
+     * @param ObjectManagerInterface $objectManager
      */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\View\LayoutFactory $layoutFactory,
-        \Magento\Payment\Model\Method\Factory $paymentMethodFactory,
-        \Magento\Store\Model\App\Emulation $appEmulation,
-        \Magento\Payment\Model\Config $paymentConfig,
-        \Magento\Framework\App\Config\Initial $initialConfig,
-        \Magento\Store\Model\Store $storeManager,
-        \Magento\Catalog\Model\Product $product,
-        \Magento\Framework\Data\Form\FormKey $formkey,
-        \Magento\Quote\Model\QuoteFactory $quote,
-        \Magento\Quote\Model\QuoteManagement $quoteManagement,
-        \Magento\Customer\Model\CustomerFactory $customerFactory,
-        \Magento\Customer\Api\CustomerRepositoryInterface $customerRepository,
-        \Magento\Sales\Model\Service\OrderService $orderService,
-        \Amazonpaymentservices\Fort\Helper\Data $helper,
-        \Magento\Framework\App\ResourceConnection $connect,
-        \Magento\Quote\Model\Quote\Address\Rate $shippingRate,
-        \Magento\Framework\ObjectManagerInterface $objectManager
+        Context                     $context,
+        LayoutFactory               $layoutFactory,
+        Factory                     $paymentMethodFactory,
+        Emulation                   $appEmulation,
+        Config                      $paymentConfig,
+        Initial                     $initialConfig,
+        Store                       $storeManager,
+        Product                     $product,
+        FormKey                     $formkey,
+        QuoteFactory                $quote,
+        QuoteManagement             $quoteManagement,
+        CustomerFactory             $customerFactory,
+        CustomerRepositoryInterface $customerRepository,
+        OrderService                $orderService,
+        Data                        $helper,
+        ResourceConnection          $connect,
+        Rate                        $shippingRate,
+        ObjectManagerInterface      $objectManager
     ) {
-        parent::__construct($context, $layoutFactory, $paymentMethodFactory, $appEmulation, $paymentConfig, $initialConfig);
+        parent::__construct($context, $layoutFactory, $paymentMethodFactory,
+            $appEmulation, $paymentConfig, $initialConfig);
+
         $this->_storeManager = $storeManager;
         $this->_product = $product;
         $this->_formkey = $formkey;
@@ -83,8 +133,15 @@ class Cron extends \Magento\Payment\Helper\Data
 
     /**
      * Create Order On Your Store
-     * @param array $orderData
-     * @return array
+     *
+     * @param $qty
+     * @param $subscriptionOrderId
+     * @param $orderIncrementedId
+     * @param $itemId
+     *
+     * @return void
+     *
+     * @throws Exception
      */
     public function createCronOrder($qty, $subscriptionOrderId, $orderIncrementedId, $itemId)
     {
@@ -92,15 +149,21 @@ class Cron extends \Magento\Payment\Helper\Data
             $order = $this->_helper->getOrderById($orderIncrementedId);
             $this->_helper->log('OrderID:'.$order->getId());
 
-            $newOrder = '';
             $paymentMethod = $order->getPayment()->getMethod();
 
-            if (empty($order->getPayment()->getExtensionAttributes()->getVaultPaymentToken())
-                || ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE && empty($order->getApsStcRef()))
-                || ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE && empty($order->getApsTabbyRef()))) {
-                $this->log('Payment Data not found. Failed to create order');
+            $orderStcRef = null;
+            if ($paymentMethod == Stc::CODE) {
+                $orderStcRef = $this->_helper->getApsStcRefFromOrderParams(null, $orderIncrementedId);
+            }
+
+            if (
+                empty($order->getPayment()->getExtensionAttributes()->getVaultPaymentToken())
+                || ($paymentMethod == Stc::CODE && empty($orderStcRef))
+            ) {
+                $this->_helper->log('Payment Data not found. Failed to create order');
                 $this->_helper->cancelSubscription($subscriptionOrderId);
-                return false;
+
+                return;
             }
 
             $tokenName = $order->getPayment()->getExtensionAttributes()->getVaultPaymentToken()->getGatewayToken();
@@ -150,11 +213,11 @@ class Cron extends \Magento\Payment\Helper\Data
 
             $quote->getShippingAddress()->addShippingRate($this->_shippingRate);
 
-            $quote->setPaymentMethod(\Amazonpaymentservices\Fort\Model\Method\Vault::CODE);
+            $quote->setPaymentMethod(Vault::CODE);
             $quote->setInventoryProcessed(true);
             $quote->save();
 
-            $quote->getPayment()->importData(['method' => \Amazonpaymentservices\Fort\Model\Method\Vault::CODE]);
+            $quote->getPayment()->importData(['method' => Vault::CODE]);
             $quote->collectTotals()->save();
 
             $newOrder = $this->quoteManagement->submit($quote);
@@ -162,20 +225,22 @@ class Cron extends \Magento\Payment\Helper\Data
             $increment_id = $newOrder->getRealOrderId();
 
             foreach ($newOrder->getAllItems() as $item) {
-                $this->updateSubscriptionOrder($subscriptionOrderId, $item, $newOrder, $tokenId, $tokenName, $remoteIp, $order);
+                $this->updateSubscriptionOrder($subscriptionOrderId, $item, $newOrder,
+                    $tokenId, $tokenName, $remoteIp, $order);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $order->addStatusHistoryComment('APS :: Failed to create child order.', true);
             $order->save();
             $this->_helper->cancelSubscription($subscriptionOrderId);
             $this->_helper->log("Cron Job failed for Order:".$order->getId());
             $this->_helper->log($e->getMessage());
 
-            return false;
+            return;
         }
     }
 
-    private function updateSubscriptionOrder($subscriptionOrderId, $item, $newOrder, $tokenId, $tokenName, $remoteIp, $order)
+    private function updateSubscriptionOrder($subscriptionOrderId, $item, $newOrder,
+                                             $tokenId, $tokenName, $remoteIp, $order)
     {
         // is the Recurring Product feature enabled?
         $isRecurringEnabled = (int)$this->_helper->getConfig('payment/aps_recurring/active') === 1;
@@ -184,10 +249,15 @@ class Cron extends \Magento\Payment\Helper\Data
         if ($isRecurringEnabled) {
             $connection = $this->_connection->getConnection();
             /* @isSubscriptionProduct */
-            $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+            $query = $connection->select()
+                ->from(['table' => 'eav_attribute'], ['attribute_id'])
+                ->where('table.attribute_code=?', 'aps_sub_enabled');
             $apsSubEnabled = $connection->fetchRow($query);
 
-            $query = $connection->select()->from(['table' => 'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+            $query = $connection->select()
+                ->from(['table' => 'catalog_product_entity_int'], ['value'])
+                ->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])
+                ->where('table.entity_id=?', $item->getProductId());
             $prodApsSubEnabled = $connection->fetchRow($query);
         }
 
@@ -195,7 +265,8 @@ class Cron extends \Magento\Payment\Helper\Data
 
             $this->_helper->log('New ORderNUmber:'.$newOrder->getRealOrderId());
 
-            $apsPaymentResponse = $this->_helper->apsSubscriptionPaymentApi($newOrder, $tokenName, $order, $remoteIp);
+            $apsPaymentResponse = $this->_helper
+                ->apsSubscriptionPaymentApi($newOrder, $tokenName, $order, $remoteIp);
 
             if ($apsPaymentResponse['response_code'] == '14000') {
                 $newOrder->setState($newOrder::STATE_PROCESSING)->save();
@@ -215,17 +286,20 @@ class Cron extends \Magento\Payment\Helper\Data
                 $this->_helper->log('Order status is chenged from PENDING to PROCESSING.');
                 $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 1, $order);
             } else {
-                $newOrder->setState($newOrder::STATE_CANCELED)->save();
-                $newOrder->setStatus($newOrder::STATE_CANCELED)->save();
+                $newOrder->cancel();
+                $newOrder->addStatusToHistory(
+                    $newOrder::STATE_CANCELED,
+                    $apsPaymentResponse['response_message'], false);
+                $newOrder->save();
 
                 $this->_helper->log('Order status is chenged from PENDING to CANCELED.');
                 $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 0, $order);
-                $newOrder->addStatusToHistory($newOrder::STATE_CANCELED, $apsPaymentResponse['response_message'], false)->save();
             }
         } else {
-            $newOrder->setState($newOrder::STATE_CANCELED)->save();
-            $newOrder->setStatus($newOrder::STATE_CANCELED)->save();
-
+            $newOrder
+                ->cancel()
+                ->save()
+            ;
             $this->_helper->log('Order status is chenged from PENDING to CANCELED.');
             $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 0, $order);
             $order->addStatusHistoryComment('Product is not enabled for subscription', true)->save();

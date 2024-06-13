@@ -2,6 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -40,6 +41,12 @@ class SendAppleDataToAps extends \Amazonpaymentservices\Fort\Controller\Checkout
                 $returnUrl = $helper->getUrl('checkout/onepage/success');
             } else {
                 $returnUrl = $helper->getUrl('checkout/cart');
+
+                $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
+
+                if ($orderAfterPayment === OrderOptions::DELETE_ORDER && !$helper->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
+                    $helper->deleteOrder($order);
+                }
             }
         }
 

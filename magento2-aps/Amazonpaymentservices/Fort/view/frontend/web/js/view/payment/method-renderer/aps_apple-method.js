@@ -95,15 +95,18 @@ define(
                     if(!validateShippingInfomation) return false;
                 }
                 this.placeOrder();
+
+                var isBaseCurrency = window.checkoutConfig.payment.apsFort.configParams.gatewayCurrency != 'front';
+
                 var totals = quote.totals();
-                var runningAmount = (totals ? totals : quote)['subtotal'], runningAmountFormatted = '';
+                var runningAmount = (totals ? totals : quote)[isBaseCurrency ? 'base_subtotal' : 'subtotal'], runningAmountFormatted = '';
                 var priceFormat = quote.getPriceFormat();
                 priceFormat.pattern = "%s";
                 runningAmountFormatted = priceUtils.formatPrice(runningAmount, priceFormat, false);
                 // runningAmount = runningAmount.replace(/,/g, '');
                 runningAmount = parseFloat(runningAmount);
 
-                var totalTax = (totals ? totals : quote)['tax_amount'], totalTaxFormatted = '';
+                var totalTax = (totals ? totals : quote)[isBaseCurrency ? 'base_tax_amount' : 'tax_amount'], totalTaxFormatted = '';
                 totalTaxFormatted = priceUtils.formatPrice(totalTax, priceFormat, false);
                 // totalTax = totalTax.replace(/,/g, '');
                 totalTax = parseFloat(totalTax);
@@ -113,24 +116,24 @@ define(
                 if (window.checkoutConfig.payment.apsFort.aps_apple.shippingconfig == 0) {
 
                     if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 1) {
-                        displayPP = (totals ? totals : quote)['shipping_amount'];
+                        displayPP = (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_amount' : 'shipping_amount'];
                     } else if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 2) {
-                        displayPP = (totals ? totals : quote)['shipping_incl_tax'];
+                        displayPP = (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_incl_tax' : 'shipping_incl_tax'];
                     } else if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 3) {
-                        displayPP = (totals ? totals : quote)['shipping_amount'];
+                        displayPP = (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_amount' : 'shipping_amount'];
                     }
 
                 } else {
                     if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 1) {
-                        displayPP = (totals ? totals : quote)['shipping_amount'];
+                        displayPP = (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_amount' : 'shipping_amount'];
                     } else if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 2) {
-                        displayPP = (totals ? totals : quote)['shipping_incl_tax'];
+                        displayPP = (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_incl_tax' : 'shipping_incl_tax'];
                     } else if (window.checkoutConfig.payment.apsFort.aps_apple.shippingdisplayconfig == 3) {
-                        displayPP = (totals ? totals : quote)['shipping_amount'];
+                        displayPP = (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_amount' : 'shipping_amount'];
                     }
                 }
 
-                runningPP = (totals ? totals : quote)['shipping_amount'];
+                runningPP = (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_amount' : 'shipping_amount'];
                 runningPPFormatted = priceUtils.formatPrice(runningPP, priceFormat, false);
                 // runningPP = runningPP.replace(/,/g, '');
                 runningPP = parseFloat(runningPP);
@@ -138,17 +141,17 @@ define(
                 displayPPFormatted = priceUtils.formatPrice(displayPP, priceFormat, false);
                 // displayPP = displayPP.replace(/,/g, '');
                 displayPP = parseFloat(displayPP);
-                var runningShipDiscount = Math.abs( (totals ? totals : quote)['shipping_discount_amount']), runningShipDiscountFormatted = '';
+                var runningShipDiscount = Math.abs( (totals ? totals : quote)[isBaseCurrency ? 'base_shipping_discount_amount' : 'shipping_discount_amount']), runningShipDiscountFormatted = '';
                 runningShipDiscountFormatted = priceUtils.formatPrice(runningShipDiscount, priceFormat, false);
                 // runningShipDiscount = runningShipDiscount.replace(/,/g, '');
                 runningShipDiscount = parseFloat(runningShipDiscount);
 
-                var discountAmount = Math.abs( (totals ? totals : quote)['discount_amount']), discountAmountFormatted = '' ;
+                var discountAmount = Math.abs( (totals ? totals : quote)[isBaseCurrency ? 'base_discount_amount' : 'discount_amount']), discountAmountFormatted = '' ;
                 discountAmountFormatted = priceUtils.formatPrice(discountAmount, priceFormat, false);
                 // discountAmount = discountAmount.replace(/,/g, '');
                 discountAmount = parseFloat(discountAmount);
 
-                var currencyCode = (totals ? totals : quote)['quote_currency_code'];
+                var currencyCode = (totals ? totals : quote)[isBaseCurrency ? 'base_currency_code' : 'quote_currency_code'];
 
                 var runningTotal    = function () {
                     var runningAmount1 = parseFloat(runningAmount);

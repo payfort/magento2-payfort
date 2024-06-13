@@ -2,6 +2,9 @@
 
 namespace Amazonpaymentservices\Fort\Cron;
 
+use Amazonpaymentservices\Fort\Helper\Data;
+use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
+
 class Paymentstatus
 {
     protected $_orderCollectionFactory;
@@ -28,7 +31,7 @@ class Paymentstatus
     public function __construct(
         \Magento\Sales\Model\ResourceModel\Order\CollectionFactory $orderCollectionFactory,
         \Psr\Log\LoggerInterface $logger,
-        \Amazonpaymentservices\Fort\Helper\Data $helper,
+        Data $helper,
         \Magento\Sales\Model\Order $order
     ) {
         $this->_orderCollectionFactory = $orderCollectionFactory;
@@ -49,13 +52,24 @@ class Paymentstatus
         $date = date("Y-m-d H:i:s", $time);
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-        $orders = $this->_order->getCollection()->addFieldToFilter('status', ['eq' => 'pending'])->addFieldToFilter('created_at', ['lteq' => $date]);
+        $orders = $this->_order
+            ->getCollection()
+            ->addFieldToFilter(
+                'status',
+                [
+                    ['eq' => 'pending'],
+                    ['eq' => 'holded'],
+                ]
+            )
+
+            ->addFieldToFilter('created_at', ['lteq' => $date])
+        ;
         foreach ($orders->getItems() as $order) {
             if (in_array($order->getPayment()->getMethod(), $this->_methodCodes)) {
                 $this->orderUpdate($order);
             }
         };
-        
+
         return $this;
     }
 
@@ -65,32 +79,42 @@ class Paymentstatus
         $paymentMethod = $order->getPayment()->getMethod();
         $orderId = $order->getIncrementId();
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
-            $orderId = $order->getApsValuRef();
+            $orderId = $this->_helper->getApsValuRefFromOrderParams($order->getId(), null);
         }
         $response = $this->_helper->checkOrderStatus($orderId, $paymentMethod);
         $this->_logger->debug('APS CHECK_VERIFY_CARD_STATUS Response : '.json_encode($response));
 
+        $transactionCode = $response['transaction_code'] ?? '';
+
         if (
             ( ($response['response_code'] ?? '') === '12000') &&
-             ( ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_AUTH_SUCCESS_STATUS
-            || ($response['transaction_code'] ?? '') === \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS)
+            ( $transactionCode === Data::PAYMENT_METHOD_AUTH_SUCCESS_STATUS
+                || $transactionCode === Data::PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS)
         ) {
             $this->_helper->log('process order 2');
             $this->_helper->handleSendingInvoice($order, $response);
 
             $order->setState($order::STATE_PROCESSING)->save();
             $order->setStatus($order::STATE_PROCESSING)->save();
-            
+
             $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order status changed.', true);
             $order->save();
             $this->_logger->debug('APS order status changed '.$order->getId());
-        } elseif (($response['status'] ?? '') === '12' && $this->_helper->canCancelOrder($order)) {
-            $order->setState($order::STATE_CANCELED)->save();
-            $order->setStatus($order::STATE_CANCELED)->save();
+        } elseif (
+            ($response['status'] ?? '') === '12'
+            && !$this->_helper->isOrderResponseOnHold($transactionCode)
+            && $this->_helper->canCancelOrder($order)
+        ) {
+            $orderAfterPayment = $this->_helper->getMainConfigData('orderafterpayment');
+            if ($orderAfterPayment === OrderOptions::DELETE_ORDER) {
+                $this->_helper->deleteOrder($order);
 
-            $order->addStatusToHistory($order::STATE_CANCELED, 'APS :: Order status changed. Cancelled because of unrecognized response code.', true);
-            $order->save();
-            $this->_logger->debug('APS order status changed '.$order->getId() . '. Cancelled because of unrecognized response code.');
+                $this->_logger->debug('APS order status changed ' . $order->getId() . '. Deleted because of unrecognized response code.');
+            } else {
+                $this->_helper->cancelOrder($order, 'You have cancelled the payment, please try again.');
+
+                $this->_logger->debug('APS order status changed ' . $order->getId() . '. Cancelled because of unrecognized response code.');
+            }
         }
     }
 }

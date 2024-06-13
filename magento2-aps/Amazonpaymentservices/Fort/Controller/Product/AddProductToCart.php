@@ -18,7 +18,7 @@ use Magento\Framework\Filter\LocalizedToNormalized;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
-use Zend\Uri\Uri;
+use Laminas\Uri\Uri;
 
 class AddProductToCart extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
@@ -66,9 +66,9 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
     private $localeResolverInterface;
 
     /**
-     * @var \Zend\Uri\Uri
+     * @var \Laminas\Uri\Uri
      */
-    private $zendUri;
+    private $laminasUri;
 
     /**
      * Adding a product to cart
@@ -82,7 +82,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
      * @param ManagerInterface $eventManager
      * @param \Magento\Directory\Model\Currency $modelCurrency
      * @param ResolverInterface $localeResolverInterface
-     * @param Uri $zendUri
+     * @param Uri $laminasUri
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -94,7 +94,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
         \Magento\Framework\Event\ManagerInterface $eventManager,
         \Magento\Directory\Model\Currency $modelCurrency,
         \Magento\Framework\Locale\ResolverInterface $localeResolverInterface,
-        \Zend\Uri\Uri $zendUri
+        \Laminas\Uri\Uri $laminasUri
     ) {
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
@@ -105,7 +105,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
         $this->eventManager = $eventManager;
         $this->modelCurrency = $modelCurrency;
         $this->localeResolverInterface = $localeResolverInterface;
-        $this->zendUri = $zendUri;
+        $this->laminasUri = $laminasUri;
     }
 
     /**
@@ -140,8 +140,8 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
     public function execute()
     {
         $responseParams = $this->getRequest()->getParams();
-        $this->zendUri->setQuery($responseParams['request']);
-        $request = $this->zendUri->getQueryAsArray();
+        $this->laminasUri->setQuery($responseParams['request']);
+        $request = $this->laminasUri->getQueryAsArray();
         
         $productId = $request['product'];
         $related = $request['related_product'];

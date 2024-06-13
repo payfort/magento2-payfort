@@ -2,6 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -92,9 +93,10 @@ class Webhook extends \Magento\Framework\App\Action\Action implements CsrfAwareA
             $this->_helper->captureAuthorize($responseParams);
         } elseif ($responseCode == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_REFUND_STATUS) {
             $this->_helper->refundAps($responseParams);
-        } else{
+        } else {
             $this->_helper->handleFortResponse($responseParams, 'offline');
         }
+
         $result = [];
         $jsonResult = $this->_resultJsonFactory->create();
         $jsonResult->setData($result);

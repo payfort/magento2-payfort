@@ -48,7 +48,7 @@ define([
         {
             title: 'MasterCard',
             type: 'MC',
-            pattern: '^5$|^5[0-5][0-9]{0,16}$',
+            pattern: '^5[0-5][0-9]{0,16}$|^2[2-7][0-9]{0,16}$',
             gaps: [4, 8, 12],
             lengths: [16],
             code: {

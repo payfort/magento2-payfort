@@ -42,7 +42,12 @@ define(
             redirectAfterPlaceOrder: false,
             
             afterPlaceOrder : function () {
-                $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_fort_naps.redirectUrl);
+                var quoteId = window.checkoutConfig.quoteData.entity_id;
+                var redirectUrl = window.checkoutConfig.payment.apsFort.aps_fort_naps.redirectUrl;
+                var hasQueryParams = redirectUrl.includes('?');
+                var delimiter = hasQueryParams ? '&' : '?';
+                var redirectUrlWithQuoteId = redirectUrl + delimiter + 'quoteId=' + encodeURIComponent(quoteId);
+                $.mage.redirect(redirectUrlWithQuoteId);
             },
             isChecked: ko.computed(function () {
                 var checked = quote.paymentMethod() ? quote.paymentMethod().method : null;

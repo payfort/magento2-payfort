@@ -12,6 +12,9 @@
  **/
 namespace Amazonpaymentservices\Fort\Helper;
 
+use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
+use Magento\Framework\Registry;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Api\OrderManagementInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -185,6 +188,8 @@ class Data extends \Magento\Payment\Helper\Data
      */
     public $_connection;
 
+    private $registry;
+
     protected $_date;
 
     protected $creditmemoSender;
@@ -312,6 +317,7 @@ class Data extends \Magento\Payment\Helper\Data
         \Magento\Framework\Module\ResourceInterface $moduleResourceInterface,
         \Magento\Framework\App\ResourceConnection $connect,
         InvoiceService $invoiceService,
+        Registry $registry,
         transactionFactory $transaction
     ) {
         parent::__construct($context, $layoutFactory, $paymentMethodFactory, $appEmulation, $paymentConfig, $initialConfig);
@@ -359,6 +365,8 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_connection = $connect;
         $this->invoiceService = $invoiceService;
         $this->transaction = $transaction;
+        $this->registry = $registry;
+
         $this->apsCookieUpdate();
     }
 
@@ -461,9 +469,13 @@ class Data extends \Magento\Payment\Helper\Data
             $sessionData['installment_amount'] = $postData['installment_amount'];
             $sessionData['installment_interest'] = $postData['installment_interest'];
 
-            $order->setData('aps_params', json_encode($sessionData));
-            $order->setApsParams(json_encode($sessionData));
-            $order->save();
+            $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApsorderparamsFactory')->create();
+            $model->setOrderId($order->getId());
+            $model->setOrderIncrementId($orderId);
+            $model->setApsParams(json_encode($sessionData));
+            $model->setCreatedAt(date('Y-m-d H:i:s'));
+            $model->setUpdatedAt(date('Y-m-d H:i:s'));
+            $model->save();
 
             $this->_custmerSession->setCustomValue($sessionData);
 
@@ -477,9 +489,13 @@ class Data extends \Magento\Payment\Helper\Data
             $sessionData['installment_amount'] = $postData['installment_amount'];
             $sessionData['installment_interest'] = $postData['installment_interest'];
 
-            $order->setData('aps_params', json_encode($sessionData));
-            $order->setApsParams(json_encode($sessionData));
-            $order->save();
+            $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApsorderparamsFactory')->create();
+            $model->setOrderId($order->getId());
+            $model->setOrderIncrementId($orderId);
+            $model->setApsParams(json_encode($sessionData));
+            $model->setCreatedAt(date('Y-m-d H:i:s'));
+            $model->setUpdatedAt(date('Y-m-d H:i:s'));
+            $model->save();
 
             $this->_custmerSession->setCustomValue($sessionData);
 
@@ -715,9 +731,13 @@ class Data extends \Magento\Payment\Helper\Data
         if (!empty($sessionData) && !empty($sessionData['refId'])) {
             $cart = $this->_order->loadByIncrementId($orderId);
 
-            $order->setData('aps_valu_ref', $sessionData['refId']);
-            $order->setApsValuRef($sessionData['refId']);
-            $order->save();
+            $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApsorderparamsFactory')->create();
+            $model->setOrderId($order->getId());
+            $model->setOrderIncrementId($orderId);
+            $model->setApsValuRef($sessionData['refId']);
+            $model->setCreatedAt(date('Y-m-d H:i:s'));
+            $model->setUpdatedAt(date('Y-m-d H:i:s'));
+            $model->save();
 
             $discountAmount = $order->getBaseDiscountAmount();
             $orderData = $cart;
@@ -1056,8 +1076,8 @@ class Data extends \Magento\Payment\Helper\Data
             case self::INSTALLMENTS_PLAN_CARD:
                 $gatewayParams['card_bin']          = $cardNumberOrToken;
                 break;
-            case self::INSTALLMENTS_PLAN_CARD:
-                $gatewayParams['token']             = $cardNumberOrToken;
+            case self::INSTALLMENTS_PLAN_TOKEN:
+                $gatewayParams['token_name']             = $cardNumberOrToken;
                 break;
             default:
                 break;
@@ -1218,16 +1238,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $sessionData = $this->_custmerSession->getCustomValue();
 
-        $collections = $this->_salesCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('increment_id', ['eq'=>$orderId]);
-        $apsParams = [];
-        foreach ($collections as $collection) {
-            $apsParams = $collection->getApsParams();
-            if (!empty($apsParams)) {
-                $apsParams = json_decode($apsParams, 1);
-            }
-        }
+        $apsParams = $this->getApsParamsFromOrderParams($order->getId(), $orderId);
 
         if (!empty($apsParams['plan_code'])) {
             $postData['plan_code'] = $apsParams['plan_code'];
@@ -1331,7 +1342,7 @@ class Data extends \Magento\Payment\Helper\Data
         $paymentMethod = $order->getPayment()->getMethod();
         $orderId = $responseParams['orderNumber'];
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
-            $orderId = $order->getApsValuRef();
+            $orderId = $this->getApsValuRefFromOrderParams(null, $orderId);
         }
         $orderCurrency = $order->getOrderCurrencyCode();
         $amount        = $this->convertAmount($responseParams['amount'], $orderCurrency);
@@ -1371,7 +1382,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $orderId = $responseParams['orderNumber'];
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
-            $orderId = $order->getApsValuRef();
+            $orderId = $this->getApsValuRefFromOrderParams(null, $orderId);
         }
         $orderCurrency = $order->getOrderCurrencyCode();
         $amount        = $this->convertAmount($responseParams['amount'], $orderCurrency);
@@ -1744,15 +1755,40 @@ class Data extends \Magento\Payment\Helper\Data
      *
      * @return bool
      */
-    public function restoreQuote()
+    public function restoreQuote($order = null)
     {
-        $result = $this->session->restoreQuote();
-        // Versions 2.2.4 onwards need an explicit action to return items.
-        if ($result && $this->isReturnItemsToInventoryRequired()) {
-            $this->returnItemsToInventory();
+        if (!$order) {
+            return false;
+        }
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        $_checkoutSession = $objectManager->create('\Magento\Checkout\Model\Session');
+        $_quoteFactory = $objectManager->create('\Magento\Quote\Model\QuoteFactory');
+
+        $quote = $_quoteFactory->create()->loadByIdWithoutStore($order->getQuoteId());
+
+        if ($quote->getId()) {
+            $quote->setIsActive(1)->setReservedOrderId(null)->save();
+            $_checkoutSession->replaceQuote($quote);
+        }
+    }
+
+    /**
+     * Delete an order after a failed payment (if option selected)
+     *
+     * @param OrderInterface $order
+     *
+     * @return void
+     */
+    public function deleteOrder(OrderInterface $order): void
+    {
+        if (!$order->getEntityId()) {
+            return;
         }
 
-        return $result;
+        $this->orderManagement->cancel($order->getEntityId());
+        $this->registry->register('isSecureArea', true);
+        $this->orderRepository->delete($order);
+        $this->registry->unregister('isSecureArea');
     }
 
     /**
@@ -1811,7 +1847,11 @@ class Data extends \Magento\Payment\Helper\Data
             $comment = 'Aps_Fort :: ' . $comment;
         }
         if ($order->getId() && $order->getState() != Order::STATE_CANCELED) {
-            $order->registerCancellation($comment)->save();
+            $order->cancel();
+            $order->addStatusToHistory($order::STATE_CANCELED, $comment, false);
+            $order->save();
+
+//            $order->registerCancellation($comment)->save();
             return true;
         }
         return false;
@@ -1829,7 +1869,11 @@ class Data extends \Magento\Payment\Helper\Data
             $comment = 'Aps_Fort :: ' . $comment;
         }
         if ($order->getState() != Order::STATE_CANCELED) {
-            $order->registerCancellation($comment)->save();
+            $order->cancel();
+            $order->addStatusToHistory($order::STATE_CANCELED, $comment, false);
+            $order->save();
+
+//            $order->registerCancellation($comment)->save();
             /*if ($this->restoreQuote()) {
                 //Redirect to payment step
                 $gotoSection = 'paymentMethod';
@@ -1842,7 +1886,7 @@ class Data extends \Magento\Payment\Helper\Data
     public function orderFailed($order, $reason, $responseCode = '')
     {
         if ($this->canCancelOrder($order)) {
-            if (in_array($responseCode, self::APS_ONHOLD_RESPONSE_CODES, true)) {
+            if ($this->isOrderResponseOnHold($responseCode)) {
                 if ($order->getState() != $order::STATE_HOLDED) {
                     $order->setStatus($order::STATE_HOLDED);
                     $order->setState($order::STATE_HOLDED);
@@ -1853,11 +1897,10 @@ class Data extends \Magento\Payment\Helper\Data
                     return true;
                 }
             } elseif ($order->getState() != $order::STATE_CANCELED) {
-                $order->setStatus($order::STATE_CANCELED);
-                $order->setState($order::STATE_CANCELED);
+                $order->cancel();
+                $order->addCommentToStatusHistory($reason, false, true);
                 $order->save();
-                $order->addStatusToHistory($order::STATE_CANCELED, $reason, false);
-                $order->save();
+
                 $this->apsSubscriptionOrder($order, 0);
                 return true;
             }
@@ -2064,10 +2107,7 @@ class Data extends \Magento\Payment\Helper\Data
         $language = $this->getLanguage();
         $amount = $this->convertAmount($amount, $currencyCode);
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
-            $orderId = $order->getApsStcRef();
-        }
-        if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE) {
-            $orderId = $order->getApsTabbyRef();
+            $orderId = $this->getApsStcRefFromOrderParams(null, $orderId);
         }
         $data = [
             "command"             => 'REFUND',
@@ -2295,10 +2335,15 @@ class Data extends \Magento\Payment\Helper\Data
 
             $responseParams  = $fortParams;
             $success         = false;
+
+            $orderId = $this->getOrderId($responseParams);
+
+            $order = $this->getOrderById($orderId);
+
             if (empty($responseParams)) {
                 $responseMessage = __('Invalid fort response parameters');
                 $this->log($responseMessage);
-                $this->restoreQuote();
+                $this->restoreQuote($order);
                 $this->_messageManager->addError($responseMessage);
                 return false;
             }
@@ -2306,25 +2351,29 @@ class Data extends \Magento\Payment\Helper\Data
             if (!isset($responseParams['merchant_reference']) || empty($responseParams['merchant_reference'])) {
                 $responseMessage = "Merchant Reference not found\n\n" . json_encode($responseParams, 1);
                 $this->log($responseMessage);
-                $this->restoreQuote();
+                $this->restoreQuote($order);
                 $this->_messageManager->addError($responseMessage);
                 return false;
             }
 
-            $orderId = $this->getOrderId($responseParams);
+            $responseType          = $responseParams['response_message'] ?? '';
+            $responseStatusMessage = $responseType;
+            $signature             = $responseParams['signature'] ?? '';
+            $responseCode          = $responseParams['response_code'] ?? '';
 
-            $order = $this->getOrderById($orderId);
+            if (!$order->getPayment()) {
+                $responseMessage = $responseStatusMessage;
+                $this->log($responseMessage);
+                $this->_messageManager->addError($responseMessage);
+
+                return false;
+            }
+
             $paymentMethod = $order->getPayment()->getMethod();
             $this->log("Pay method ($paymentMethod)" . json_encode($responseParams, 1));
 
             $notIncludedParams = ['signature', 'aps_fort', 'integration_type','form_key'];
 
-            $responseType          = isset($responseParams['response_message']) ? $responseParams['response_message'] : '';
-            $signature             = isset($responseParams['signature']) ? $responseParams['signature'] : '';
-            $responseOrderId       = $orderId;
-            $responseStatus        = isset($responseParams['status']) ? $responseParams['status'] : '';
-            $responseCode          = isset($responseParams['response_code']) ? $responseParams['response_code'] : '';
-            $responseStatusMessage = $responseType;
             $responseGatewayParams = $this->getGatewayResponseParams($responseParams, $notIncludedParams);
 
             $signType = '';
@@ -2357,7 +2406,9 @@ class Data extends \Magento\Payment\Helper\Data
                 }
             }
         } catch (\Exception $e) {
-            $this->restoreQuote();
+            if (isset($order)) {
+                $this->restoreQuote($order);
+            }
             $this->log("APS Error :". json_encode($e->getMessage()));
             $this->_messageManager->addError($e->getMessage());
             return false;
@@ -2376,46 +2427,98 @@ class Data extends \Magento\Payment\Helper\Data
         return $responseGatewayParams;
     }
 
+    public function getApsParamsIncrementIdByReference($parameter, $reference) {
+        $connection = $this->_connection->getConnection();
+
+        $query = $connection
+            ->select()
+            ->from(['table'=>'aps_order_params'])
+            ->where('table.' . $parameter . '=?', $reference);
+        $collections = $this->fetchAllQuery($query);
+        if (empty($collections)) {
+            try {
+                $collections = $this->_salesCollectionFactory->create()
+                    ->addAttributeToSelect('*')
+                    ->addFieldToFilter($parameter, ['eq'=>$reference]);
+                foreach ($collections as $collection) {
+                    return $collection->getIncrementId();
+                }
+            } catch (\Exception $e) {
+                $logMsg = "APS '" . $parameter . "' reference number column is not in sales_order table";
+                $this->log($logMsg);
+            }
+        }
+
+        if ($collections) {
+            foreach ($collections as $collection) {
+                if ($collection['order_increment_id'] ?? null) {
+                    return $collection['order_increment_id'];
+                }
+            }
+        }
+
+        return $reference;
+    }
+
     private function getOrderId($responseParams)
     {
-        $orderId = $responseParams['merchant_reference'];
+        $connection = $this->_connection->getConnection();
+        $orderId = $responseParams['merchant_reference'] ?? null;
+        $collections = null;
+
         if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'VALU') {
-
-            $collections = $this->_salesCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_valu_ref', ['eq'=>$responseParams['merchant_reference']]);
-            foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
+            $query = $connection
+                ->select()
+                ->from(['table'=>'aps_order_params'])
+                ->where('table.aps_valu_ref=?', $orderId);
+            $collections = $this->fetchAllQuery($query);
+            if (empty($collections)) {
+                try {
+                    $collections = $this->_salesCollectionFactory->create()
+                        ->addAttributeToSelect('*')
+                        ->addFieldToFilter('aps_valu_ref', ['eq' => $orderId]);
+                    foreach ($collections as $collection) {
+                        return $collection->getIncrementId();
+                    }
+                } catch (\Exception $e) {
+                    $logMsg = "APS Valu reference number column is not in sales_order table";
+                    $this->log($logMsg);
+                }
             }
         }
-        if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'STCPAY') {
 
-            $collections = $this->_salesCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_stc_ref', ['eq'=>$responseParams['merchant_reference']]);
-            foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
+        if (
+            (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'STCPAY')
+            || (isset($responseParams['digital_wallet']) && $responseParams['digital_wallet'] == 'STCPAY')
+        ) {
+            $query = $connection
+                ->select()
+                ->from(['table'=>'aps_order_params'])
+                ->where('table.aps_stc_ref=?', $orderId);
+            $collections = $this->fetchAllQuery($query);
+            if (empty($collections)) {
+                try {
+                    $collections = $this->_salesCollectionFactory->create()
+                        ->addAttributeToSelect('*')
+                        ->addFieldToFilter('aps_stc_ref', ['eq' => $orderId]);
+                    foreach ($collections as $collection) {
+                        return $collection->getIncrementId();
+                    }
+                } catch (\Exception $e) {
+                    $logMsg = "APS STC reference number column is not in sales_order table";
+                    $this->log($logMsg);
+                }
             }
         }
 
-        if (isset($responseParams['digital_wallet']) && $responseParams['digital_wallet'] == 'STCPAY') {
-
-            $collections = $this->_salesCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_stc_ref', ['eq'=>$responseParams['merchant_reference']]);
+        if (!empty($collections)) {
             foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
+                if ($collection['order_increment_id'] ?? null) {
+                    return $collection['order_increment_id'];
+                }
             }
         }
-        if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'TABBY') {
 
-            $collections = $this->_salesCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_tabby_ref', ['eq'=>$responseParams['merchant_reference']]);
-            foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
-            }
-        }
         return $orderId;
     }
 
@@ -2426,7 +2529,7 @@ class Data extends \Magento\Payment\Helper\Data
         $this->log($logMsg);
         $r = $this->orderFailed($order, 'Invalid Signature.', '15777');
         if ($r) {
-            $this->restoreQuote();
+            $this->restoreQuote($order);
             $this->_messageManager->addError($responseMessage);
             return false;
         }
@@ -2438,7 +2541,7 @@ class Data extends \Magento\Payment\Helper\Data
             $responseMessage = __('You have canceled the payment, please try again.');
             $r = $this->cancelOrder($order, 'Payment Cancelled');
             if ($r) {
-                $this->restoreQuote();
+                $this->restoreQuote($order);
                 $this->_messageManager->addError($responseMessage);
                 return false;
             }
@@ -2446,7 +2549,7 @@ class Data extends \Magento\Payment\Helper\Data
             $responseMessage = __('Your payment transaction was declined, please try again.');
             $r = $this->orderFailed($order, $responseMessage, $responseCode);
             if ($r) {
-                $this->restoreQuote();
+                $this->restoreQuote($order);
                 $this->_messageManager->addError($responseMessage);
                 return false;
             }
@@ -2454,7 +2557,7 @@ class Data extends \Magento\Payment\Helper\Data
             $responseMessage = sprintf(__('An error occurred while making the transaction. Please try again. (Error message: %s)'), $responseStatusMessage);
             $r = $this->orderFailed($order, $responseStatusMessage, $responseCode);
             if ($r) {
-                $this->restoreQuote();
+                $this->restoreQuote($order);
                 $this->_messageManager->addError($responseMessage);
                 return false;
             }
@@ -2510,13 +2613,8 @@ class Data extends \Magento\Payment\Helper\Data
         $orderId = $responseParams['merchant_reference'];
         $orders = $this->_orderInterface->loadByIncrementId($orderId);
         if (empty($orders->getId())) {
-            $collections = $this->_salesCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_valu_ref', ['eq'=>$orderId]);
-            foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
-                $orders = $this->_orderInterface->loadByIncrementId($orderId);
-            }
+            $orderId = $this->getApsParamsIncrementIdByReference('aps_valu_ref', $orderId);
+            $orders = $this->_orderInterface->loadByIncrementId($orderId);
         }
         if ($responseParams['response_code'] == self::PAYMENT_METHOD_CAPTURE_STATUS) {
             $saveData['payment_type'] = 'capture';
@@ -2553,14 +2651,9 @@ class Data extends \Magento\Payment\Helper\Data
         $orders = $this->_orderInterface->loadByIncrementId($orderId);
         if (empty($orders->getId())) {
             $this->log('Refund Order empty');
-            $collections = $this->_salesCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_valu_ref', ['eq'=>$orderId]);
-            foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
-                $this->log('Refund Orderid:'.$orderId);
-                $orders = $this->_orderInterface->loadByIncrementId($orderId);
-            }
+            $orderId = $this->getApsParamsIncrementIdByReference('aps_valu_ref', $orderId);
+            $this->log('Refund Orderid:'.$orderId);
+            $orders = $this->_orderInterface->loadByIncrementId($orderId);
         }
         $amountRate = $orders->getBaseToOrderRate();
         $orderIncId = $orders->getId();
@@ -2569,7 +2662,7 @@ class Data extends \Magento\Payment\Helper\Data
             $amountRate = 1;
         }
         $searchCriteria = $this->searchCriteriaBuilder
-        ->addFilter('order_id', $orderIncId)->create();
+            ->addFilter('order_id', $orderIncId)->create();
         $creditmemos = $this->creditmemoRepository->getList($searchCriteria);
         $creditmemoRecords = $creditmemos->getItems();
         $creditMemoTotal = 0;
@@ -2661,7 +2754,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $orderTotal = $orders->getGrandTotal()/$amountRate;
 
                 $searchCriteria = $this->searchCriteriaBuilder
-                ->addFilter('order_id', $orderIncId)->create();
+                    ->addFilter('order_id', $orderIncId)->create();
                 $creditmemos = $this->creditmemoRepository->getList($searchCriteria);
                 $creditmemoRecords = $creditmemos->getItems();
                 $creditMemoTotal1 = 0;
@@ -2875,7 +2968,8 @@ class Data extends \Magento\Payment\Helper\Data
             $paymentMethod = $newOrder->getPayment()->getMethod();
             $orderId = $newOrder->getRealOrderId();
             if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Stc::CODE) {
-                $orderId = $order->getApsStcRef();
+                $orderId = $this->getApsStcRefFromOrderParams($newOrder->getId(), null);
+
                 $connection = $this->_connection->getConnection();
                 $query = $connection->select()->from(['table'=>'aps_stc_token_order_relation'], ['token_name'])->where('table.order_increment_id=?', $orderId);
                 $cardList = $connection->fetchAll($query);
@@ -3050,9 +3144,15 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $language = $this->getLanguage();
         $orderId = $order->getRealOrderId();
-        $order->setData('aps_stc_ref', $orderId);
-        $order->setApsStcRef($orderId);
-        $order->save();
+
+        $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApsorderparamsFactory')->create();
+        $model->setOrderId($order->getId());
+        $model->setOrderIncrementId($orderId);
+        $model->setApsStcRef($orderId);
+        $model->setCreatedAt(date('Y-m-d H:i:s'));
+        $model->setUpdatedAt(date('Y-m-d H:i:s'));
+        $model->save();
+
         $gatewayParams = [
             'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
             'access_code'         => $this->getMainConfigData('access_code'),
@@ -3123,9 +3223,15 @@ class Data extends \Magento\Payment\Helper\Data
 
         $orderId = $order->getRealOrderId();
         $language = $this->getLanguage();
-        $order->setData('aps_stc_ref', $sessionData['refId']);
-        $order->setApsStcRef($sessionData['refId']);
-        $order->save();
+
+        $model = $this->_objectManager->get('Amazonpaymentservices\Fort\Model\ApsorderparamsFactory')->create();
+        $model->setOrderId($order->getId());
+        $model->setOrderIncrementId($orderId);
+        $model->setApsStcRef($sessionData['refId']);
+        $model->setCreatedAt(date('Y-m-d H:i:s'));
+        $model->setUpdatedAt(date('Y-m-d H:i:s'));
+        $model->save();
+
         $this->_custmerSession->setCustomValue(['refId' =>$sessionData['refId'],'orderId' => $orderId]);
         $this->_gatewayParams = [
             'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
@@ -3180,6 +3286,12 @@ class Data extends \Magento\Payment\Helper\Data
                     $this->_messageManager->addError($responseParams['response_message']);
                 }
                 $returnUrl = $this->getUrl('checkout/cart');
+
+                $orderAfterPayment = $this->getMainConfigData('orderafterpayment');
+                if ($orderAfterPayment === OrderOptions::DELETE_ORDER && !$this->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
+                    $this->deleteOrder($order);
+                }
+
             }
         }
         return ['url' => $returnUrl];
@@ -3216,9 +3328,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $language = $this->getLanguage();
         $orderId = $order->getRealOrderId();
-        $order->setData('aps_tabby_ref', $orderId);
-        $order->setApsTabbyRef($orderId);
-        $order->save();
+
         $gatewayParams = [
             'merchant_identifier' => $this->getMainConfigData('merchant_identifier'),
             'access_code'         => $this->getMainConfigData('access_code'),
@@ -3280,5 +3390,186 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $invoice = $this->createInvoice($order, $response);
         $this->sendInvoiceEmail($invoice);
+    }
+
+    /**
+     * Return whether the response code from APS refers
+     * to a case when order payment is considered ON HOLD
+     *
+     * @param $responseCode
+     *
+     * @return bool
+     */
+    public function isOrderResponseOnHold($responseCode): bool
+    {
+        return in_array($responseCode, self::APS_ONHOLD_RESPONSE_CODES, true);
+    }
+
+    /**
+     * Return the STC order subscription reference
+     *
+     * @param $orderId
+     * @param $orderIncrementId
+     *
+     * @return mixed|null
+     */
+    public function getApsStcRefFromOrderParams($orderId, $orderIncrementId)
+    {
+        $connection = $this->_connection->getConnection();
+
+        if ($orderId) {
+            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_id=?', $orderId);
+            $orderParams = $this->fetchAllQuery($query);
+
+            if (empty($orderParams)) {
+                // backwards compatibility
+                // in case the value is not inside the new table
+                // search it inside the sales_order table
+
+                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.entity_id=?', $orderId);
+                $orderParams = $this->fetchAllQuery($query);
+            }
+        } else {
+            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_increment_id=?', $orderIncrementId);
+            $orderParams = $this->fetchAllQuery($query);
+
+            if (empty($orderParams)) {
+                // backwards compatibility
+                // in case the value is not inside the new table
+                // search it inside the sales_order table
+
+                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.increment_id=?', $orderIncrementId);
+                $orderParams = $this->fetchAllQuery($query);
+            }
+        }
+        foreach ($orderParams as $orderParam) {
+            if ($orderParam['aps_stc_ref']) {
+                return $orderParam['aps_stc_ref'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Return the TABBY order subscription reference
+     *
+     * @param $orderId
+     * @param $orderIncrementId
+     *
+     * @return mixed|null
+     */
+    public function getApsTabbyRefFromOrderParams($orderId, $orderIncrementId)
+    {
+        $connection = $this->_connection->getConnection();
+
+        if ($orderId) {
+            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_id=?', $orderId);
+            $orderParams = $this->fetchAllQuery($query);
+            if (empty($orderParams)) {
+                // backwards compatibility
+                // in case the value is not inside the new table
+                // search it inside the sales_order table
+
+                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.entity_id=?', $orderId);
+                $orderParams = $this->fetchAllQuery($query);
+            }
+        } else {
+            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_increment_id=?', $orderIncrementId);
+            $orderParams = $this->fetchAllQuery($query);
+            if (empty($orderParams)) {
+                // backwards compatibility
+                // in case the value is not inside the new table
+                // search it inside the sales_order table
+
+                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.increment_id=?', $orderIncrementId);
+                $orderParams = $this->fetchAllQuery($query);
+            }
+        }
+
+        foreach ($orderParams as $orderParam) {
+            if ($orderParam['aps_tabby_ref']) {
+                return $orderParam['aps_tabby_ref'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Return the VALU order subscription reference
+     *
+     * @param $orderId
+     * @param $orderIncrementId
+     *
+     * @return mixed|null
+     */
+    public function getApsValuRefFromOrderParams($orderId, $orderIncrementId)
+    {
+        $connection = $this->_connection->getConnection();
+
+        if ($orderId) {
+            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_id=?', $orderId);
+            $orderParams = $this->fetchAllQuery($query);
+            if (empty($orderParams)) {
+                // backwards compatibility
+                // in case the value is not inside the new table
+                // search it inside the sales_order table
+
+                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.entity_id=?', $orderId);
+                $orderParams = $this->fetchAllQuery($query);
+            }
+        } else {
+            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_increment_id=?', $orderId);
+            $orderParams = $this->fetchAllQuery($query);
+            if (empty($orderParams)) {
+                // backwards compatibility
+                // in case the value is not inside the new table
+                // search it inside the sales_order table
+
+                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.increment_id=?', $orderId);
+                $orderParams = $this->fetchAllQuery($query);
+            }
+        }
+        foreach ($orderParams as $orderParam) {
+            if ($orderParam['aps_valu_ref']) {
+                return $orderParam['aps_valu_ref'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Return the APS Params field from the aps_order_params table
+     *
+     * @param $orderId
+     * @param $orderIncrementId
+     *
+     * @return array|mixed
+     */
+    public function getApsParamsFromOrderParams($orderId, $orderIncrementId)
+    {
+        $connection = $this->_connection->getConnection();
+
+        $query = $connection->select()->from(['table'=>'aps_order_params'])->where('table.order_id=?', $orderId);
+        $orderParams = $this->fetchAllQuery($query);
+        if (empty($orderParams)) {
+            // backwards compatibility
+            // in case the value is not inside the new table
+            // search it inside the sales_order table
+            $orderParams = $this->_salesCollectionFactory->create()
+                ->addAttributeToSelect('*')
+                ->addFieldToFilter('increment_id', ['eq'=>$orderIncrementId]);
+        }
+
+        foreach ($orderParams as $collection) {
+            $apsParams = $collection['aps_params'] ?? [];
+            if (!empty($apsParams)) {
+                return json_decode($apsParams, 1);
+            }
+        }
+
+        return [];
     }
 }

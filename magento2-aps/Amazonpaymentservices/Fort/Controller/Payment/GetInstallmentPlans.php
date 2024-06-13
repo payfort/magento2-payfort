@@ -113,15 +113,19 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
             $tokenName = '';
             if (!empty($tokenData)) {
                 $details = json_decode($tokenData['details'], 1);
+                $tokenName = $tokenData['gateway_token'];
                 $this->_helper->log("Token details");
-                $this->_helper->log($details);
-                $cardNumberOrToken = substr($details['maskedCC'], 0, 6);
+                $this->_helper->log(json_encode($details));
+                $this->_helper->log("Token details 2");
+                $this->_helper->log(json_encode($tokenName));
+                //$cardNumberOrToken = substr($details['maskedCC'], 0, 6);
+                $cardNumberOrToken = $tokenName;
                 $arrPaymentPageData = $this->_helper->getInstallmentPlan($cardNumberOrToken,\Amazonpaymentservices\Fort\Helper\Data::INSTALLMENTS_PLAN_TOKEN);
             }
         } else{
             $arrPaymentPageData = $this->_helper->getInstallmentPlan();
         }
-        $installmentData = $this->installmentData($arrPaymentPageData, $cardNumberOrToken);
+        $installmentData = $this->installmentData($arrPaymentPageData, $cardNumberOrToken, !empty($responseParams['cardNumber']));
 
         /*if (!empty($responseParams['cardNumber'])) {
             $cardNumber = $responseParams['cardNumber'];
@@ -132,7 +136,6 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
             $tokenName = '';
             if (!empty($tokenData)) {
                 $details = json_decode($tokenData['details'], 1);
-
                 $cardNumber = substr($details['maskedCC'], 0, 6);
                 $installmentData = $this->installmentData($arrPaymentPageData, $cardNumber);
             }
@@ -149,7 +152,7 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
         return $jsonResult;
     }
 
-    private function installmentData($data, $cardNumber)
+    private function installmentData($data, $cardNumber, $isNotToken)
     {
         $result = [
             'success' => false,
@@ -170,20 +173,25 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
                     'response'  => ''
                 ];
             }
-            $issuer_key = $this->findBinInPlans($cardNumber, $data['installment_detail']['issuer_detail']);
-            if (empty($issuer_key) && !isset($data['installment_detail']['issuer_detail'][ $issuer_key ])) {
-                return [
-                    'success' => false,
-                    'error_message' => __('There is no installment plan available'),
-                    'response'  => ''
-                ];
-            }
             $result = [
                 'success' => true,
                 'error_message' => '',
                 'response'  => ''
             ];
-            $result['installment_data'] = $data['installment_detail']['issuer_detail'][ $issuer_key ];
+            if($isNotToken){
+                $issuer_key = $this->findBinInPlans($cardNumber, $data['installment_detail']['issuer_detail']);
+                if (empty($issuer_key) && !isset($data['installment_detail']['issuer_detail'][ $issuer_key ])) {
+                    return [
+                        'success' => false,
+                        'error_message' => __('There is no installment plan available'),
+                        'response'  => ''
+                    ];
+                }
+                $result['installment_data'] = $data['installment_detail']['issuer_detail'][ $issuer_key ];    
+            } else {
+                $result['installment_data'] = $data['installment_detail']['issuer_detail'][ 0 ];
+            }
+            
         }
         
         return $result;

@@ -12,7 +12,7 @@
                name="payment[method]"
                class="radio"
                data-bind="attr: {'id': getCode()}, value: getCode(), checked: isChecked, click: selectPaymentMethod, visible: isRadioButtonVisible()"/>
-        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="text: getTitle()"></span></label>
+        <label data-bind="attr: {'for': getCode()}" class="label"><span data-bind="i18n: 'Pay in 4. No interest, no fees.'"></span></label>
         <img data-action="setTabbyLogo" data-bind="attr: {alt: $t('TABBY Logo'),afterRender: setTabbyLogo()}"
              class="payment-icon" style="width: 45px;"/>
     </div>

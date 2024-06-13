@@ -87,7 +87,12 @@
                         <source_model>Amazonpaymentservices\Fort\Model\Adminhtml\Source\CcType</source_model>
                         <config_path>payment/aps_fort/cctypes</config_path>
                     </field>
-
+                    <field id="orderafterpayment" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>After an unsuccessful Payment: </label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions</source_model>
+                        <comment>Choose whether to Cancel or Delete an order after an unsuccessful payment</comment>
+                        <config_path>payment/aps_fort/orderafterpayment</config_path>
+                    </field>
                 </group>
                 <group id="aps_fort_cc" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Credit / Debit Cards</label>
@@ -172,7 +177,7 @@
                         <config_path>payment/aps_apple/active</config_path>
                     </field>
                     <field id="key_pem" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="10"
-                        showInDefault="1" showInWebsite="1" showInStore="1">
+                           showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Key Pem File</label>
                         <config_path>payment/aps_apple/apple_key_pem</config_path>
                         <backend_model>Magento\Config\Model\Config\Backend\File</backend_model>
@@ -182,7 +187,7 @@
                         </depends>
                     </field>
                     <field id="cert_pem" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="10"
-                        showInDefault="1" showInWebsite="1" showInStore="1">
+                           showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Certificate Pem File</label>
                         <config_path>payment/aps_apple/apple_certificate_pem</config_path>
                         <backend_model>Magento\Config\Model\Config\Backend\File</backend_model>

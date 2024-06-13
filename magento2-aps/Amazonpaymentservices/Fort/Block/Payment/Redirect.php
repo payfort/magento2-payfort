@@ -38,15 +38,19 @@ class Redirect extends \Magento\Framework\View\Element\Template
      */
     protected $_template = 'redirect.phtml';
 
+    protected $cacheManager;
+
     /**
      * @param \Magento\Framework\View\Element\Template\Context $context
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Sales\Model\Order\Config $orderConfig
      * @param \Magento\Framework\App\Http\Context $httpContext
      * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort
+     * @param \Magento\Framework\App\Cache\Manager $cacheManager
      * @param array $data
      */
     public function __construct(
+        \Magento\Framework\App\Cache\Manager $cacheManager,
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\Order\Config $orderConfig,
@@ -55,6 +59,7 @@ class Redirect extends \Magento\Framework\View\Element\Template
         array $data = []
     ) {
         parent::__construct($context, $data);
+        $this->cacheManager = $cacheManager;
         $this->_checkoutSession = $checkoutSession;
         $this->_orderConfig = $orderConfig;
         $this->httpContext = $httpContext;
@@ -88,7 +93,7 @@ class Redirect extends \Magento\Framework\View\Element\Template
         } elseif ($order->getState() != Order::STATE_NEW) {
             $order_error_message = __('Order was already processed or session information expired.');
         } elseif (!($additional_info = $order->getPayment()->getAdditionalInformation())
-             || !is_array($additional_info)) {
+            || !is_array($additional_info)) {
             $order_error_message = __('Couldn\'t extract payment information from order.');
         }
         if (!empty($order_error_message)) {
@@ -139,6 +144,7 @@ class Redirect extends \Magento\Framework\View\Element\Template
                 'form_url'  => $form_url
             ]
         );
+        $this->cacheManager->flush($this->cacheManager->getAvailableTypes());
     }
 
     /**

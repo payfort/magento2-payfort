@@ -134,37 +134,7 @@ class CreditmemoAddData
             $paymentData = $payment->getAdditionalData();
             $orderAdditionalData = json_decode($paymentData, true);
 
-            $amount = $this->getItemTotals($order, $postParams);
-            
-            $amountRate = $order->getBaseToOrderRate();
-            if (empty($amountRate)) {
-                $amountRate = 1;
-            }
-
-            $shipAmount = isset($postParams['creditmemo']['shipping_amount']) ? ((float)$postParams['creditmemo']['shipping_amount'] * $amountRate) : 0;
-            $adjustAmount = isset($postParams['creditmemo']['adjustment_positive']) ? ((float)$postParams['creditmemo']['adjustment_positive'] * $amountRate) : 0;
-            $adjustNegative = isset($postParams['creditmemo']['adjustment_negative']) ? ((float)$postParams['creditmemo']['adjustment_negative'] * $amountRate) : 0;
-
-            $taxAmount = 0;
-            if($shipAmount > 0 && !$this->configProvider->shippingPriceIncludesTax()) {
-                $shippingTax = $order->getShippingInclTax() - $order->getShippingAmount();
-                if($shippingTax > 0) {
-                    $shippingTaxPer =  $shippingTax/$order->getShippingAmount()*100;
-                    $taxAmount = $shipAmount*$shippingTaxPer/100;
-                }
-            }
-            $this->_helper->log("Shipping Tax amount: ".$taxAmount);
-
-            if($amount > 0) {
-                $orderTax = $order->getSubtotalInclTax() - $order->getSubtotal();
-                if($orderTax > 0) {
-                    $orderTaxPer =  $orderTax/$order->getSubtotal()*100;
-                    $taxAmount  += $amount*$orderTaxPer/100;
-                }
-            }
-            $this->_helper->log("Creditmemo with Shipping Tax amount : ".$taxAmount);
-
-            $amount += ($shipAmount - $order->getShippingDiscountAmount()) + $adjustAmount - $adjustNegative + $taxAmount;
+            $amount = $entity->getGrandTotal();
 
             if (( \Amazonpaymentservices\Fort\Model\Method\Naps::CODE == $paymentMethod) && $amount != $orderTotal) {
                 $this->_helper->log("\n\n Partial Refund is not allowed for this payment method(".$paymentMethod."). (order id: ".$postParams['order_id'].") \n\n");
@@ -207,7 +177,7 @@ class CreditmemoAddData
             
             $paymentMethod = $order->getPayment()->getMethod();
             if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
-                $orderIncrementId = $order->getApsValuRef();
+                $orderIncrementId = $this->_helper->getApsValuRefFromOrderParams($orderId);
             }
             $response = $this->_helper->apsRefund($orderIncrementId, $currencyCode, $amount, $paymentMethod, $order);
 
@@ -230,28 +200,6 @@ class CreditmemoAddData
             $creditMemoTotal += $adjustment;
         }
         return $creditMemoTotal;
-    }
-
-    private function getItemTotals($order, $postParams)
-    {
-        $amount = 0;
-        foreach ($order->getAllItems() as $item) {
-            $itemData = $item->getData();
-            $this->_helper->log("pre line item for refund ".json_encode($postParams['creditmemo']['items']));
-            $this->_helper->log("line item for refund ".json_encode($itemData));
-            if (!empty($postParams['creditmemo']['items'][$itemData['item_id']]['qty'])) {
-                $this->_helper->log("child item price ".json_encode($itemData['price']));
-                $this->_helper->log("child item qty ".json_encode($postParams['creditmemo']['items'][$itemData['item_id']]['qty']));
-                $amount += $itemData['price'] * $postParams['creditmemo']['items'][$itemData['item_id']]['qty'];
-                if(!empty($itemData['discount_amount'])){
-                    $amount -= $itemData['discount_amount'];
-                    $this->_helper->log("amount after discount ".json_encode($amount));
-                }
-            } 
-            $this->_helper->log("amount at items iteration:".$amount);
-        }
-        return $amount;
-    
     }
 
     private function getAuthoriseAmount($orderIncrementId)

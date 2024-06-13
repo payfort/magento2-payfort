@@ -2,6 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -21,7 +22,7 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
     {
         return true;
     }
-    
+
     public function execute()
     {
         $paymentOption = $this->getRequest()->getParam('payment_option');
@@ -30,7 +31,7 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
         $order = $this->getOrderById($orderId);
         $helper = $this->getHelper();
         $helper->log('Request Param:'.json_encode($responseParams));
-        
+
         $connection = $helper->_connection->getConnection();
 
         $integrationType = $helper::INTEGRATION_TYPE_REDIRECTION;
@@ -44,6 +45,12 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
                 $returnUrl = $helper->getUrl('checkout/onepage/success');
             } else {
                 $returnUrl = $this->getHelper()->getUrl('checkout/cart');
+
+                $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
+
+                if ($orderAfterPayment === OrderOptions::DELETE_ORDER && !$helper->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
+                    $helper->deleteOrder($order);
+                }
             }
         }
 
@@ -51,7 +58,7 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
         $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
         $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
         $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
-        
+
         $this->orderRedirect($returnUrl);
     }
 
@@ -67,15 +74,9 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
     private function getOrderId($orderId)
     {
         if (empty($orderId)) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $orderCollectionFactory = $objectManager->get('\Magento\Sales\Model\ResourceModel\Order\CollectionFactory');
-            $collections = $orderCollectionFactory->create()
-                ->addAttributeToSelect('*')
-                ->addFieldToFilter('aps_stc_ref', ['eq'=>$this->getRequest()->getParam('merchant_reference')]);
-            foreach ($collections as $collection) {
-                $orderId = $collection->getIncrementId();
-            }
+            return $this->getHelper()->getApsParamsIncrementIdByReference('aps_stc_ref', $this->getRequest()->getParam('merchant_reference'));
         }
+
         return $orderId;
     }
 

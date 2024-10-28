@@ -8,7 +8,7 @@ use Magento\Framework\Event\ObserverInterface;
 
 /**
  * Amazonpaymentservices Shortcut button
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -60,9 +60,8 @@ class AddApsShortcuts implements ObserverInterface
                 if (!$observer->getData('is_shopping_cart') || 1) {
                     $shortcut = $shortcutButtons->getLayout()
                         ->createBlock($this->buttonBlocks[self::APS_MINICART_ALIAS]);
+                    $shortcutButtons->addShortcut($shortcut);
                 }
-
-                $shortcutButtons->addShortcut($shortcut);
             }
         }
     }

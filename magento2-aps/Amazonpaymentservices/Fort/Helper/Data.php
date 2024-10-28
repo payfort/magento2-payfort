@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Payment Helper
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -33,7 +33,7 @@ use Magento\Framework\DB\TransactionFactory;
 
 /**
  * Amazonpaymentservices Payment Helper
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -393,7 +393,7 @@ class Data extends \Magento\Payment\Helper\Data
 
     public function isApsPaymentMethod($paymentMethod)
     {
-        if (preg_match('#^aps\_fort\_#', $paymentMethod)) {
+        if (preg_match('#^aps\_#', $paymentMethod)) {
             return true;
         }
         return false;
@@ -507,10 +507,10 @@ class Data extends \Magento\Payment\Helper\Data
         $signature = $this->calculateSignature($this->_gatewayParams, 'request');
         $this->_gatewayParams['signature'] = $signature;
         if ($paymentMethod == self::PAYMENT_METHOD_INSTALLMENT && $integrationType == self::INTEGRATION_TYPE_HOSTED) {
-            $this->_gatewayParams['remember_me'] = isset($postData['rememberMe']) ? $postData['rememberMe'] : 'NO';
+            $this->_gatewayParams['remember_me'] = $postData['rememberMe'] ?? 'NO';
         }
         if ($paymentMethod == self::PAYMENT_METHOD_CC && $integrationType == self::INTEGRATION_TYPE_HOSTED && $this->getConfig('payment/aps_installment/integration_type') == self::INTEGRATION_TYPE_EMBEDED) {
-            $this->_gatewayParams['remember_me'] = isset($postData['rememberMe']) ? $postData['rememberMe'] : 'NO';
+            $this->_gatewayParams['remember_me'] = $postData['rememberMe'] ?? 'NO';
         }
 
         $gatewayUrl = $this->getGatewayUrl();
@@ -739,7 +739,7 @@ class Data extends \Magento\Payment\Helper\Data
             $model->setUpdatedAt(date('Y-m-d H:i:s'));
             $model->save();
 
-            $discountAmount = $order->getBaseDiscountAmount();
+            $discountAmount = (float)$order->getBaseDiscountAmount();
             $orderData = $cart;
             $shippingAmount = (float)$orderData->getShippingAmount();
 
@@ -754,7 +754,7 @@ class Data extends \Magento\Payment\Helper\Data
             $currency = $this->_storeManager->getStore()->getCurrentCurrencyCode();
             $items = $cart->getAllItems();
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
-            $taxAmount = $order->getTaxAmount();
+            $taxAmount = (float)$order->getTaxAmount();
             $products = $this->getValuProductsArr($items, $shippingAmount, $taxAmount, $discountAmount);
             $language = $this->getLanguage();
             $include_installments = 'YES';
@@ -812,9 +812,9 @@ class Data extends \Magento\Payment\Helper\Data
      * Get Valu Product Arr to get product array
      *
      * @param array $items
-     * @param decimal $shippingAmount
-     * @param decimal $taxAmount
-     * @param decimal $discountAmount
+     * @param float $shippingAmount
+     * @param float $taxAmount
+     * @param float $discountAmount
      * @return array
      */
     private function getValuProductsArr($items, $shippingAmount, $taxAmount, $discountAmount)
@@ -1090,9 +1090,7 @@ class Data extends \Magento\Payment\Helper\Data
         $logMsg = "Request Params for payment method (Intallment Hosted) \n\n" . json_encode($gatewayParams, 1);
         $this->log($logMsg);
 
-        $response = $this->callApi($gatewayParams, $gatewayUrl);
-
-        return $response;
+        return $this->callApi($gatewayParams, $gatewayUrl);
     }
 
     public function getPaymentPageRedirectData($order)
@@ -1489,8 +1487,9 @@ class Data extends \Magento\Payment\Helper\Data
 
     /**
      * calculate fort signature
-     * @param array $arr_data
-     * @param sting $sign_type request or response
+     * @param $arrData
+     * @param string $signType request or response
+     * @param string $type
      * @return string fort signature
      */
     public function calculateSignature($arrData, $signType = 'request', $type = '')
@@ -1575,7 +1574,7 @@ class Data extends \Magento\Payment\Helper\Data
      * Convert Amount with dicemal points
      * @param object $order
      * @param string  $currencyCode
-     * @return decimal
+     * @return float
      */
     public function convertFortAmount($order, $currencyCode)
     {
@@ -1589,15 +1588,14 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $decimal_points = $this->getCurrencyDecimalPoint($currencyCode);
         $new_amount     = round($amount, $decimal_points);
-        $new_amount     = $new_amount * (pow(10, $decimal_points));
-        return $new_amount;
+        return $new_amount * (pow(10, $decimal_points));
     }
 
     /**
-     * Convert Amount with dicemal points
-     * @param object $order
+     * Convert Amount with decimal points
+     * @param mixed  $amount
      * @param string  $currencyCode
-     * @return decimal
+     * @return float
      */
     public function convertRevAmount($amount, $currencyCode)
     {
@@ -1608,10 +1606,10 @@ class Data extends \Magento\Payment\Helper\Data
     }
 
     /**
-     * Convert Amount with dicemal points
-     * @param object $order
+     * Convert Amount with decimal points
+     * @param mixed $amount
      * @param string  $currencyCode
-     * @return decimal
+     * @return float
      */
     public function convertAmount($amount, $currencyCode)
     {
@@ -1619,15 +1617,14 @@ class Data extends \Magento\Payment\Helper\Data
 
         $decimal_points = $this->getCurrencyDecimalPoint($currencyCode);
         $new_amount     = round($amount, $decimal_points);
-        $new_amount     = $new_amount * (pow(10, $decimal_points));
-        return $new_amount;
+        return $new_amount * (pow(10, $decimal_points));
     }
 
     /**
      * Convert decimal point Amount with original amount
-     * @param decimal $amount
+     * @param float $amount
      * @param string  $currencyCode
-     * @return decimal
+     * @return float
      */
     public function convertDecAmount($amount, $currencyCode)
     {
@@ -1654,13 +1651,12 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $decimal_points = $this->getCurrencyDecimalPoint($currencyCode);
         $new_amount     = round((float)$amount, $decimal_points);
-        $new_amount     = $new_amount * (pow(10, $decimal_points));
-        return $new_amount;
+        return $new_amount * (pow(10, $decimal_points));
     }
 
     /**
      * @param string $currency
-     * @param integer
+     * @return integer
      */
     public function getCurrencyDecimalPoint($currency)
     {
@@ -1742,7 +1738,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $language = $this->_localeResolver->getLocale();
 
-        if (substr($language, 0, 2) == 'ar') {
+        if (str_starts_with($language, 'ar')) {
             $language = 'ar';
         } else {
             $language = 'en';
@@ -1753,13 +1749,14 @@ class Data extends \Magento\Payment\Helper\Data
     /**
      * Restores quote
      *
-     * @return bool
+     * @return void
      */
     public function restoreQuote($order = null)
     {
         if (!$order) {
-            return false;
+            return;
         }
+
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $_checkoutSession = $objectManager->create('\Magento\Checkout\Model\Session');
         $_quoteFactory = $objectManager->create('\Magento\Quote\Model\QuoteFactory');
@@ -1860,7 +1857,7 @@ class Data extends \Magento\Payment\Helper\Data
     /**
      * Cancel order with specified comment message
      *
-     * @return Mixed
+     * @return bool
      */
     public function cancelOrder($order, $comment)
     {
@@ -2130,8 +2127,7 @@ class Data extends \Magento\Payment\Helper\Data
         $data['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $result = $this->callApi($data, $gatewayUrl);
-        return $result;
+        return $this->callApi($data, $gatewayUrl);
     }
 
     public function checkOrderStatus($orderId, $paymentMethod = '')
@@ -2157,8 +2153,7 @@ class Data extends \Magento\Payment\Helper\Data
         $data['signature'] = $this->calculateSignature($data, 'request', $type);
         $this->log('APS verify order request:'. json_encode($data));
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $result = $this->callApi($data, $gatewayUrl);
-        return $result;
+        return $this->callApi($data, $gatewayUrl);
     }
 
     public function processOrder($order, $responseParams)
@@ -2287,7 +2282,7 @@ class Data extends \Magento\Payment\Helper\Data
     /**
      * @return \Magento\Sales\Model\Order\Invoice
      */
-    private function createInvoice(&$order, $responseParams)
+    private function createInvoice($order, $responseParams)
     {
         if (!$order->hasInvoices()) {
             $invoice = $order->prepareInvoice();
@@ -2296,6 +2291,10 @@ class Data extends \Magento\Payment\Helper\Data
             $order->addRelatedObject($invoice);
             return $invoice;
         }
+
+        // return the first invoice
+        $invoiceCollection = $order->getInvoiceCollection();
+        return array_pop($invoiceCollection);
     }
 
     private function sendInvoiceEmail(\Magento\Sales\Model\Order\Invoice $invoice)
@@ -2320,13 +2319,15 @@ class Data extends \Magento\Payment\Helper\Data
      */
     public function getOrderById($order_id)
     {
-        $order_info = $this->_order->loadByIncrementId($order_id);
-        return $order_info;
+        return $this->_order->loadByIncrementId($order_id);
     }
 
     /**
      * @param array  $fortParams
-     * @param string integrationType
+     * @param string $responseMode
+     * @param string $integrationType
+     * @param string $responseSource
+     *
      * @retrun boolean
      */
     public function handleFortResponse($fortParams = [], $responseMode = 'online', $integrationType = self::INTEGRATION_TYPE_REDIRECTION, $responseSource = '')
@@ -2348,7 +2349,7 @@ class Data extends \Magento\Payment\Helper\Data
                 return false;
             }
 
-            if (!isset($responseParams['merchant_reference']) || empty($responseParams['merchant_reference'])) {
+            if (empty($responseParams['merchant_reference'])) {
                 $responseMessage = "Merchant Reference not found\n\n" . json_encode($responseParams, 1);
                 $this->log($responseMessage);
                 $this->restoreQuote($order);
@@ -2531,8 +2532,9 @@ class Data extends \Magento\Payment\Helper\Data
         if ($r) {
             $this->restoreQuote($order);
             $this->_messageManager->addError($responseMessage);
-            return false;
         }
+
+        return false;
     }
 
     private function errorReponse($responseCode, $order, $responseStatusMessage)
@@ -2562,6 +2564,8 @@ class Data extends \Magento\Payment\Helper\Data
                 return false;
             }
         }
+
+        return false;
     }
 
     private function checkHostToHost($responseCode, $responseParams)
@@ -2759,8 +2763,8 @@ class Data extends \Magento\Payment\Helper\Data
                 $creditmemoRecords = $creditmemos->getItems();
                 $creditMemoTotal1 = 0;
                 $flag = 0;
-                foreach ($creditmemos as $creditmemo) {
-                    $adjustment = $creditmemo->getBaseGrandTotal();
+                foreach ($creditmemos as $_creditmemo) {
+                    $adjustment = $_creditmemo->getBaseGrandTotal();
 
                     $creditMemoTotal1 += $adjustment;
                 }
@@ -2903,6 +2907,8 @@ class Data extends \Magento\Payment\Helper\Data
             foreach ($newOrder->getAllItems() as $item) {
                 $this->saveSubscriptionData($item, $apsSubEnabled, $apsSubInterval, $apsSubIntervalCount, $subscriptionOrderId, $status, $newOrder);
             }
+
+            return true;
         } catch (\Exception $e) {
             $order->addStatusHistoryComment('APS :: Failed to create child order.', true);
             $order->save();
@@ -3062,7 +3068,7 @@ class Data extends \Magento\Payment\Helper\Data
         } catch (\Exception $e) {
             $order->addStatusHistoryComment('APS :: Failed to create child order.', true);
             $order->save();
-            $this->cancelSubscription($subscriptionOrderId);
+            $this->cancelSubscription($order->getId());
             $this->log("Cron Job API failed for Order:".$order->getId());
             $this->log($e->getMessage());
             return $responseParams;
@@ -3212,8 +3218,7 @@ class Data extends \Magento\Payment\Helper\Data
         $data['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
         $this->log(json_encode($data));
-        $responseParams = $this->callApi($data, $gatewayUrl);
-        return $responseParams;
+        return $this->callApi($data, $gatewayUrl);
     }
 
     public function getStcPaymentRequestParams($order, $postData = [])

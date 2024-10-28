@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Payment Apple Model
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -20,7 +20,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 
 /**
  * Amazonpaymentservices Payment Apple Model
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -183,12 +183,11 @@ class CreditmemoAddData
 
             if ($response['response_code'] != '06000') {
                 throw new \Exception('Amazon Payment Service Error : '.$response['response_message']);
-                
-            } elseif ($response['response_code'] == '06000') {
-                $entity->setCustomerNote(json_encode($response));
-                $this->_messageManager->addSuccessMessage('Refund Initiated');
-                $this->_helper->log("\n\n 'Amazon Payment Service : ".$response['response_message']."\n\n");
             }
+
+            $entity->setCustomerNote(json_encode($response));
+            $this->_messageManager->addSuccessMessage('Refund Initiated');
+            $this->_helper->log("\n\n 'Amazon Payment Service : ".$response['response_message']."\n\n");
         }
     }
 

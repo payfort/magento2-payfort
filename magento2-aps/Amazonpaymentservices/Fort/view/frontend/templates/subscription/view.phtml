@@ -11,6 +11,7 @@ $subscriptionOrderDetails = $block->getSubscriptionItemDetail($orderId);
 
 if (!empty($subscriptionOrderDetails)) {
 
+    $currency = '';
     $allAmount = [];
     $subOrderDetail = null;
     $connection = $block->getConnection();
@@ -83,7 +84,9 @@ if (!empty($subscriptionOrderDetails)) {
 
                         <?php $orderCurrency = null;
                         $query = $connection->select()->from(['table'=>'sales_order'])->where('table.entity_id=?', $subscriptionOrderDetail['order_id']);
-                        $orderCurrency = $connection->fetchRow($query); ?>
+                        $orderCurrency = $connection->fetchRow($query);
+                        $currency = $orderCurrency['order_currency_code'];
+                        ?>
                         
                         <?php $itemDetail = null;
                         $query = $connection->select()->from(['table'=>'sales_order_item'])->where('table.item_id=?', $subscriptionOrderDetail['item_id']);
@@ -111,7 +114,7 @@ if (!empty($subscriptionOrderDetails)) {
                             <span class="price-excluding-tax" data-label="Excl. Tax">
                                 <span class="cart-price">
                                     <span class="price"><?= $orderCurrency['order_currency_code'].number_format($itemDetail['row_invoiced'], 2) ?></span>
-                                    <?php $currency = $orderCurrency['order_currency_code']; $allAmount[] = $itemDetail['row_invoiced'] ?>
+                                    <?php $allAmount[] = $itemDetail['row_invoiced'] ?>
                                 </span>
                             </span>
                         </td>
@@ -120,28 +123,12 @@ if (!empty($subscriptionOrderDetails)) {
             </tbody>
             
             <tfoot>
-                <!-- <tr class="subtotal">
-                    <th colspan="4" class="mark" scope="row">Subtotal</th>
-                    <td class="amount" data-th="Subtotal"><span class="price">EGP29,754.84</span></td>
-                </tr>
-                <tr class="shipping">
-                    <th colspan="4" class="mark" scope="row">Shipping &amp; Handling</th>
-                    <td class="amount" data-th="Shipping &amp; Handling"><span class="price">EGP521.80</span></td>
-                </tr> -->
                 <?php if (!empty($allAmount)) { ?>
                     <tr class="grand_total">
                         <th colspan="5" class="mark" scope="row"><strong>Grand Total</strong></th>
                         <td class="amount" data-th="Grand Total"><strong><span class="price"><?= $currency.number_format(array_sum($allAmount), 2)?></span></strong></td>
                     </tr>
                 <?php }?>
-                <!-- <tr class="totals-tax">
-                    <th colspan="4" class="mark" scope="row">Tax</th>
-                    <td class="amount" data-th="Tax"><span class="price">EGP297.55</span></td>
-                </tr>
-                <tr class="base_grandtotal">
-                    <th colspan="4" class="mark" scope="row">Grand Total to be Charged</th>
-                    <td class="amount" data-th="Grand Total to be Charged"><span class="price">KWD585.93</span></td>
-                </tr> -->
             </tfoot>
 
         </table>

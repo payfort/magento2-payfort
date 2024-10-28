@@ -119,7 +119,7 @@ use Magento\Framework\App\Action\Action;
                                             <?php if ($showCart): ?>
                                                 <div class="actions-primary">
                                                     <?php if ($_item->isSaleable()): ?>
-                                                        <?php if (!$isRecurringEnabled || $isSubscriptionsProduct == false || ($isSubscriptionsProduct == true && $isLoggedIn)): ?>
+                                                        <?php if (!$isRecurringEnabled || !$isSubscriptionsProduct || ($isLoggedIn)): ?>
                                                             <?php $postParams = $block->getAddToCartPostParams($_item); ?>
                                                             <form data-role="tocart-form" data-product-sku="<?= $block->escapeHtmlAttr($_item->getSku()) ?>" action="<?= $block->escapeUrl($postParams['action']) ?>" method="post">
                                                                 <input type="hidden" name="product" value="<?= $block->escapeHtmlAttr($postParams['data']['product']) ?>">

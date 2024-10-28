@@ -3,10 +3,8 @@ var apsFort = (function () {
         validateCardHolderName: function (element) {
             jQuery(element).val(this.trimString(element.val()));
             var cardHolderName = jQuery(element).val();
-            if (cardHolderName.length > 50) {
-                return false;
-            }
-            return true;
+            return cardHolderName.length <= 50;
+
         },
         translate: function (key, category, replacments) {
             if (!this.isDefined(category)) {
@@ -21,10 +19,7 @@ var apsFort = (function () {
             return message;
         },
         isDefined: function (variable) {
-            if (typeof (variable) === 'undefined' || typeof (variable) === null) {
-                return false;
-            }
-            return true;
+            return !(typeof (variable) === 'undefined' || typeof (variable) === null);
         },
         isTouchDevice: function () {
             return 'ontouchstart' in window        // works on most browsers

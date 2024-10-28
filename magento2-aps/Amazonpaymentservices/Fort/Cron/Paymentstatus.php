@@ -44,12 +44,12 @@ class Paymentstatus
     {
         $this->_logger->debug('APS Cron');
 
-        $cronConfig = $this->_helper->getConfig('payment/aps_fort_cron/interval');
+        $cronConfig = (int)$this->_helper->getConfig('payment/aps_fort_cron/interval');
 
         $date = date("Y-m-d H:i:s");
         $time = strtotime($date);
         $time = $time - ($cronConfig * 60);
-        $date = date("Y-m-d H:i:s", $time);
+        $date = date("Y-m-d H:i:s", (int)$time);
 
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $orders = $this->_order
@@ -68,12 +68,12 @@ class Paymentstatus
             if (in_array($order->getPayment()->getMethod(), $this->_methodCodes)) {
                 $this->orderUpdate($order);
             }
-        };
+        }
 
         return $this;
     }
 
-    private function Orderupdate($order)
+    private function orderUpdate($order)
     {
         $this->_logger->debug('APS Cron pending order : '.$order->getIncrementId());
         $paymentMethod = $order->getPayment()->getMethod();

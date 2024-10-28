@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Visa Checkout Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -22,7 +22,7 @@ use Magento\Framework\Controller\ResultFactory;
 
 /**
  * Amazonpaymentservices Visa Checkout Page Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -61,7 +61,7 @@ class VisaCheckoutResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         $success = '';
         if (!empty($responseParams['response_code']) && $responseParams['response_code'] == \Amazonpaymentservices\Fort\Model\Payment::PAYMENT_STATUS_3DS_CHECK && isset($responseParams['3ds_url'])) {
             $success = $helper->handleFortResponse($responseParams, 'online', $integrationType, 'h2h');
-            if (isset($success['redirect']) && $success['redirect'] == true) {
+            if (isset($success['redirect']) && $success['redirect'] === true) {
                 $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
@@ -94,5 +94,7 @@ class VisaCheckoutResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         $helper->log('Checkout Session Data3:'.$this->_checkoutSession->getLastSuccessQuoteId());
         $helper->log('Checkout Session order Id Data3:'.$this->_checkoutSession->getLastRealOrderId());
         $this->orderRedirect($returnUrl);
+
+        return true;
     }
 }

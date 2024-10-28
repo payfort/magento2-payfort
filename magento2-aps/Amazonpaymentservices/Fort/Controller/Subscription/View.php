@@ -2,7 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Subscription;
 
-use \Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Action\Context;
@@ -16,6 +16,9 @@ class View extends \Magento\Framework\App\Action\Action
 
     private $resultPageFactory;
     public $_storeManager;
+    protected $_messageManager;
+    protected $currentCustomer;
+
 
     public function __construct(
         Context $context,

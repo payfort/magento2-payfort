@@ -2,7 +2,7 @@
 
 /**
  * Before Order Place Observer
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices_Fort
@@ -14,11 +14,12 @@
 
 namespace Amazonpaymentservices\Fort\Observer;
 
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 
 /**
  * Before Order Place Observer
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -42,11 +43,11 @@ class BeforeOrderPlaceObserver implements ObserverInterface
     {
         $this->helper = $helper;
     }
-    
+
     /**
      * Update items stock status and low stock date.
      *
-     * @param EventObserver $observer observer
+     * @param Observer $observer observer
      *
      * @return void
      */

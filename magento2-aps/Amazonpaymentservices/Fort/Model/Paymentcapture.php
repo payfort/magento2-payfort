@@ -21,7 +21,6 @@ class Paymentcapture extends \Magento\Framework\Model\AbstractModel implements \
 
     public function getDefaultValues()
     {
-        $values = [];
-        return $values;
+        return [];
     }
 }

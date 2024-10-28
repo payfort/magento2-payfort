@@ -1,6 +1,7 @@
 <?php
 namespace Amazonpaymentservices\Fort\Controller\Adminhtml\Payment;
  
+use Amazonpaymentservices\Fort\Model\PaymentcaptureFactory;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
@@ -16,11 +17,12 @@ class Capture extends Action
      * @var Data
      */
     protected $helper;
- 
+
     /**
      * @param Context $context
      * @param JsonFactory $resultJsonFactory
      * @param Data $helper
+     * @param PaymentcaptureFactory $paymentCaptureFactory
      */
     public function __construct(
         Context $context,

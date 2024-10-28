@@ -76,7 +76,7 @@ class StcResponseOnline extends \Amazonpaymentservices\Fort\Controller\Checkout 
                         'customer_id' => $order->getCustomerId(),
                         'order_increment_id' => $order->getIncrementId(),
                         'token_name' => $responseParams['token_name'],
-                        'phone_number' => isset($responseParams["phone_number"]) ? $responseParams["phone_number"] : '',
+                        'phone_number' => $responseParams["phone_number"] ?? '',
                         'added_date' => date('Y-m-d H:i:s'),
                     ]
                 );

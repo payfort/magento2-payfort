@@ -71,30 +71,31 @@
                 </label>
             </div>
 
-        <fieldset class="fieldset" data-bind='attr: {id: "payment_form_" + getCode()}'>
-            <div class="payment-method-note">
-                <span data-bind="html: getInstructions()"></span>
+            <fieldset class="fieldset" data-bind='attr: {id: "payment_form_" + getCode()}'>
+                <div class="payment-method-note">
+                    <span data-bind="html: getInstructions()"></span>
+                </div>
+            </fieldset>
+            <div class="checkout-agreements-block">
+            <!-- ko foreach: $parent.getRegion('before-place-order') -->
+            <!-- ko template: getTemplate() -->
+            <!-- /ko -->
+            <!--/ko-->
             </div>
-        </fieldset>
-        <div class="checkout-agreements-block"> 
-        <!-- ko foreach: $parent.getRegion('before-place-order') -->
-        <!-- ko template: getTemplate() -->
-        <!-- /ko --> 
-        <!--/ko-->
-        </div>
-        <div class="actions-toolbar">
-            <div class="primary">
-                <button class="action primary checkout"
-                        type="submit"
-                        data-bind="
-                        click: preparePayment,
-                        attr: {title: $t('Place Order')},
-                        css: {disabled: false},
-                        enable: (getCode() == isChecked())
-                        "
-                        disabled>
-                    <span data-bind="text: $t('Place Order')"></span>
-                </button>
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button class="action primary checkout"
+                            type="submit"
+                            data-bind="
+                            click: preparePayment,
+                            attr: {title: $t('Place Order')},
+                            css: {disabled: false},
+                            enable: (getCode() == isChecked())
+                            "
+                            disabled>
+                        <span data-bind="text: $t('Place Order')"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

@@ -2,6 +2,10 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Helper\Data;
+use Amazonpaymentservices\Fort\Model\Payment;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -10,6 +14,8 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Filesystem\DirectoryList as FileSystem;
+use Magento\Sales\Model\Order\Config;
+use Magento\Vault\Model\ResourceModel\PaymentToken;
 
 class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
@@ -57,11 +63,15 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
     protected $_customerSession;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context,
-     * @param \Magento\Checkout\Model\Session $checkoutSession,
-     * @param \Magento\Sales\Model\Order\Config $orderConfig,
-     * @param \Amazonpaymentservices\Fort\Model\Payment $apsModel,
-     * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort
+     * @param Context $context ,
+     * @param Session $checkoutSession ,
+     * @param Config $orderConfig ,
+     * @param Payment $apsModel ,
+     * @param Data $helperFort
+     * @param JsonFactory $resultJsonFactory
+     * @param FileSystem $fileSystem
+     * @param PaymentToken $paymentToken
+     * @param \Magento\Customer\Model\Session $customerSession
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -163,7 +173,7 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
             $data['installment_detail']['issuer_detail'] = array_filter(
                 $data['installment_detail']['issuer_detail'],
                 function ($row) {
-                    return !empty($row['plan_details']) ? true : false;
+                    return !empty($row['plan_details']);
                 }
             );
             if (empty($data['installment_detail']['issuer_detail'])) {
@@ -200,7 +210,7 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
     /**
      * Find bin in plans
      *
-     * @return issuer_key int
+     * @return int|string|null int
      */
     private function findBinInPlans($cardNumber, $issuerData)
     {
@@ -230,14 +240,14 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
             $all_plans      = $response['installment_data']['plan_details'];
             $banking_system = $response['installment_data']['banking_system'];
             $interest_text  = 'Non Islamic' === $banking_system ? __('Interest') : __('Profit Rate');
-            $plansArr     = [];
+            $planArr     = [];
             $x = 0;
             if (!empty($all_plans)) {
                 foreach ($all_plans as $key => $plan) {
                     $baseCurrency = $this->_helper->getBaseCurrency();
                     $currencyCurrency = $this->_helper->getFrontCurrency();
                     $currency = $this->_helper->getFortCurrency($baseCurrency, $currencyCurrency);
-                    $interest      = $this->_helper->convertDecAmount($plan['fee_display_value'], $currency);
+                    $interest      = $this->_helper->convertDecAmount((float)$plan['fee_display_value'], $currency);
                     $interest_info = $interest . ( 'Percentage' === $plan['fees_type'] ? '%' : '' ) . ' ' . $interest_text;
                     $planArr[$x]['interest_info'] = $interest_info;
                     $planArr[$x]['amountPerMonth'] = $plan['amountPerMonth'];

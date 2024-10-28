@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Merchant Page Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -21,7 +21,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 
 /**
  * Amazonpaymentservices Merchant Page Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -53,7 +53,7 @@ class MerchantPageVaultResponse extends \Amazonpaymentservices\Fort\Controller\C
         $success = '';
         if ($responseParams['response_code'] == \Amazonpaymentservices\Fort\Model\Payment::PAYMENT_STATUS_3DS_CHECK && isset($responseParams['3ds_url'])) {
             $success = $helper->handleFortResponse($responseParams, 'online', $integrationType, 'h2h');
-            if (isset($success['redirect']) && $success['redirect'] == true) {
+            if (isset($success['redirect']) && $success['redirect'] === true) {
                 $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
@@ -61,7 +61,7 @@ class MerchantPageVaultResponse extends \Amazonpaymentservices\Fort\Controller\C
             }
         } elseif ($paymentMethod == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_CC || $paymentMethod == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_INSTALLMENT || $paymentMethod == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_VAULT) {
             $success = $helper->handleFortResponse($responseParams, 'offline', $integrationType);
-            if (isset($success['redirect']) && $success['redirect'] == true) {
+            if (isset($success['redirect']) && $success['redirect'] === true) {
                 $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
@@ -90,5 +90,7 @@ class MerchantPageVaultResponse extends \Amazonpaymentservices\Fort\Controller\C
         $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
 
         $this->orderRedirect($returnUrl);
+
+        return true;
     }
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * APS Visa Checkout Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category APS
  * @package  APS
@@ -20,7 +20,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 
 /**
  * Amazonpaymentservices Visa Checkout Page Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3

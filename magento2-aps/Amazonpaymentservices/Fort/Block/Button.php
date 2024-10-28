@@ -8,7 +8,9 @@ namespace Amazonpaymentservices\Fort\Block;
 
 use Magento\Catalog\Block\ShortcutInterface;
 use Magento\Checkout\Model\Session;
+use Magento\Directory\Model\Country;
 use Magento\Framework\Locale\ResolverInterface;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Payment\Model\MethodInterface;
@@ -16,6 +18,7 @@ use Amazonpaymentservices\Fort\Helper\Data as apsHelper;
 use Amazonpaymentservices\Fort\Helper\Aps as aps;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class Button
@@ -88,6 +91,12 @@ class Button extends Template implements ShortcutInterface
      * @param ResolverInterface $localeResolver
      * @param Session $checkoutSession
      * @param MethodInterface $payment
+     * @param apsHelper $apsHelper
+     * @param aps $aps
+     * @param StoreManagerInterface $storeManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param Registry $frameworkRegistry
+     * @param Country $countryFactory
      * @param array $data
      */
     public function __construct(
@@ -207,11 +216,10 @@ class Button extends Template implements ShortcutInterface
 
     public function getCountryCode()
     {
-        $country = $this->_scopeConfig->getValue(
+        return $this->_scopeConfig->getValue(
             self::COUNTRY_CODE_PATH,
             ScopeInterface::SCOPE_WEBSITES
         );
-        return $country;
     }
 
     public function getAppleCancelUrl()
@@ -221,8 +229,7 @@ class Button extends Template implements ShortcutInterface
 
     public function getCurrentProduct()
     {
-        $product = $this->_frameworkRegistry->registry('current_product');
-        return $product;
+        return $this->_frameworkRegistry->registry('current_product');
     }
 
     public function getCurrenctCurrencyCode()

@@ -14,62 +14,91 @@
     display: block !important;
 }
 
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-buy {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: buy;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-donate {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: donate;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-plain {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: plain;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-set-up {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: set-up;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-book {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: book;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-check-out {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: check-out;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-subscribe {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: subscribe;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-add-money {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: add-money;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-contribute {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: contribute;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-order {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: order;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-reload {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: reload;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-rent {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: rent;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-support {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: support    ;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-tip {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: tip;
 }
+
+/*noinspection CssInvalidPropertyValue,CssUnknownProperty*/
 .apple-pay-top-up {
     -webkit-appearance: -apple-pay-button;
     -apple-pay-button-type: top-up;

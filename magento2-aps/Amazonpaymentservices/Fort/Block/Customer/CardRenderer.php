@@ -56,9 +56,7 @@ class CardRenderer extends AbstractCardRenderer
      */
     public function getIconUrl()
     {
-        $type = $this->getTokenDetails()['type'];
-        
-        return  $type;
+        return $this->getTokenDetails()['type'];
     }
 
     /**

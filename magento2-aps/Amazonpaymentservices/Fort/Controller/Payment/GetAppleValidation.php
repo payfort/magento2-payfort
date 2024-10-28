@@ -2,14 +2,20 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Helper\Data;
+use Amazonpaymentservices\Fort\Model\Payment;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
+use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Filesystem\DirectoryList as FileSystem;
+use Magento\Sales\Model\Order\Config;
 
 class GetAppleValidation extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
@@ -52,11 +58,14 @@ class GetAppleValidation extends \Magento\Framework\App\Action\Action implements
     protected $_driver;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context,
-     * @param \Magento\Checkout\Model\Session $checkoutSession,
-     * @param \Magento\Sales\Model\Order\Config $orderConfig,
-     * @param \Amazonpaymentservices\Fort\Model\Payment $apsModel,
-     * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort
+     * @param Context $context ,
+     * @param Session $checkoutSession ,
+     * @param Config $orderConfig ,
+     * @param Payment $apsModel ,
+     * @param Data $helperFort
+     * @param JsonFactory $resultJsonFactory
+     * @param FileSystem $fileSystem
+     * @param ReadFactory $driver
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

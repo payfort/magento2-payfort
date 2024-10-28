@@ -412,8 +412,7 @@ define(
                     }
                     var expYear = cardInfo.expirationYear;
                     expYear = expYear.substr(expYear.length - 2);
-                    var expiryDate = expYear+''+expMonth;
-                    cardInfo.expiryDate = expiryDate;
+                    cardInfo.expiryDate = expYear+''+expMonth;
                     
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_installment.ajaxUrl,

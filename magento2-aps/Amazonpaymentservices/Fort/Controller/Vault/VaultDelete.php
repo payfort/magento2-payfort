@@ -41,7 +41,8 @@ class VaultDelete extends \Magento\Framework\App\Action\Action implements CsrfAw
      * @param \Magento\Framework\App\Action\Context $context,
      * @param \Magento\Checkout\Model\Session $checkoutSession,
      * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort,
-     * @param \Magento\Framework\Controller\Result\JsonFactory,
+     * @param \Magento\Vault\Model\ResourceModel\PaymentToken $paymentToken
+     * @param \Magento\Customer\Model\Session $modelSession,
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

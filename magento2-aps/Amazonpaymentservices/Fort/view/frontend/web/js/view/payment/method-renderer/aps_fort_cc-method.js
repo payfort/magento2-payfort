@@ -48,7 +48,7 @@ define(
             },
             getTitle: function () {
                 if (window.checkoutConfig.payment.apsFort.aps_fort_cc.mada == 'yes' || window.checkoutConfig.payment.apsFort.aps_fort_cc.meeza == 'yes') {
-                    return $.mage.__('mada debit card / Credit Cards');
+                    return $.mage.__('mada debit card / Credit Cards / Apple Pay');
                 }
                 return window.checkoutConfig.payment.apsFort.aps_fort_cc.title
             },
@@ -147,7 +147,7 @@ define(
                                 $('#'+formId).submit();
                                 return false;
                             } else {
-                                msg = response.error_messages;
+                                let msg = response.error_messages;
                                 if (typeof (msg) === 'object') {
                                     alert({
                                         content: msg.join("\n")
@@ -192,7 +192,7 @@ define(
                                 $('#'+formId).submit();
                                 return false;
                             } else {
-                                msg = response.error_messages;
+                                let msg = response.error_messages;
                                 if (typeof (msg) === 'object') {
                                     alert({
                                         content: msg.join("\n")

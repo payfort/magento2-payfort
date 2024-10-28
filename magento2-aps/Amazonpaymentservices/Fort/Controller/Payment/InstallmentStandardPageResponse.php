@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Installment Standard Page Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -21,7 +21,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 
 /**
  * Amazonpaymentservices Installment Standard Page Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -89,5 +89,7 @@ class InstallmentstandardPageResponse extends \Amazonpaymentservices\Fort\Contro
         } else {
             $this->orderRedirect($returnUrl);
         }
+
+        return false;
     }
 }

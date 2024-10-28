@@ -2,6 +2,11 @@
 
 namespace Amazonpaymentservices\Fort\Setup\Patch\Data;
 
+use Magento\Catalog\Setup\CategorySetupFactory;
+use Magento\Eav\Model\Entity\Attribute\SetFactory;
+use Magento\Eav\Model\Entity\TypeFactory;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute\Group\CollectionFactory;
+use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
@@ -42,6 +47,11 @@ class InitialInstall
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param CategorySetupFactory $categorySetupFactory
+     * @param TypeFactory $eavTypeFactory
+     * @param SetFactory $attributeSetFactory
+     * @param EavSetupFactory $eavSetupFactory
+     * @param CollectionFactory $groupCollectionFactory
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
@@ -180,8 +190,6 @@ class InitialInstall
         foreach ($setCollection as $attributeSet) {
             $this->updateAttributes($attributeSet, $attributeGroupName, $order);
         }
-
-        return true;
     }
 
     /**

@@ -7,7 +7,7 @@ use Magento\Framework\Event\ObserverInterface;
 
 /**
  * Amazonpaymentservices Shortcut button
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3

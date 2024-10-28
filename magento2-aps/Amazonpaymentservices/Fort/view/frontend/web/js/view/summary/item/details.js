@@ -15,11 +15,7 @@ define(
             },
             getApsProductSubscription: function (quoteItem) {
                 var item = this.getItem(quoteItem.item_id);
-                if (item.aps_product_subscription == true) {
-                    return true;
-                } else {
-                    return false;
-                }
+                return item.aps_product_subscription == true;
             },
             getApsProductSubscriptionFrequency: function (quoteItem) {
                 var item = this.getItem(quoteItem.item_id);

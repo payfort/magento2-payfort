@@ -1,8 +1,8 @@
 <?php
 namespace Amazonpaymentservices\Fort\Block\Subscription;
 
-use \Magento\Framework\App\ObjectManager;
-use \Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
+use Magento\Framework\App\ObjectManager;
+use Magento\Sales\Model\ResourceModel\Order\CollectionFactoryInterface;
 
 class SubscriptionList extends \Magento\Framework\View\Element\Template
 {
@@ -13,6 +13,7 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
     private $orderCollectionFactory;
     protected $_helper;
     protected $_countryFactory;
+    protected $order;
 
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -87,9 +88,7 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
         }
 
         $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.id IN(?)', $subOrderIds);
-        $subscriptionOrder = $this->_helper->fetchAllQuery($query);
-
-        return $subscriptionOrder;
+        return $this->_helper->fetchAllQuery($query);
     }
 
     public function getRelatedOrders($orderIncrementId)
@@ -100,15 +99,13 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
         $subOrderDetail = $this->_helper->fetchAllQuery($query);
         
         if (!empty($subOrderDetail)) {
-            $parentID = [];
+            $parentIds = [];
             foreach ($subOrderDetail as $subOrder) {
                 $parentIds[] = $subOrder['aps_subscription_id'];
             }
             
             $query = $connection->select()->from(['table'=>'aps_subscription_orders'])->where('table.aps_subscription_id IN(?)', $parentIds)->order(['table.created_at DESC']);
-            $subOrderDetails = $this->_helper->fetchAllQuery($query);
-            
-            return $subOrderDetails;
+            return $this->_helper->fetchAllQuery($query);
         } else {
             return [];
         }
@@ -117,45 +114,36 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
     public function getSubscriptionItemDetail($subOrderId)
     {
         $connection = $this->getConnection();
-        $subscriptionOrder = null;
         
         $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.id=?', $subOrderId);
-        $subscriptionOrder = $this->_helper->fetchAllQuery($query);
-        
-        return $subscriptionOrder;
+        return $this->_helper->fetchAllQuery($query);
     }
 
     public function getRelatedItems($subOrderId)
     {
         $connection = $this->getConnection();
-        $subOrderDetails = null;
 
         $query = $connection->select()->from(['table'=>'aps_subscription_orders'])->where('table.aps_subscription_id=?', $subOrderId)->order(['table.created_at DESC']);
-        $subOrderDetails = $this->_helper->fetchAllQuery($query);
-
-        return $subOrderDetails;
+        return $this->_helper->fetchAllQuery($query);
     }
 
     public function getOrder($orderId)
     {
         $order = ObjectManager::getInstance()->get('Magento\Sales\Api\Data\OrderInterface');
         $this->order = $order;
-        $order = $this->order->load($orderId);  // pass your order id here
-        return $order;
+        return $this->order->load($orderId);
     }
 
     public function getBillingAddress($orderId)
     {
         $order = $this->getOrder($orderId);
-        $billingAddress = $order->getBillingAddress()->getData();
-        return $billingAddress;
+        return $order->getBillingAddress()->getData();
     }
 
     public function getShippingAddress($orderId)
     {
         $order = $this->getOrder($orderId);
-        $shippingAddress = $order->getShippingAddress()->getData();
-        return $shippingAddress;
+        return $order->getShippingAddress()->getData();
     }
 
     public function getPaymentMethod($orderId)
@@ -163,42 +151,18 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
         $order = $this->getOrder($orderId);
         $payment = $order->getPayment();
         $method = $payment->getMethodInstance();
-        $methodTitle = $method->getTitle();
-        return $methodTitle;
+        return $method->getTitle();
     }
 
     public function fetchAllQuery($query)
     {
-        $queryResponse = $this->_helper->fetchAllQuery($query);
-        return $queryResponse;
+        return $this->_helper->fetchAllQuery($query);
     }
 
     public function fetchGetParams()
     {
-        $urlParams = $this->getRequest()->getParams();
-        return $urlParams;
+        return $this->getRequest()->getParams();
     }
-    
-    // protected function _prepareLayout()
-    // {
-    //     parent::_prepareLayout();
-    //     if ($this->getOrders()) {
-    //         $pager = $this->getLayout()->createBlock(
-    //             \Magento\Theme\Block\Html\Pager::class,
-    //             'sales.order.history.pager'
-    //         )->setCollection(
-    //             $this->getOrders()
-    //         );
-    //         $this->setChild('pager', $pager);
-    //         $this->getOrders()->load();
-    //     }
-    //     return $this;
-    // }
-    
-    // public function getPagerHtml()
-    // {
-    //     return $this->getChildHtml('pager');
-    // }
     
     public function getViewUrl($orderId)
     {

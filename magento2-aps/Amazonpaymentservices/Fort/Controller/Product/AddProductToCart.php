@@ -240,7 +240,7 @@ class AddProductToCart extends \Magento\Framework\App\Action\Action implements C
         $this->_helper->log('Apple Json : '.json_encode($data));
         $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         $resultJson->setData($data);
-        return $resultJson;;
+        return $resultJson;
     }
     public function getCacheLifetime()
     {

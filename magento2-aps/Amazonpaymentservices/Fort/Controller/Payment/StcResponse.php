@@ -67,8 +67,7 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
         $orderId = '';
         $sessionData = $this->_customerSession->getCustomValue();
         $orderId = $sessionData['orderId'];
-        $orderId = $this->getOrderId($orderId);
-        return $orderId;
+        return $this->getOrderId($orderId);
     }
 
     private function getOrderId($orderId)

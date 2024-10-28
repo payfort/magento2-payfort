@@ -2,7 +2,7 @@
 
 /**
  * Order after an unsuccessful payment options
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices_Fort

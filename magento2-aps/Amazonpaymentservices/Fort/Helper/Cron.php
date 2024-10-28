@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Payment Helper
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -35,7 +35,7 @@ use Magento\Store\Model\Store;
 
 /**
  * Amazonpaymentservices Payment Helper
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -145,6 +145,7 @@ class Cron extends \Magento\Payment\Helper\Data
      */
     public function createCronOrder($qty, $subscriptionOrderId, $orderIncrementedId, $itemId)
     {
+        $order = null;
         try {
             $order = $this->_helper->getOrderById($orderIncrementedId);
             $this->_helper->log('OrderID:'.$order->getId());
@@ -229,8 +230,10 @@ class Cron extends \Magento\Payment\Helper\Data
                     $tokenId, $tokenName, $remoteIp, $order);
             }
         } catch (Exception $e) {
-            $order->addStatusHistoryComment('APS :: Failed to create child order.', true);
-            $order->save();
+            if ($order) {
+                $order->addStatusHistoryComment('APS :: Failed to create child order.', true);
+                $order->save();
+            }
             $this->_helper->cancelSubscription($subscriptionOrderId);
             $this->_helper->log("Cron Job failed for Order:".$order->getId());
             $this->_helper->log($e->getMessage());

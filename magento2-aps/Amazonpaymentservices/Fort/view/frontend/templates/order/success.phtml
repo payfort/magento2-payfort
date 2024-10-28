@@ -1,7 +1,7 @@
 <?php if ($block->isKnetPaymentMethod()): ?>
     <?php $knetData = $block->getKnetParmeters();
-    $knetRefNo = isset($knetData['knet_ref_number']) ? $knetData['knet_ref_number'] : '';
-    $thirdRefNo = isset($knetData['third_party_transaction_number']) ? $knetData['third_party_transaction_number'] : '';
+    $knetRefNo = $knetData['knet_ref_number'] ?? '';
+    $thirdRefNo = $knetData['third_party_transaction_number'] ?? '';
     ?>
 
   <div class="success-section">
@@ -14,20 +14,20 @@
 <?php if ($block->isValuPaymentMethod()): ?>
 
 	<?php $valuData = $block->getValuParmeters();
-	    $valuMonth = isset($valuData['valu_tenure']) ? $valuData['valu_tenure'] : '';
-    	$valuEmi = isset($valuData['valu_tenure_amount']) ? $valuData['valu_tenure_amount'] : '';
-    	$adminFee = isset($valuData['valu_tenure_interest']) ? $valuData['valu_tenure_interest'] : '';
-      $cashbackAmount = isset($valuData['cashback_wallet_amount']) ? $valuData['cashback_wallet_amount'] : '';
-      $loanNumber = isset($valuData['loan_number']) ? $valuData['loan_number'] : '';
-      $transactionId= isset($valuData['valu_transaction_id']) ? $valuData['valu_transaction_id'] : '';
+	    $valuMonth = $valuData['valu_tenure'] ?? '';
+    	$valuEmi = $valuData['valu_tenure_amount'] ?? '';
+    	$adminFee = $valuData['valu_tenure_interest'] ?? '';
+      $cashbackAmount = $valuData['cashback_wallet_amount'] ?? '';
+      $loanNumber = $valuData['loan_number'] ?? '';
+      $transactionId= $valuData['valu_transaction_id'] ?? '';
 	?>
-  <p class="success-section">
+  <div class="success-section">
     <div style="clear: both;">Transaction Id: <?= $block->escapeHtml(__($transactionId)); ?> </div>
     <div style="clear: both;">Installment Plan : EGP <?= $block->escapeHtml(__(intval($valuEmi)/100)); ?> for <?= $block->escapeHtml(__($valuMonth)); ?> Months</div>
     <div style="clear: both;">Admin Fees : EGP <?= $block->escapeHtml(__(intval($adminFee)/100)); ?> </div>
     <div style="clear: both;">Cashback Amount : EGP <?= $block->escapeHtml(__(intval($cashbackAmount)/100)); ?> </div>
     <div style="clear: both;">Loan Number : <?= $block->escapeHtml(__($loanNumber)); ?> </div>
-  </p>
+  </div>
 
 
 <?php endif; ?>
@@ -37,7 +37,7 @@
 <?php if ($block->isOmanNetPaymentMethod()): ?>
 
   <?php $OmanNetData = $block->getOmanNetParmeters();
-    $thirdRefNo = isset($OmanNetData['third_party_transaction_number']) ? $OmanNetData['third_party_transaction_number'] : '';
+    $thirdRefNo = $OmanNetData['third_party_transaction_number'] ?? '';
   ?>
 
   <div class="success-section">
@@ -47,7 +47,7 @@
 
 <?php if ($block->isBenefitPaymentMethod()): ?>
   <?php $benefitData = $block->getBenefitParmeters();
-    $thirdRefNo = isset($benefitData['third_party_transaction_number']) ? $benefitData['third_party_transaction_number'] : '';
+    $thirdRefNo = $benefitData['third_party_transaction_number'] ?? '';
   ?>
   <div class="success-section">
     <p style="clear: both;">BENEFIT third party transaction number : <?= $block->escapeHtml(__($thirdRefNo)); ?></p>

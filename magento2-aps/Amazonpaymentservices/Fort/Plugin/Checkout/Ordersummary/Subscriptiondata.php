@@ -2,8 +2,9 @@
 
 namespace Amazonpaymentservices\Fort\Plugin\Checkout\Ordersummary;
 
+use Amazonpaymentservices\Fort\Helper\Data;
 use Magento\Checkout\Model\Session as CheckoutSession;
-use \Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ObjectManager;
 
 class Subscriptiondata
 {
@@ -22,6 +23,7 @@ class Subscriptiondata
      * Constructor
      *
      * @param CheckoutSession $checkoutSession
+     * @param Data $helper
      */
     public function __construct(
         CheckoutSession $checkoutSession,

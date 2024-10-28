@@ -218,7 +218,6 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
     private function getShippingRates($addressData)
     {
         $quote = $this->_cart->getQuote();
-        $rates = [];
         $result = [];
         if (!$quote->isVirtual()) {
             $shippingAddress = $this->getShippingAddress($addressData);
@@ -237,7 +236,6 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
             $estimatedAddress->setRegionId($address->getRegionId());
 
             $rates = $this->shippingMethodManager->estimateByAddress($quote->getId(), $estimatedAddress);
-            $result = [];
             foreach ($rates as $rate) {
                 if ($rate->getErrorMessage()) {
                     continue;
@@ -267,6 +265,7 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
 
             $this->quoteRepository->save($quote);
         }
+
         return $result;
     }
 
@@ -304,7 +303,7 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
         $country = $this->countryFactory->loadByCode($countryCode);
 
         if (empty($country)) {
-            return $values;
+            return '';
         }
         $regions = $country->getRegions();
 

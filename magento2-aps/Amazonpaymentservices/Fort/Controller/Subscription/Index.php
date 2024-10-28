@@ -2,7 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Subscription;
 
-use \Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Action\Context;
@@ -21,6 +21,10 @@ class Index extends \Magento\Framework\App\Action\Action
      * @var \Amazonpaymentservices\Fort\Helper\Data
      */
     protected $_helper;
+
+    protected $_messageManager;
+
+    protected \Magento\Customer\Helper\Session\CurrentCustomer $currentCustomer;
 
     public function __construct(
         Context $context,

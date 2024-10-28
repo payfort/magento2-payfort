@@ -43,9 +43,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__('Installments')); ?></strong></td>
                 <td>
-                    <?php if (isset($data['additionalData']['number_of_installments'])) { ?>
-                        <?= /* @noEscape */ ($data['additionalData']['number_of_installments']); ?>
-                    <?php } ?>
+                    <?= /* @noEscape */ ($data['additionalData']['number_of_installments']); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -55,9 +53,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__('Installment Amount')); ?></strong></td>
                 <td>
-                    <?php if (isset($data['additionalData']['installment_amount'])) { ?>
-                        <?= /* @noEscape */ ($data['additionalData']['installment_amount']); ?>
-                <?php } ?>
+                    <?= /* @noEscape */ ($data['additionalData']['installment_amount']); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -67,9 +63,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__('Installment Interest')); ?></strong></td>
                 <td>
-                    <?php if (isset($data['additionalData']['installment_interest'])) { ?>
-                        <?= /* @noEscape */ $data['additionalData']['installment_interest']; ?>
-                    <?php } ?>
+                    <?= /* @noEscape */ $data['additionalData']['installment_interest']; ?>
                 </td>
             </tr>
             <?php } ?>

@@ -30,7 +30,7 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
 
         $order = $this->getOrderById($orderId);
 
-        $responseCode = isset($responseParams['response_code']) ? $responseParams['response_code'] : '';
+        $responseCode = $responseParams['response_code'] ?? '';
         $helper = $this->getHelper();
 
         $integrationType    = $helper::INTEGRATION_TYPE_REDIRECTION;

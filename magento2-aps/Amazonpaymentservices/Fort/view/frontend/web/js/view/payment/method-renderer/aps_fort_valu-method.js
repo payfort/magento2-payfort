@@ -301,7 +301,7 @@ define(
                         } else {
                             var msg = response.error_messages;
                             if (typeof (msg) === 'object') {
-                                content: msg.join("\n")
+                                msg.join("\n")
                             }
                             if (msg) {
                                 $('[data-action="error-purchase"]').text($.mage.__(response.response_message));

@@ -7,7 +7,7 @@
 namespace Amazonpaymentservices\Fort\Plugin\Checkout\CustomerData;
 
 use Magento\Quote\Model\Quote\Item;
-use \Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ObjectManager;
 
 class DefaultItem
 {

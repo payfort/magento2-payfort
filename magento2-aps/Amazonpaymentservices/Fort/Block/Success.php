@@ -64,24 +64,21 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     {
         $payment = $this->order->getPayment();
         $data = $payment->getAdditionalData();
-        $knetData = json_decode($data, true);
-        return $knetData;
+        return json_decode($data, true);
     }
 
     public function getValuParmeters()
     {
         $payment = $this->order->getPayment();
         $data = $payment->getAdditionalData();
-        $valuData = json_decode($data, true);
-        return $valuData;
+        return json_decode($data, true);
     }
 
     public function getOmanNetParmeters()
     {
         $payment = $this->order->getPayment();
         $data = $payment->getAdditionalData();
-        $OmanNetData = json_decode($data, true);
-        return $OmanNetData;
+        return json_decode($data, true);
     }
 
     public function getOrderNumber()
@@ -98,8 +95,7 @@ class Success extends \Magento\Checkout\Block\Onepage\Success
     {
         $payment = $this->order->getPayment();
         $data = $payment->getAdditionalData();
-        $benefitData = json_decode($data, true);
-        return $benefitData;
+        return json_decode($data, true);
     }
     public function getCacheLifetime()
     {

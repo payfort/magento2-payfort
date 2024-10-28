@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices APS Subscription cron
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Amazonpaymentservices APS Subscription cron
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices

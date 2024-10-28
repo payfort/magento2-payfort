@@ -2,6 +2,10 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Product;
 
+use Amazonpaymentservices\Fort\Helper\Data;
+use Magento\Checkout\Model\Cart;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -9,6 +13,7 @@ use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Currency;
+use Magento\Framework\Event\ManagerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
@@ -52,11 +57,16 @@ class GetQuoteData extends \Magento\Framework\App\Action\Action implements CsrfA
      * @var \Magento\Directory\Model\Currency
      */
     private $modelCurrency;
-    
+
     /**
-     * @param \Magento\Framework\App\Action\Context $context,
-     * @param \Magento\Checkout\Model\Session $checkoutSession,
-     * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort
+     * @param Context $context ,
+     * @param Session $checkoutSession ,
+     * @param Data $helperFort
+     * @param Cart $cart
+     * @param StoreManagerInterface $storeManager
+     * @param ProductRepositoryInterface $productRepository
+     * @param ManagerInterface $eventManager
+     * @param \Magento\Directory\Model\Currency $modelCurrency
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

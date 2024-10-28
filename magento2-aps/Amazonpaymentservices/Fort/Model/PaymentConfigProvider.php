@@ -1,7 +1,7 @@
 <?php
 /**
  * Payment Config Provider
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices_Fort
@@ -14,6 +14,9 @@ namespace Amazonpaymentservices\Fort\Model;
 
 use Amazonpaymentservices\Fort\Model\Config\Source\Tabbyintegrationtype;
 use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Locale\Resolver;
 use Magento\Framework\Locale\ResolverInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Payment\Helper\Data as PaymentHelper;
@@ -21,10 +24,12 @@ use Amazonpaymentservices\Fort\Helper\Data as apsHelper;
 use Magento\Framework\View\Asset\Repository as AssetRepository;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Vault\Api\PaymentTokenManagementInterface;
 
 /**
  * Payment Config Provider
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -139,7 +144,15 @@ class PaymentConfigProvider implements ConfigProviderInterface
 
     /**
      * @param PaymentHelper $paymentHelper
+     * @param apsHelper $apsHelper
      * @param UrlInterface $urlBuilder
+     * @param AssetRepository $assetRepository
+     * @param StoreManagerInterface $storeManager
+     * @param Resolver $store
+     * @param PaymentTokenManagementInterface $paymenttokenmanagement
+     * @param Session $session
+     * @param ResourceConnection $connect
+     * @param ScopeConfigInterface $scopeConfig
      */
     public function __construct(
         PaymentHelper $paymentHelper,
@@ -445,68 +458,55 @@ class PaymentConfigProvider implements ConfigProviderInterface
     /**
      * Get frame action URL
      *
-     * @param string $code
      * @return string
      */
     protected function getActionUrl()
     {
-        $url = $this->urlBuilder->getUrl('amazonpaymentservicesfort/payment/redirect', ['_secure' => true]);
-
-        return $url;
+        return $this->urlBuilder->getUrl('amazonpaymentservicesfort/payment/redirect', ['_secure' => true]);
     }
 
     /**
      * Get frame action URL
      *
-     * @param string $code
      * @return string
      */
     protected function getInstallmentUrl()
     {
-        $url = $this->urlBuilder->getUrl('amazonpaymentservicesfort/payment/redirectinstallment', ['_secure' => true]);
-
-        return $url;
+        return $this->urlBuilder->getUrl('amazonpaymentservicesfort/payment/redirectinstallment', ['_secure' => true]);
     }
 
     protected function getCardTypeImg($imgName)
     {
-        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/methods/'.$imgName);
-        return $output;
+        return $this->getViewFileUrl('Amazonpaymentservices_Fort::images/methods/'.$imgName);
     }
 
     protected function getCardLogoImg($imgName)
     {
-        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/logos/'.$imgName);
-        return $output;
+        return $this->getViewFileUrl('Amazonpaymentservices_Fort::images/logos/'.$imgName);
     }
 
     protected function getStcLogo()
     {
-        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/stcpay.png');
-        return $output;
+        return $this->getViewFileUrl('Amazonpaymentservices_Fort::images/stcpay.png');
     }
     protected function getTabbyLogo()
     {
-        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/tabby-badge.png');
-        return $output;
+        return $this->getViewFileUrl('Amazonpaymentservices_Fort::images/tabby-badge.png');
     }
 
     protected function getValuConfig()
     {
-        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/valu_logo.png');
-        return $output;
+        return $this->getViewFileUrl('Amazonpaymentservices_Fort::images/valu_logo.png');
     }
 
     protected function getBenefitLogo()
     {
-        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/benefit-logo.png');
-        return $output;
+        return $this->getViewFileUrl('Amazonpaymentservices_Fort::images/benefit-logo.png');
     }
 
-        protected function getOmanNetLogo()
+    protected function getOmanNetLogo()
     {
-        $output = $this->getViewFileUrl('Amazonpaymentservices_Fort::images/omannet-logo.png');
-        return $output;
+        return $this->getViewFileUrl('Amazonpaymentservices_Fort::images/omannet-logo.png');
     }
     
     public function getViewFileUrl($fileId, array $params = [])

@@ -20,8 +20,8 @@ class Subscription extends \Magento\Backend\App\Action
  
     /**
      * @param Context $context
-     * @param Data $helper
-     * @param ResourceConnection $connect
+     * @param \Amazonpaymentservices\Fort\Helper\Data $helper
+     * @param \Magento\Framework\App\ResourceConnection $connect
      */
     public function __construct(
         Context $context,

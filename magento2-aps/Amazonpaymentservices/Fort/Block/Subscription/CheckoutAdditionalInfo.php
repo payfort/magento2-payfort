@@ -2,7 +2,7 @@
 
 namespace Amazonpaymentservices\Fort\Block\Subscription;
 
-use \Magento\Framework\App\ObjectManager;
+use Magento\Framework\App\ObjectManager;
 
 class CheckoutAdditionalInfo extends \Magento\Framework\View\Element\Template
 {

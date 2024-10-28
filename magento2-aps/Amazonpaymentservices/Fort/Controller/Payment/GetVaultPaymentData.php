@@ -2,6 +2,10 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
+use Amazonpaymentservices\Fort\Helper\Data;
+use Amazonpaymentservices\Fort\Model\Payment;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
@@ -9,6 +13,8 @@ use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Sales\Model\Order\Config;
+use Magento\Vault\Model\ResourceModel\PaymentToken;
 
 class GetVaultPaymentData extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
@@ -51,11 +57,14 @@ class GetVaultPaymentData extends \Magento\Framework\App\Action\Action implement
     protected $_customerSession;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context,
-     * @param \Magento\Checkout\Model\Session $checkoutSession,
-     * @param \Magento\Sales\Model\Order\Config $orderConfig,
-     * @param \Amazonpaymentservices\Fort\Model\Payment $apsModel,
-     * @param \Amazonpaymentservices\Fort\Helper\Data $helperFort
+     * @param Context $context ,
+     * @param Session $checkoutSession ,
+     * @param Config $orderConfig ,
+     * @param Payment $apsModel ,
+     * @param Data $helperFort
+     * @param JsonFactory $resultJsonFactory
+     * @param PaymentToken $paymentToken
+     * @param \Magento\Customer\Model\Session $customerSession
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,

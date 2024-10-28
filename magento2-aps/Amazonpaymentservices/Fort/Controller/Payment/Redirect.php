@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Redirect
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices_Fort
@@ -20,7 +20,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 
 /**
  * Amazonpaymentservices Redirect
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3

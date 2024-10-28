@@ -499,8 +499,7 @@ define(
                         }
                         var expYear = cardInfo.expirationYear;
                         expYear = expYear.substr(expYear.length - 2);
-                        var expiryDate = expYear+''+expMonth;
-                        cardInfo.expiryDate = expiryDate;
+                        cardInfo.expiryDate = expYear+''+expMonth;
                         var rememberMe = 'NO';
                         if ($('.ccform .remember_me:checked').val() == 'YES') {
                             rememberMe = 'YES';
@@ -581,7 +580,7 @@ define(
                                     $('#'+formId).submit();
                                     return false;
                                 } else {
-                                    msg = response.error_messages;
+                                    let msg = response.error_messages;
                                     if (typeof (msg) === 'object') {
                                         alert({
                                             content: msg.join("\n")
@@ -618,8 +617,7 @@ define(
                         }
                         var expYear = cardInfo.expirationYear;
                         expYear = expYear.substr(expYear.length - 2);
-                        var expiryDate = expYear+''+expMonth;
-                        cardInfo.expiryDate = expiryDate;
+                        cardInfo.expiryDate = expYear+''+expMonth;
                         
                         $.ajax({
                             url: window.checkoutConfig.payment.apsFort.aps_installment.ajaxInstallmentUrl,
@@ -729,8 +727,7 @@ define(
                         }
                         var expYear = cardInfo.expirationYear;
                         expYear = expYear.substr(expYear.length - 2);
-                        var expiryDate = expYear+''+expMonth;
-                        cardInfo.expiryDate = expiryDate;
+                        cardInfo.expiryDate = expYear+''+expMonth;
                         var rememberMe = 'NO';
                         if ($('.ccform .remember_me:checked').val() == 'YES') {
                             rememberMe = 'YES';
@@ -811,7 +808,7 @@ define(
                                     $('#'+formId).submit();
                                     return false;
                                 } else {
-                                    msg = response.error_messages;
+                                    let msg = response.error_messages;
                                     if (typeof (msg) === 'object') {
                                         alert({
                                             content: msg.join("\n")

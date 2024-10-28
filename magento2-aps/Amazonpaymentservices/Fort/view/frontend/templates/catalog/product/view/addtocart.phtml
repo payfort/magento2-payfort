@@ -79,7 +79,7 @@
            </div>
        </div>
        <?php endif; ?>
-       <?php if (!$isRecurringEnabled || $isSubscriptionsProduct == false || ($isSubscriptionsProduct == true && $isLoggedIn)): ?>
+       <?php if (!$isRecurringEnabled || !$isSubscriptionsProduct || ($isLoggedIn)): ?>
             <div class="actions">
                 <button type="submit"
                         title="<?= /* @escapeNotVerified */ $buttonTitle ?>"

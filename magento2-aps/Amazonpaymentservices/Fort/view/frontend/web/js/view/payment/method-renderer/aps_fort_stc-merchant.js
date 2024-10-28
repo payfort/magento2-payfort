@@ -125,7 +125,7 @@ define(
                             $.mage.redirect(response.url+"?id="+randomNum);
                             return false;
                         } else {
-                            msg = response.error_messages;
+                            let msg = response.error_messages;
                             if (typeof (msg) === 'object') {
                                 alert({
                                     content: msg.join("\n")

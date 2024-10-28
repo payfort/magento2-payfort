@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Checkout
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices_Fort
@@ -12,15 +12,24 @@
  **/
 namespace Amazonpaymentservices\Fort\Controller;
 
+use Amazonpaymentservices\Fort\Helper\Data;
+use Amazonpaymentservices\Fort\Model\Payment;
+use Magento\Customer\Model\Session;
+use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Message\Manager;
+use Magento\Framework\View\Result\PageFactory;
 use Magento\Sales\Model\Order;
 use Magento\Framework\Controller\ResultFactory;
+use Magento\Sales\Model\OrderFactory;
 
 /**
  * Amazonpaymentservices Checkout
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -48,11 +57,6 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action implements 
      * @var \Amazonpaymentservices\Fort\Helper\Data
      */
     protected $_helper;
-
-    /**
-     * @var \Magento\Quote\Model\Quote
-     */
-    //protected $_quote = false;
     
     /**
      *
@@ -96,13 +100,22 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action implements 
      */
     protected $resultRedirectFactory;
 
+    protected $_quote;
+
     /**
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Customer\Model\Session $customerSession
+     * @param Context $context
+     * @param PageFactory $resultPageFactory
+     * @param Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory
-     * @param \Amazonpaymentservices\Fort\Model\Payment $apsModel
-     * @param \Psr\Log\LoggerInterface $logger
+     * @param OrderFactory $orderFactory
+     * @param Payment $apsModel
+     * @param Data $helper
+     * @param Order $order
+     * @param ResultFactory $resultFactory
+     * @param \Magento\Checkout\Helper\Data $checkoutHelper
+     * @param Manager $messageManager
+     * @param JsonFactory $resultJsonFactory
+     * @param Redirect $resultRedirectFactory
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -167,7 +180,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action implements 
      * Cancel order, return quote to customer
      *
      * @param string $errorMsg
-     * @return false|string
+     * @return bool
      */
     protected function _cancelPayment($order, $errorMsg = '')
     {
@@ -181,8 +194,7 @@ abstract class Checkout extends \Magento\Framework\App\Action\Action implements 
      */
     protected function getOrderById($order_id)
     {
-        $order_info = $this->_orderModel->loadByIncrementId($order_id);
-        return $order_info;
+        return $this->_orderModel->loadByIncrementId($order_id);
     }
 
     /**

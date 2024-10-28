@@ -16,6 +16,7 @@ $subscriptionOrderDetails = $block->getSubscriptionOrderDetail($subOrderDetail['
 
 if (!empty($subscriptionOrderDetails)) {
 
+    $currency = '';
     $allAmount = [];
     $subOrderDetail = null;
     
@@ -65,7 +66,9 @@ if (!empty($subscriptionOrderDetails)) {
 
                             <?php $orderCurrency = null;
                             $query = $connection->select()->from(['table'=>'sales_order'])->where('table.entity_id=?', $subscriptionOrderDetail['order_id']);
-                            $orderCurrency = $connection->fetchRow($query); ?>
+                            $orderCurrency = $connection->fetchRow($query);
+                            $currency = $orderCurrency['order_currency_code'];
+                            ?>
                             
                             <?php $itemDetail = null;
                             $query = $connection->select()->from(['table'=>'sales_order_item'])->where('table.item_id=?', $subscriptionOrderDetail['item_id']);
@@ -93,7 +96,7 @@ if (!empty($subscriptionOrderDetails)) {
                                 <span class="price-excluding-tax" data-label="Excl. Tax">
                                     <span class="cart-price">
                                         <span class="price"><?= $orderCurrency['order_currency_code'].number_format($itemDetail['row_invoiced'], 2) ?></span>
-                                        <?php $currency = $orderCurrency['order_currency_code']; $allAmount[] = $itemDetail['row_invoiced'] ?>
+                                        <?php $allAmount[] = $itemDetail['row_invoiced'] ?>
                                     </span>
                                 </span>
                             </td>

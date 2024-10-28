@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Apple Failed Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -21,7 +21,7 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 
 /**
  * Amazonpaymentservices Apple Failed Response
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -47,7 +47,7 @@ class AppleFailedResponse extends \Amazonpaymentservices\Fort\Controller\Checkou
         $order = $this->_checkoutSession->getLastRealOrder();
         $helper = $this->getHelper();
         $integrationType = $helper->getConfig('payment/aps_installment/integration_type');
-        $r = $helper->cancelOrder($order, 'You have cancelled the payment, please try again.', '');
+        $r = $helper->cancelOrder($order, 'You have cancelled the payment, please try again.');
         
         if ($r) {
             $helper->restoreQuote();

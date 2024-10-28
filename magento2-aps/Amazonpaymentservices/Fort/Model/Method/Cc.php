@@ -1,7 +1,7 @@
 <?php
 /**
  * Amazonpaymentservices Payment CC Model
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @category Amazonpaymentservices
  * @package  Amazonpaymentservices
@@ -12,14 +12,14 @@
  **/
 namespace Amazonpaymentservices\Fort\Model\Method;
 
-use \Magento\Core\Model\ObjectManager;
+use Magento\Core\Model\ObjectManager;
 use Magento\Framework\DataObject;
 use Magento\Quote\Api\Data\PaymentInterface;
-use \Magento\Framework\Locale\Bundle\DataBundle;
+use Magento\Framework\Locale\Bundle\DataBundle;
 
 /**
  * Amazonpaymentservices Payment CC Model
- * php version 7.3.*
+ * php version 8.2.*
  *
  * @author   Amazonpaymentservices <email@example.com>
  * @license  GNU / GPL v3
@@ -133,13 +133,10 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
     public function getCcAvailableTypes()
     {
         $types = $this->_paymentConfig->getCcTypes();
-        $availableTypes = 'VI,MC,OT,MD,MZ,AE';
-        if ($availableTypes) {
-            $availableTypes = explode(',', $availableTypes);
-            foreach ($types as $code => $name) {
-                if (!in_array($code, $availableTypes)) {
-                    unset($types[$code]);
-                }
+        $availableTypes = explode(',', 'VI,MC,OT,MD,MZ,AE');
+        foreach ($types as $code => $name) {
+            if (!in_array($code, $availableTypes)) {
+                unset($types[$code]);
             }
         }
         return $types;
@@ -152,9 +149,7 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
      */
     public function getCcMonths()
     {
-        //$months[0] = __('Month');
-        $months = $this->getMonths();
-        return $months;
+        return $this->getMonths();
     }
     
     /**
@@ -183,8 +178,7 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
      */
     public function getCcYears()
     {
-        $years = $this->getYears();
-        return $years;
+        return $this->getYears();
     }
     
     /**
@@ -228,8 +222,7 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
             $year = $first - $index;
             $years[$year] = $year;
         }
-        $years = [0 => __('Year')] + $years;
-        return $years;
+        return [0 => __('Year')] + $years;
     }
 
     /**
@@ -258,14 +251,13 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
 
     public function getVerificationRegEx()
     {
-        $verificationExpList = [
+        return [
             'VI' => '/^[0-9]{3}$/',
             'MC' => '/^[0-9]{3}$/',
             'AE' => '/^[0-9]{4}$/',
             'MD' => '/^[0-9]{3}$/',
             'MZ' => '/^[0-9]{3}$/',
         ];
-        return $verificationExpList;
     }
  
     protected function _validateExpDate($expYear, $expMonth)

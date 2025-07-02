@@ -148,7 +148,11 @@ class Cron extends \Magento\Payment\Helper\Data
         $order = null;
         try {
             $order = $this->_helper->getOrderById($orderIncrementedId);
-            $this->_helper->log('OrderID:'.$order->getId());
+
+            $store = $order->getStore();
+            $storeCode = $store && $store->getCode() ? $store->getCode() : null;
+
+            $this->_helper->log('OrderID:'.$order->getId(), $storeCode);
 
             $paymentMethod = $order->getPayment()->getMethod();
 
@@ -161,7 +165,7 @@ class Cron extends \Magento\Payment\Helper\Data
                 empty($order->getPayment()->getExtensionAttributes()->getVaultPaymentToken())
                 || ($paymentMethod == Stc::CODE && empty($orderStcRef))
             ) {
-                $this->_helper->log('Payment Data not found. Failed to create order');
+                $this->_helper->log('Payment Data not found. Failed to create order', $storeCode);
                 $this->_helper->cancelSubscription($subscriptionOrderId);
 
                 return;
@@ -235,8 +239,8 @@ class Cron extends \Magento\Payment\Helper\Data
                 $order->save();
             }
             $this->_helper->cancelSubscription($subscriptionOrderId);
-            $this->_helper->log("Cron Job failed for Order:".$order->getId());
-            $this->_helper->log($e->getMessage());
+            $this->_helper->log("Cron Job failed for Order:".$order->getId(), $storeCode);
+            $this->_helper->log($e->getMessage(), $storeCode);
 
             return;
         }
@@ -245,8 +249,11 @@ class Cron extends \Magento\Payment\Helper\Data
     private function updateSubscriptionOrder($subscriptionOrderId, $item, $newOrder,
                                              $tokenId, $tokenName, $remoteIp, $order)
     {
+        $store = $order->getStore();
+        $storeCode = $store && $store->getCode() ? $store->getCode() : null;
+
         // is the Recurring Product feature enabled?
-        $isRecurringEnabled = (int)$this->_helper->getConfig('payment/aps_recurring/active') === 1;
+        $isRecurringEnabled = (int)$this->_helper->getConfig('payment/aps_recurring/active', $storeCode) === 1;
 
         $connection = $prodApsSubEnabled = null;
         if ($isRecurringEnabled) {
@@ -266,17 +273,17 @@ class Cron extends \Magento\Payment\Helper\Data
 
         if ($isRecurringEnabled && !empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
 
-            $this->_helper->log('New ORderNUmber:'.$newOrder->getRealOrderId());
+            $this->_helper->log('New ORderNUmber:'.$newOrder->getRealOrderId(), $storeCode);
 
             $apsPaymentResponse = $this->_helper
-                ->apsSubscriptionPaymentApi($newOrder, $tokenName, $order, $remoteIp);
+                ->apsSubscriptionPaymentApi($newOrder, $tokenName, $order, $remoteIp, $storeCode, $subscriptionOrderId);
 
             if ($apsPaymentResponse['response_code'] == '14000') {
                 $newOrder->setState($newOrder::STATE_PROCESSING)->save();
                 $newOrder->setStatus($newOrder::STATE_PROCESSING)->save();
                 $newOrder->addStatusToHistory($newOrder::STATE_PROCESSING, 'APS :: Order has been paid.', true);
                 $newOrder->save();
-                $this->_helper->log('OrderData:'.json_encode($newOrder->getData()));
+                $this->_helper->log('OrderData:'.json_encode($newOrder->getData()), $storeCode);
 
                 $connection->insert(
                     $this->_connection->getTableName('vault_payment_token_order_payment_link'),
@@ -286,8 +293,8 @@ class Cron extends \Magento\Payment\Helper\Data
                     ]
                 );
 
-                $this->_helper->log('Order status is chenged from PENDING to PROCESSING.');
-                $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 1, $order);
+                $this->_helper->log('Order status is chenged from PENDING to PROCESSING.', $storeCode);
+                $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 1, $order, $storeCode);
             } else {
                 $newOrder->cancel();
                 $newOrder->addStatusToHistory(
@@ -295,16 +302,16 @@ class Cron extends \Magento\Payment\Helper\Data
                     $apsPaymentResponse['response_message'], false);
                 $newOrder->save();
 
-                $this->_helper->log('Order status is chenged from PENDING to CANCELED.');
-                $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 0, $order);
+                $this->_helper->log('Order status is chenged from PENDING to CANCELED.', $storeCode);
+                $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 0, $order, $storeCode);
             }
         } else {
             $newOrder
                 ->cancel()
                 ->save()
             ;
-            $this->_helper->log('Order status is chenged from PENDING to CANCELED.');
-            $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 0, $order);
+            $this->_helper->log('Order status is chenged from PENDING to CANCELED.', $storeCode);
+            $this->_helper->apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, 0, $order, $storeCode);
             $order->addStatusHistoryComment('Product is not enabled for subscription', true)->save();
         }
     }

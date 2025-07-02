@@ -45,6 +45,8 @@ You can download the archive [file](/magento2-aps-2.6.3.zip) of the plugin and i
 
 | Plugin Version | Release Notes |
 | :---: | :--- |
+| 2.6.5 | * Fix - Tabby fix for payment status.  | 
+| 2.6.4 | * Fix - Magento compatibility updates.  | 
 | 2.6.3 | * Fix - PHP7.3 functions are deprecated. PHP8.2 support is introduced.  | 
 | 2.6.2 | * Fix - Additional columns are moved out from sales order to individual table <br/> * New - Configuration is added for order deletion when transactions are failed. <br/> * Fix - Refund amounts are not calculated, taken from Magento default function | 
 | 2.6.1 | * Fix - Webhook, Check status common internal function to cancel failed orders are updated with order getState method | 

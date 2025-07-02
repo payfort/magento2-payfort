@@ -49,7 +49,7 @@ if ($isRecurringEnabled) {
             $prodApsSubIntervalCount = $connection->fetchRow($query);
 
             if (!empty($prodApsSubInterval) && !empty($prodApsSubIntervalCount)) { ?>
-                <?= $prodApsSubIntervalCount['value'] == 1 ? "<span style='font-size: 12px; color: #006abc;'><strong style='font-size: 12px;'>Subscription product - </strong>subscription will charge every ".$prodApsSubInterval['value'].".</span><br>" : "<span style='font-size: 12px; color: #006abc;'><strong style='font-size: 12px;'>Subscription product - </strong>subscription will charge after every ".sprintf("%02d", $prodApsSubIntervalCount['value']).' '.$prodApsSubInterval['value']."s.</span><br>"; ?>
+                <?= $subIntervalCount == 1 ? "<span style='font-size: 12px; color: #006abc;'><strong style='font-size: 12px;'>Subscription product - </strong>subscription will charge every ".$block->escapeHtml($prodApsSubInterval['value']).".</span><br>" : "<span style='font-size: 12px; color: #006abc;'><strong style='font-size: 12px;'>Subscription product - </strong>subscription will charge after every ".$block->escapeHtml(sprintf("%02d", $prodApsSubIntervalCount['value'])).' '.$block->escapeHtml($prodApsSubInterval['value'])."s.</span><br>"; ?>
                 <?php
             }
         }

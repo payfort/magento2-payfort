@@ -105,7 +105,7 @@ use Magento\Framework\App\Action\Action;
 
                                         if (!empty($prodApsSubInterval) && !empty($prodApsSubIntervalCount)) {
                                             $isSubscriptionsProduct = true;
-                                            echo $prodApsSubIntervalCount['value'] == 1 ? "<strong style='font-size: 12px;color: #0093c9;'>Subscription Available</strong> <br> <span style='font-size: 12px;color: #0093c9;'>Frequency: " . sprintf("%02d", $prodApsSubIntervalCount['value']) . ' ' . $prodApsSubInterval['value'] . "</span><br><br>" : "<strong style='font-size: 12px;color: #0093c9;'>Subscription Available</strong> <br> <span style='font-size: 12px;color: #0093c9;'>Frequency: " . sprintf("%02d", $prodApsSubIntervalCount['value']) . ' ' . $prodApsSubInterval['value'] . "s.</span><br><br>";
+                                            echo $prodApsSubIntervalCount['value'] == 1 ? "<strong style='font-size: 12px;color: #0093c9;'>Subscription Available</strong> <br> <span style='font-size: 12px;color: #0093c9;'>Frequency: " . $block->escapeHtml(sprintf("%02d", $prodApsSubIntervalCount['value'])) . ' ' . $block->escapeHtml($prodApsSubInterval['value']) . "</span><br><br>" : "<strong style='font-size: 12px;color: #0093c9;'>Subscription Available</strong> <br> <span style='font-size: 12px;color: #0093c9;'>Frequency: " . $block->escapeHtml(sprintf("%02d", $prodApsSubIntervalCount['value'])) . ' ' . $block->escapeHtml($prodApsSubInterval['value']) . "s.</span><br><br>";
                                         }
                                     }
                                 }
@@ -132,7 +132,7 @@ use Magento\Framework\App\Action\Action;
                                                                 </button>
                                                             </form>
                                                         <?php else: ?>
-                                                            <a href="<?= $this->getUrl('customer/account/login'); ?>">Sign IN</a>
+                                                            <a href="<?= $block->escapeUrl($this->getUrl('customer/account/login')); ?>">Sign IN</a>
                                                         <?php endif; ?>
                                                     <?php else: ?>
                                                         <?php if ($_item->getIsSalable()): ?>

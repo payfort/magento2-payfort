@@ -55,19 +55,19 @@ if ($subscriptionOrderCount != '0') {
                             } elseif ($subscriptionOrder['subscription_status'] == 1) {$orderStatus = 'Active';
                             } else {$orderStatus = 'On Hold';} ?>
                             <tr>
-                                <!-- <td class="col date"><?= $subscriptionOrder['order_increment_id']?></td> -->
-                                <td class="col item"><?= $subscriptionOrder['product_name']?></td>
-                                <td class="col item"><?= date("F d, Y", strtotime($subscriptionOrder['subscription_start_date'])) ?></td>
-                                <td class="col item"><?= date("F d, Y", strtotime($subscriptionOrder['next_payment_date'])) ?></td>
-                                <td class="col item"><?= $orderDetail['order_currency_code'].number_format($itemDetail['row_invoiced'], 2)?></td>
-                                <td class="col item"><?= number_format($itemDetail['qty_invoiced'], 2)?></td>
-                                <td class="col item"><?= $orderStatus?></td>
-                                <td class="col item"><div><a href = '<?= $block->getViewUrl($subscriptionOrder['id'])?>'>View Order</a> | </div>
+                                <!-- <td class="col date"><?= $block->escapeHtml($subscriptionOrder['order_increment_id'])?></td> -->
+                                <td class="col item"><?= $block->escapeHtml($subscriptionOrder['product_name'])?></td>
+                                <td class="col item"><?= $block->escapeHtml(date("F d, Y", strtotime($subscriptionOrder['subscription_start_date']))) ?></td>
+                                <td class="col item"><?= $block->escapeHtml(date("F d, Y", strtotime($subscriptionOrder['next_payment_date']))) ?></td>
+                                <td class="col item"><?= $block->escapeHtml($orderDetail['order_currency_code']) . $block->escapeHtml(number_format($itemDetail['row_invoiced'], 2))?></td>
+                                <td class="col item"><?= $block->escapeHtml(number_format($itemDetail['qty_invoiced'], 2))?></td>
+                                <td class="col item"><?= $block->escapeHtml($orderStatus) ?></td>
+                                <td class="col item"><div><a href = '<?= $block->escapeUrl($block->getViewUrl($subscriptionOrder['id'])) ?>'>View Order</a> | </div>
                                     <div>
                                         <?php if ($orderStatus == 'Cancel') { ?>
                                             <a style = 'cursor: no-drop; color: #808080;'>Cancel Subscription</a>
                                         <?php } else { ?>
-                                            <a href = '<?= $block->getCancelUrl($subscriptionOrder['id'])?>'>Cancel Subscription</a>
+                                            <a href = '<?= $block->escapeUrl($block->getCancelUrl($subscriptionOrder['id']))?>'>Cancel Subscription</a>
                                         <?php } ?>
                                     </div>
                                 </td>

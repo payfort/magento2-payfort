@@ -25,8 +25,8 @@ class Valu extends \Amazonpaymentservices\Fort\Model\Payment
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -77,7 +77,7 @@ class Valu extends \Amazonpaymentservices\Fort\Model\Payment
      * @param \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         $baseCurrency                    = $this->_helper->getBaseCurrency();
         $frontCurrency                   = $this->_helper->getFrontCurrency();

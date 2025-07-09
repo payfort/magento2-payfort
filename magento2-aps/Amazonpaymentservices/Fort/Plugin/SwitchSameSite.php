@@ -36,7 +36,7 @@ class SwitchSameSite
         PhpCookieManager $subject,
                          $name,
                          $value,
-        PublicCookieMetadata $metadata = null
+        ?PublicCookieMetadata $metadata = null
     ) {
         $magentoVersion = $this->_productMetadata->getVersion();
 

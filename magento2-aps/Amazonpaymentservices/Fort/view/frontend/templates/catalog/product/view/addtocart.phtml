@@ -90,7 +90,7 @@
                 <?= $block->getChildHtml('', true) ?>
             </div>
        <?php else: ?>
-            <a href="<?= $this->getUrl('customer/account/login'); ?>">Sign IN</a>
+            <a href="<?= $block->escapeUrl($this->getUrl('customer/account/login')); ?>">Sign IN</a>
         <?php endif; ?>
    </div>
 </div>

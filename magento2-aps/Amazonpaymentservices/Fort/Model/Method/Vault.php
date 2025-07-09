@@ -29,8 +29,8 @@ class Vault extends \Amazonpaymentservices\Fort\Model\Payment
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
         \Magento\Payment\Model\CcConfig $ccConfig,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(

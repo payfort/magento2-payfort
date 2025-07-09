@@ -381,7 +381,7 @@ class Data extends \Magento\Payment\Helper\Data
      *
      * @return mixed
      */
-    public function getConfig(string $config_path, string $storeCode = null)
+    public function getConfig(string $config_path, ?string $storeCode = null)
     {
         return $this->scopeConfig->getValue(
             $config_path,
@@ -396,7 +396,7 @@ class Data extends \Magento\Payment\Helper\Data
      *
      * @return mixed
      */
-    public function getMainConfigData(string $config_field, string $storeCode = null)
+    public function getMainConfigData(string $config_field, ?string $storeCode = null)
     {
         return $this->scopeConfig->getValue(
             ('payment/aps_fort/'.$config_field),
@@ -1715,7 +1715,7 @@ class Data extends \Magento\Payment\Helper\Data
         return $this->_storeManager->getStore()->getCurrentCurrencyCode();
     }
 
-    public function getFortCurrency($baseCurrencyCode, $currentCurrencyCode, string $storeCode = null)
+    public function getFortCurrency($baseCurrencyCode, $currentCurrencyCode, ?string $storeCode = null)
     {
         $gateway_currency = $this->getMainConfigData('gateway_currency', $storeCode);
         $currencyCode     = $baseCurrencyCode;
@@ -1731,7 +1731,7 @@ class Data extends \Magento\Payment\Helper\Data
      *
      * @return string
      */
-    public function getGatewayUrl(string $type = 'redirection', string $storeCode = null): string
+    public function getGatewayUrl(string $type = 'redirection', ?string $storeCode = null): string
     {
         $testMode = $this->getMainConfigData('sandbox_mode', $storeCode);
         if ($type == 'notificationApi') {
@@ -2163,7 +2163,7 @@ class Data extends \Magento\Payment\Helper\Data
      *
      * @return false|mixed
      */
-    public function checkOrderStatus(int $orderId, string $paymentMethod = '', string $storeCode = null): mixed
+    public function checkOrderStatus(int $orderId, string $paymentMethod = '', ?string $storeCode = null): mixed
     {
         $language = $this->getLanguage();
         $type = '';
@@ -2618,7 +2618,7 @@ class Data extends \Magento\Payment\Helper\Data
      * @param string $messages
      * @param string|null $storeCode
      */
-    public function log(string $messages, string $storeCode = null): void
+    public function log(string $messages, ?string $storeCode = null): void
     {
         $debugMode = $this->getMainConfigData('debug', $storeCode);
         if (!$debugMode) {
@@ -2916,7 +2916,7 @@ class Data extends \Magento\Payment\Helper\Data
         $model->save();
     }
 
-    public function apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, $status, $order, string $storeCode = null)
+    public function apsSubscriptionOrderCron($newOrder, $subscriptionOrderId, $status, $order, ?string $storeCode = null)
     {
         /**
          * ---START---
@@ -2958,7 +2958,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
     }
 
-    private function saveSubscriptionData($item, $apsSubEnabled, $apsSubInterval, $apsSubIntervalCount, $subscriptionOrderId, $status, $newOrder, string $storeCode = null)
+    private function saveSubscriptionData($item, $apsSubEnabled, $apsSubInterval, $apsSubIntervalCount, $subscriptionOrderId, $status, $newOrder, ?string $storeCode = null)
     {
         /* @isSubscriptionProduct */
         $connection = $this->_connection->getConnection();
@@ -3005,7 +3005,7 @@ class Data extends \Magento\Payment\Helper\Data
         $this->log('Subscription is taken now.', $storeCode);
     }
 
-    public function apsSubscriptionPaymentApi(&$newOrder, $tokenName, $order, $remoteIp = '', string $storeCode = null, $subscriptionOrderId = null)
+    public function apsSubscriptionPaymentApi(&$newOrder, $tokenName, $order, $remoteIp = '', ?string $storeCode = null, $subscriptionOrderId = null)
     {
         $responseParams = [];
         try {

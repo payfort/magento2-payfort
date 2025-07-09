@@ -74,8 +74,8 @@ class Installment extends \Amazonpaymentservices\Fort\Model\Payment
         \Magento\Payment\Model\CcConfig $ccConfig,
         \Magento\Payment\Model\Config $paymentConfig,
         \Magento\Checkout\Model\Cart $cart,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -235,7 +235,7 @@ class Installment extends \Amazonpaymentservices\Fort\Model\Payment
         return $this->ccConfig->getCvvImageUrl();
     }
 
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         if ($this->_helper->getConfig('payment/aps_installment/integration_type') === \Amazonpaymentservices\Fort\Model\Config\Source\Installmentintegrationtype::EMBEDED) {
             return false;

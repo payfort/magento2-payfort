@@ -62,8 +62,8 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
         \Amazonpaymentservices\Fort\Helper\Data $helper,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Payment\Model\Method\Logger $logger,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
+        ?\Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
+        ?\Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
@@ -100,7 +100,7 @@ class Payment extends \Magento\Payment\Model\Method\AbstractMethod
      * @param \Magento\Quote\Api\Data\CartInterface|null $quote
      * @return bool
      */
-    public function isAvailable(\Magento\Quote\Api\Data\CartInterface $quote = null)
+    public function isAvailable(?\Magento\Quote\Api\Data\CartInterface $quote = null)
     {
         if (!$this->getConfigData('merchant_identifier')) {
             return false;

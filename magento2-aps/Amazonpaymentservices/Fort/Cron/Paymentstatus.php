@@ -25,7 +25,8 @@ class Paymentstatus
         \Amazonpaymentservices\Fort\Model\Method\Valu::CODE,
         \Amazonpaymentservices\Fort\Model\Method\VisaCheckout::CODE,
         \Amazonpaymentservices\Fort\Model\Method\OmanNet::CODE,
-        \Amazonpaymentservices\Fort\Model\Method\Benefit::CODE
+        \Amazonpaymentservices\Fort\Model\Method\Benefit::CODE,
+        \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE
     ];
 
     public function __construct(
@@ -75,13 +76,16 @@ class Paymentstatus
 
     private function orderUpdate($order)
     {
+        $store = $order->getStore();
+        $storeCode = $store && $store->getCode() ? $store->getCode() : null;
+
         $this->_logger->debug('APS Cron pending order : '.$order->getIncrementId());
         $paymentMethod = $order->getPayment()->getMethod();
         $orderId = $order->getIncrementId();
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
             $orderId = $this->_helper->getApsValuRefFromOrderParams($order->getId(), null);
         }
-        $response = $this->_helper->checkOrderStatus($orderId, $paymentMethod);
+        $response = $this->_helper->checkOrderStatus((int)$orderId, $paymentMethod, $storeCode);
         $this->_logger->debug('APS CHECK_VERIFY_CARD_STATUS Response : '.json_encode($response));
 
         $transactionCode = $response['transaction_code'] ?? '';
@@ -105,7 +109,7 @@ class Paymentstatus
             && !$this->_helper->isOrderResponseOnHold($transactionCode)
             && $this->_helper->canCancelOrder($order)
         ) {
-            $orderAfterPayment = $this->_helper->getMainConfigData('orderafterpayment');
+            $orderAfterPayment = $this->_helper->getMainConfigData('orderafterpayment', $storeCode);
             if ($orderAfterPayment === OrderOptions::DELETE_ORDER) {
                 $this->_helper->deleteOrder($order);
 

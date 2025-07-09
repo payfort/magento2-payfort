@@ -53,21 +53,21 @@ if (!empty($subscriptionOrderDetails)) {
                     <?php foreach ($subscriptionOrderDetails as $subscriptionOrderDetail) { ?>
                         <tr id="order-item-row-1807">
                             <td class="col name" data-th="Product Name">
-                                <strong class="product name product-item-name"><?= $subscriptionOrderDetail['product_name']?></strong>
+                                <strong class="product name product-item-name"><?= $block->escapeHtml($subscriptionOrderDetail['product_name']) ?></strong>
                             </td>
 
                             <?php $orderStatus = null;
                             if ($subscriptionOrderDetail['subscription_status'] == 0) {$orderStatus = 'Cancel';
                             } elseif ($subscriptionOrderDetail['subscription_status'] == 1) {$orderStatus = 'Active';
                             } else {$orderStatus = 'On Hold';} ?>
-                            <td class="col sku" data-th="Status"><?= $orderStatus ?></td>
+                            <td class="col sku" data-th="Status"><?= $block->escapeHtml($orderStatus) ?></td>
 
-                            <td class="col sku" data-th="Date"><?= date('F d, Y', strtotime($subscriptionOrderDetail['next_payment_date'])) ?></td>
+                            <td class="col sku" data-th="Date"><?= $block->escapeHtml(date('F d, Y', strtotime($subscriptionOrderDetail['next_payment_date']))) ?></td>
 
                             <?php $orderCurrency = null;
                             $query = $connection->select()->from(['table'=>'sales_order'])->where('table.entity_id=?', $subscriptionOrderDetail['order_id']);
                             $orderCurrency = $connection->fetchRow($query);
-                            $currency = $orderCurrency['order_currency_code'];
+                            $currency = $block->escapeHtml($orderCurrency['order_currency_code']);
                             ?>
                             
                             <?php $itemDetail = null;
@@ -78,7 +78,7 @@ if (!empty($subscriptionOrderDetails)) {
                     
                                 <span class="price-excluding-tax" data-label="Excl. Tax">
                                     <span class="cart-price">
-                                        <span class="price"><?= $orderCurrency['order_currency_code'].number_format($itemDetail['price'], 2)?></span>
+                                        <span class="price"><?= $block->escapeHtml($currency . number_format($itemDetail['price'], 2))?></span>
                                     </span>
                                 </span>
 
@@ -87,7 +87,7 @@ if (!empty($subscriptionOrderDetails)) {
                                 <ul class="items-qty">
                                     <li class="item">
                                         <span class="title">Ordered</span>
-                                        <span class="content"><?= number_format($itemDetail['qty_invoiced'], 2)?></span>
+                                        <span class="content"><?= $block->escapeHtml(number_format($itemDetail['qty_invoiced'], 2))?></span>
                                     </li>
                                 </ul>
                             </td>
@@ -95,7 +95,7 @@ if (!empty($subscriptionOrderDetails)) {
                     
                                 <span class="price-excluding-tax" data-label="Excl. Tax">
                                     <span class="cart-price">
-                                        <span class="price"><?= $orderCurrency['order_currency_code'].number_format($itemDetail['row_invoiced'], 2) ?></span>
+                                        <span class="price"><?= $block->escapeHtml($currency . number_format($itemDetail['row_invoiced'], 2)) ?></span>
                                         <?php $allAmount[] = $itemDetail['row_invoiced'] ?>
                                     </span>
                                 </span>
@@ -109,7 +109,7 @@ if (!empty($subscriptionOrderDetails)) {
                     <?php if (!empty($allAmount)) { ?>
                         <tr class="grand_total">
                             <th colspan="5" class="mark" scope="row"><strong>Grand Total</strong></th>
-                            <td class="amount" data-th="Grand Total"><strong><span class="price"><?= $currency.number_format(array_sum($allAmount), 2)?></span></strong></td>
+                            <td class="amount" data-th="Grand Total"><strong><span class="price"><?= $block->escapeHtml($currency.number_format(array_sum($allAmount), 2))?></span></strong></td>
                         </tr>
                     <?php }?>
 
@@ -121,7 +121,7 @@ if (!empty($subscriptionOrderDetails)) {
         
         <div class="action-toolbar">
             <div class="secondary">
-                <a class="actions back" href="<?= $block->getBackUrl() ?>">
+                <a class="actions back" href="<?= $block->escapeUrl($block->getBackUrl()) ?>">
                     <span>Go to My Subscriptions</span>
                 </a>
             </div>
@@ -145,9 +145,9 @@ if (!empty($subscriptionOrderDetails)) {
                     $countryName = $block->getCountryName($billingAddress['country_id']);
                     ?>
                     
-                    <address><?= $shippingAddress['firstname'].' '.$shippingAddress['lastname'] ?><br><?= $shippingAddress['company'] ?><br><?= $shippingAddress['street'] ?><br>
-                    <?= $shippingAddress['city'] ?>,  <?= $shippingAddress['region'] ?>, <?= $shippingAddress['postcode'] ?><br><?= $countryName ?><br>
-                    T: <a href="tel:<?= $shippingAddress['telephone'] ?>"><?= $shippingAddress['telephone'] ?></a></address>
+                    <address><?= $block->escapeHtml($shippingAddress['firstname'].' '.$shippingAddress['lastname']) ?><br><?= $block->escapeHtml($shippingAddress['company'] )?><br><?= $block->escapeHtml($shippingAddress['street']) ?><br>
+                    <?= $block->escapeHtml($shippingAddress['city']) ?>,  <?= $block->escapeHtml($shippingAddress['region']) ?>, <?= $block->escapeHtml($shippingAddress['postcode']) ?><br><?= $block->escapeHtml($countryName) ?><br>
+                    T: <a href="tel:<?= $block->escapeHtmlAttr($shippingAddress['telephone']) ?>"><?= $block->escapeHtml($shippingAddress['telephone']) ?></a></address>
 
                 </div>
             </div>
@@ -156,7 +156,7 @@ if (!empty($subscriptionOrderDetails)) {
                 <strong class="box-title">
                     <span>Shipping Method</span>
                 </strong>
-                <div class="box-content"><?= $subOrderDetail['shipping_description'] ?></div>
+                <div class="box-content"><?= $block->escapeHtml($subOrderDetail['shipping_description']) ?></div>
             </div>
             
             <div class="box box-order-billing-address">
@@ -169,9 +169,9 @@ if (!empty($subscriptionOrderDetails)) {
                     $countryName = $block->getCountryName($billingAddress['country_id']);
                     ?>
                     
-                    <address><?= $billingAddress['firstname'].' '.$billingAddress['lastname'] ?><br><?= $billingAddress['company'] ?><br><?= $billingAddress['street'] ?><br>
-                    <?= $billingAddress['city'] ?>,  <?= $billingAddress['region'] ?>, <?= $billingAddress['postcode'] ?><br><?= $countryName ?><br>
-                    T: <a href="tel:<?= $billingAddress['telephone'] ?>"><?= $billingAddress['telephone'] ?></a></address>
+                    <address><?= $block->escapeHtml($billingAddress['firstname'].' '.$billingAddress['lastname']) ?><br><?= $block->escapeHtml($billingAddress['company']) ?><br><?= $block->escapeHtml($billingAddress['street']) ?><br>
+                    <?= $block->escapeHtml($billingAddress['city']) ?>,  <?= $block->escapeHtml($billingAddress['region']) ?>, <?= $block->escapeHtml($billingAddress['postcode']) ?><br><?= $block->escapeHtml($countryName) ?><br>
+                    T: <a href="tel:<?= $block->escapeHtmlAttr($billingAddress['telephone']) ?>"><?= $block->escapeHtml($billingAddress['telephone']) ?></a></address>
 
                 </div>
             </div>
@@ -181,7 +181,7 @@ if (!empty($subscriptionOrderDetails)) {
                     <span>Payment Method</span>
                 </strong>
                 <div class="box-content">
-                    <dl class="payment-method"><dt class="title"><?= $orderPaymentMethod ?></dt></dl>
+                    <dl class="payment-method"><dt class="title"><?= $block->escapeHtml($orderPaymentMethod) ?></dt></dl>
                 </div>
             </div>
 

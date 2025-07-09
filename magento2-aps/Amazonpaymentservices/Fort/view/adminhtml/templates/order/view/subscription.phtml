@@ -80,21 +80,21 @@ if (!empty($subOrderDetails)) {
                             <th><strong>Change Subscription Status</strong></th>
                         </tr>
                     <?= "<tr>" ?>
-                    <?= "<td>".$orderDetail['product_name']."<br>SKU: ".$orderDetail['product_sku']."</td>" ?>
-                    <?= "<td>".$orderStatus."</td>" ?>
+                    <?= "<td>" . $block->escapeHtml($orderDetail['product_name']) . "<br>SKU: " . $block->escapeHtml($orderDetail['product_sku']) . "</td>" ?>
+                    <?= "<td>" . $block->escapeHtml($orderStatus) . "</td>" ?>
                     <?php /*= "<td>".$itemDetail['original_price']."</td>" ?>
                     <?= "<td>".$itemDetail['row_total_incl_tax']."</td>" */?>
-                        <?= "<td>".$itemDetail['qty_invoiced']."</td>" ?>
-                        <?= "<td>".date("F d, Y H:i:s", strtotime($orderDetail['subscription_start_date']))."</td>" ?>
-                        <?= "<td>".date("F d, Y H:i:s", strtotime($orderDetail['next_payment_date']))."</td>" ?>
+                        <?= "<td>" . $block->escapeHtml($itemDetail['qty_invoiced']) . "</td>" ?>
+                        <?= "<td>" . $block->escapeHtml(date("F d, Y H:i:s", strtotime($orderDetail['subscription_start_date'])))."</td>" ?>
+                        <?= "<td>" . $block->escapeHtml(date("F d, Y H:i:s", strtotime($orderDetail['next_payment_date'])))."</td>" ?>
                         <?= "<td>" ?>
-                                <?= "<select name='subscription[status]' data-subid = '".$orderDetail['id']."' data-orderid = '".$orderDetail['order_id']."' class='admin__control-select subscription_status'>" ?>
+                                <?= "<select name='subscription[status]' data-subid = '" . $block->escapeHtml($orderDetail['id']) . "' data-orderid = '" . $block->escapeHtml($orderDetail['order_id']) . "' class='admin__control-select subscription_status'>" ?>
                                     <?= "<option value=''  class='a'>--Change Status--</option>" ?>
-                                    <?php if ($orderDetail['subscription_status'] != 1) {?>
+                                    <?php if ($block->escapeHtml($orderDetail['subscription_status']) != 1) {?>
                                             <?= "<option value='1' class='a'>Active</option>" ?>
-                                    <?php } if ($orderDetail['subscription_status'] != 2) {?>
+                                    <?php } if ($block->escapeHtml($orderDetail['subscription_status']) != 2) {?>
                                         <?= "<option value='2' class='a'>On Hold</option>" ?>
-                                    <?php } if ($orderDetail['subscription_status'] != 1 || $orderDetail['subscription_status'] != 2 ) {?>
+                                    <?php } if ($block->escapeHtml($orderDetail['subscription_status']) != 1 || $block->escapeHtml($orderDetail['subscription_status']) != 2 ) {?>
                                         <?= "<option value='0' class='a'>Cancel</option>" ?>
                                     <?php } ?>
                                 <?= "</select>" ?>
@@ -156,18 +156,18 @@ if (!empty($subOrderDetails)) {
                                 ?>
                                 <?= "<tr>" ?>
                                         <td>
-                                            <a href = "<?= $baseUrl?>admin/sales/order/view/order_id/<?= $orderDetailSub['order_id']?>"><?= $orderDetailSub['order_increment_id']?></a>
+                                            <a href = "<?= $block->escapeUrl($baseUrl) ?>admin/sales/order/view/order_id/<?= $block->escapeHtml($orderDetailSub['order_id']) ?>"><?= $block->escapeHtml($orderDetailSub['order_increment_id']) ?></a>
                                             <small><?= ($orderDetailSub['order_increment_id'] == $orderDetail['order_increment_id']) ? '(Parent Order)' : '' ?></small>
                                         </td>
-                                <?= "<td>".$subProductDetail['product_name']."<br>SKU: ".$subProductDetail['product_sku']."</td>" ?>
+                                <?= "<td>" . $block->escapeHtml($subProductDetail['product_name']) . "<br>SKU: " . $block->escapeHtml($subProductDetail['product_sku']) . "</td>" ?>
                                 <?php /* = "<td>".$orderDetailSub['order_id']."</td>" ?>
                                 <?= "<td>".$orderDetailSub['order_increment_id']."</td>" */ ?>
                                         <?php /* = "<td>".$itemDetail['qty_invoiced']."</td>" ?>
                                         <?= "<td>".date("M d, Y H:i:s", strtotime($subProductDetail['subscription_start_date']))."</td>" */ ?>
-                                        <?= "<td>".date("F d, Y H:i:s", strtotime($orderDetailSub['created_at']))."</td>" ?>
+                                        <?= "<td>" . $block->escapeHtml(date("F d, Y H:i:s", strtotime($orderDetailSub['created_at'])))."</td>" ?>
                                         <?php /* = "<td>".date("M d, Y H:i:s", strtotime($subProductDetail['next_payment_date']))."</td>" */ ?>
-                                        <?= "<td>".$childOrderStatus."</td>" ?>
-                                        <?= "<td>".$rate."</td>" ?>
+                                        <?= "<td>" . $block->escapeHtml($childOrderStatus) . "</td>" ?>
+                                        <?= "<td>" . $block->escapeHtml($rate) . "</td>" ?>
                                         <?= "</tr>" ?>
                                 <?php } ?>
                             </tbody>
@@ -185,7 +185,7 @@ if (!empty($subOrderDetails)) {
             var statusValue = $(this).val();
             var statusCheck = ['0','1','2'];
             if(statusCheck.includes(statusValue)) {
-                var controllerUrl = '<?= $baseUrl ?>admin/amazonpaymentservicesfort/subscription/subscription/';
+                var controllerUrl = '<?= $block->escapeUrl($baseUrl) ?>admin/amazonpaymentservicesfort/subscription/subscription/';
                 if(confirm('Are you sure you want to change status?'))
                 {
                     var params = {orderid: orderId, subid : subid,status: statusValue};

@@ -17,22 +17,22 @@
                     <comment>
                         <![CDATA[<a href="https://www.payfort.com" target="_blank">Click here to sign up for Payfort account</a>]]>
                     </comment>
-                    <field id="merchant_identifier" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="merchant_identifier" translate="label" type="password" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Merchant Identifier</label>
                         <config_path>payment/aps_fort/merchant_identifier</config_path>
                         <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-20</validate>
                     </field>
-                    <field id="access_code" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="access_code" translate="label" type="password" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Access Code</label>
                         <config_path>payment/aps_fort/access_code</config_path>
                         <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-20</validate>
                     </field>
-                    <field id="sha_in_pass_phrase" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="sha_in_pass_phrase" translate="label" type="password" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Request SHA phrase</label>
                         <config_path>payment/aps_fort/sha_in_pass_phrase</config_path>
                         <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>
                     </field>
-                    <field id="sha_out_pass_phrase" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <field id="sha_out_pass_phrase" translate="label" type="password" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Response SHA phrase</label>
                         <config_path>payment/aps_fort/sha_out_pass_phrase</config_path>
                         <validate>required-entry no-whitespace validate-length minimum-length-1 maximum-length-50</validate>

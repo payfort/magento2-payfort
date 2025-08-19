@@ -2125,7 +2125,7 @@ class Data extends \Magento\Payment\Helper\Data
         return ['success' => $success, 'order' => $order];
     }
 
-    public function apsRefund($orderId, $currencyCode, $amount, $paymentMethod, $order)
+    public function apsRefund($orderId, $currencyCode, $amount, $paymentMethod, ?string $storeCode = null)
     {
         $language = $this->getLanguage();
         $amount = $this->convertAmount($amount, $currencyCode);
@@ -2134,8 +2134,8 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $data = [
             "command"             => 'REFUND',
-            "access_code"         => $this->getMainConfigData('access_code'),
-            "merchant_identifier" => $this->getMainConfigData('merchant_identifier'),
+            "access_code"         => $this->getMainConfigData('access_code', $storeCode),
+            "merchant_identifier" => $this->getMainConfigData('merchant_identifier', $storeCode),
             "merchant_reference"  => $orderId,
             "amount"              => $amount,
             "currency"            => strtoupper($currencyCode),

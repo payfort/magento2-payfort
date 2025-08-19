@@ -169,6 +169,8 @@ class CreditmemoAddData
             $baseCurrency = $this->_storeManager->getStore()->getBaseCurrencyCode();
             $this->_helper->log("\n\n 'Config Currency : ".$configCurrency."\n\n");
             $this->_helper->log("\n\n 'Base Currency : ".$baseCurrency."\n\n");
+            $this->_helper->log("\n\n 'Store Code : ".$order->getStoreId()."\n\n");
+
             if ($configCurrency === "base") {
                 $currencyCode = $baseCurrency;
             } else {
@@ -179,7 +181,7 @@ class CreditmemoAddData
             if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Valu::CODE) {
                 $orderIncrementId = $this->_helper->getApsValuRefFromOrderParams($orderId);
             }
-            $response = $this->_helper->apsRefund($orderIncrementId, $currencyCode, $amount, $paymentMethod, $order);
+            $response = $this->_helper->apsRefund($orderIncrementId, $currencyCode, $amount, $paymentMethod, $this->_storeManager->getStore($order->getStoreId())->getCode());
 
             if ($response['response_code'] != '06000') {
                 throw new \Exception('Amazon Payment Service Error : '.$response['response_message']);

@@ -2145,9 +2145,9 @@ class Data extends \Magento\Payment\Helper\Data
         $signature = '';
         if ($paymentMethod == \Amazonpaymentservices\Fort\Model\Method\Apple::CODE) {
             $data['access_code'] = $this->getConfig('payment/aps_apple/apple_access_code');
-            $signature = $this->calculateSignature($data, 'request', 'apple_pay');
+            $signature = $this->calculateSignature($data, 'request', 'apple_pay', $storeCode);
         } else {
-            $signature = $this->calculateSignature($data, 'request');
+            $signature = $this->calculateSignature($data, 'request', '', $storeCode);
         }
 
         $data['signature'] = $signature;

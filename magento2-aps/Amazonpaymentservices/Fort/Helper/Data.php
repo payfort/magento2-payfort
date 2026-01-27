@@ -2426,6 +2426,15 @@ class Data extends \Magento\Payment\Helper\Data
             if ($responseSource == 'h2h' && isset($responseParams['3ds_url'])) {
                 return $this->checkHostToHost($responseCode, $responseParams);
             }
+            
+            // Handle capture, void, and refund operations after signature validation
+            if ($responseCode == self::PAYMENT_METHOD_CAPTURE_STATUS || 
+                $responseCode == self::PAYMENT_METHOD_VOID_STATUS) {
+                $this->captureAuthorize($responseParams);
+            } elseif ($responseCode == self::PAYMENT_METHOD_REFUND_STATUS) {
+                $this->refundAps($responseParams);
+            }
+            
             if (substr($responseCode, 2) != '000') {
                 return $this->errorReponse($responseCode, $order, $responseStatusMessage);
             } else if ($responseMode == 'online' && $responseSource != 'h2h' && (($paymentMethod == self::PAYMENT_METHOD_CC) && ($integrationType == self::INTEGRATION_TYPE_STANDARD || $integrationType == self::INTEGRATION_TYPE_HOSTED))) {

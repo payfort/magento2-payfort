@@ -38,7 +38,9 @@ class Cancel extends \Magento\Framework\App\Action\Action
         $customerSession = ObjectManager::getInstance()->create('Magento\Customer\Model\Session');
 
         if (!($customerId = $customerSession->getId())) {
-            $this->_redirect($this->_storeManager->getStore()->getBaseUrl());
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setUrl($this->_storeManager->getStore()->getBaseUrl());
+            return $resultRedirect;
         }
 
         $resultRedirect = $this->resultRedirectFactory->create();

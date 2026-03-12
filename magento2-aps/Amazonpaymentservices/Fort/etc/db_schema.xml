@@ -5,16 +5,14 @@
         <column name="id" xsi:type="int" identity="true" unsigned="true" nullable="false" comment="Entity ID" />
         <column name="payment_type" xsi:type="varchar" length="255" nullable="false" comment="Capture type void or capture" />
         <column name="order_number" xsi:type="varchar" length="50" nullable="false" comment="Sales order id" />
-        <column name="amount" xsi:type="float" unsigned="true" nullable="false" default="0" comment="Amount of capture" />
+        <column name="amount" xsi:type="decimal" precision="12" scale="4" unsigned="true" nullable="false" default="0" comment="Amount of capture" />
         <column name="added_date" xsi:type="varchar" length="50" nullable="true" comment="captured/void date time" />
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>
-        <constraint xsi:type="foreign"
-                    referenceId="FK_CAPTURE_PAYMENT"
-                    table="aps_capture_payment" column="order_number"
-                    referenceTable="sales_order" referenceColumn="increment_id"
-                    onDelete="CASCADE"/>
+        <index referenceId="IDX_APS_CAPTURE_PAYMENT_ORDER_NUMBER" indexType="btree">
+            <column name="order_number"/>
+        </index>
     </table>
     <table name="aps_subscriptions" resource="default" engine="innodb" comment="APS Subscription table">
         <column name="id" xsi:type="int" identity="true" unsigned="true" nullable="false" comment="Entity ID" />
@@ -68,20 +66,20 @@
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>
-        <constraint xsi:type="foreign"
-                    referenceId="FK_STC_RELATION"
-                    table="aps_stc_relation" column="order_increment_id"
-                    referenceTable="sales_order" referenceColumn="increment_id"
-                    onDelete="CASCADE"/>
+        <index referenceId="IDX_APS_STC_RELATION_ORDER_INCREMENT_ID" indexType="btree">
+            <column name="order_increment_id"/>
+        </index>
     </table>
     <table name="aps_stc_token_order_relation" resource="default" engine="innodb" comment="APS stc token order relation">
+        <column name="id" xsi:type="int" identity="true" unsigned="true" nullable="false" comment="Entity ID" />
         <column name="order_increment_id" xsi:type="varchar" length="50" nullable="false" comment="Sales order incremented id" />
         <column name="token_name" xsi:type="varchar" length="50" nullable="true" comment="stc token name" />
-        <constraint xsi:type="foreign"
-                    referenceId="FK_STC_TOKEN_RELATION"
-                    table="aps_stc_relation" column="order_increment_id"
-                    referenceTable="sales_order" referenceColumn="increment_id"
-                    onDelete="CASCADE"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <index referenceId="IDX_APS_STC_TOKEN_ORDER_RELATION_ORDER_INCREMENT_ID" indexType="btree">
+            <column name="order_increment_id"/>
+        </index>
     </table>
     <table name="aps_order_params" resource="default" engine="innodb" comment="APS order params">
         <column name="id" xsi:type="int" identity="true" unsigned="true" nullable="false" comment="Entity ID" />

@@ -82,7 +82,7 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
     private function stcSaveCard($connection, $order, $responseParams)
     {
         if ($this->getHelper()->getConfig('payment/aps_fort_stc/token') == 1) {
-            $query = $connection->select()->from(['table'=>'aps_stc_relation'], ['id'])->where('table.token_name=?', $responseParams['token_name']);
+            $query = $connection->select()->from(['table'=>$helper->_connection->getTableName('aps_stc_relation')], ['id'])->where('table.token_name=?', $responseParams['token_name']);
             $stcTokenData = $connection->fetchRow($query);
             if (empty($stcTokenData)) {
                 $connection->insert(

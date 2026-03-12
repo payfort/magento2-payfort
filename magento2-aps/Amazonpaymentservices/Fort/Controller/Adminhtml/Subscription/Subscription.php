@@ -58,18 +58,18 @@ class Subscription extends \Magento\Backend\App\Action
             $model->setSubscriptionStatus($data['status']);
 
             if ($data['status'] == 1) {
-                $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+                $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
                 $apsSubInterval = $connection->fetchRow($query);
 
-                $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+                $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
                 $apsSubIntervalCount = $connection->fetchRow($query);
 
                 /* @Subscription Interval */
-                $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $model->getProductId());
+                $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $model->getProductId());
                 $prodApsSubInterval = $connection->fetchRow($query);
 
                 /* @Subscription Interval Count*/
-                $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $model->getProductId());
+                $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $model->getProductId());
                 $prodApsSubIntervalCount = $connection->fetchRow($query);
 
                 $date_now = date('Y-m-d H:i:s', strtotime('now'));

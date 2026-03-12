@@ -46,25 +46,25 @@ class DefaultItem
         $resource = ObjectManager::getInstance()->get('Magento\Framework\App\ResourceConnection');
         $connection = $resource->getConnection();
 
-        $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+        $query = $connection->select()->from(['table' => $resource->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
         $apsSubEnabled = $connection->fetchRow($query);
 
-        $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+        $query = $connection->select()->from(['table' => $resource->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
         $apsSubInterval = $connection->fetchRow($query);
 
-        $query = $connection->select()->from(['table' => 'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+        $query = $connection->select()->from(['table' => $resource->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
         $apsSubIntervalCount = $connection->fetchRow($query);
 
         /* @isSubscriptionProduct */
-        $query = $connection->select()->from(['table' => 'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $product->getId());
+        $query = $connection->select()->from(['table' => $resource->getTableName('catalog_product_entity_int')], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $product->getId());
         $prodApsSubEnabled = $connection->fetchRow($query);
 
         if (!empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
 
-            $query = $connection->select()->from(['table' => 'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $product->getId());
+            $query = $connection->select()->from(['table' => $resource->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $product->getId());
             $prodApsSubInterval = $connection->fetchRow($query);
 
-            $query = $connection->select()->from(['table' => 'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $product->getId());
+            $query = $connection->select()->from(['table' => $resource->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $product->getId());
             $prodApsSubIntervalCount = $connection->fetchRow($query);
 
             $data['aps_product_subscription'] = true;

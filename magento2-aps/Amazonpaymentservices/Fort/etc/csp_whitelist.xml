@@ -15,12 +15,34 @@
             <values>
                 <value id="visa" type="host">*.visa.com</value>
                 <value id="mastercard" type="host">*.mastercard.com</value>
-
+                <value id="payfort-script" type="host">*.payfort.com</value>
             </values>
         </policy>
-         <policy id="img-src">
+        <policy id="img-src">
             <values>
                 <value id="visa-img" type="host">*.visa.com</value>
+                <value id="payfort-img" type="host">*.payfort.com</value>
+            </values>
+        </policy>
+        <policy id="form-action">
+            <values>
+                <value id="payfort-checkout" type="host">*.payfort.com</value>
+                <value id="payfort-sandbox-checkout" type="host">sbcheckout.payfort.com</value>
+                <value id="payfort-live-checkout" type="host">checkout.payfort.com</value>
+            </values>
+        </policy>
+        <policy id="connect-src">
+            <values>
+                <value id="payfort-api" type="host">*.payfort.com</value>
+                <value id="payfort-sandbox-api" type="host">sbpaymentservices.payfort.com</value>
+                <value id="payfort-live-api" type="host">paymentservices.payfort.com</value>
+            </values>
+        </policy>
+        <policy id="frame-src">
+            <values>
+                <value id="payfort-frame" type="host">*.payfort.com</value>
+                <value id="payfort-sandbox-frame" type="host">sbcheckout.payfort.com</value>
+                <value id="payfort-live-frame" type="host">checkout.payfort.com</value>
             </values>
         </policy>
     </policies>

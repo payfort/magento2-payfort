@@ -2476,7 +2476,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $query = $connection
             ->select()
-            ->from(['table'=>'aps_order_params'])
+            ->from(['table'=>$this->_connection->getTableName('aps_order_params')])
             ->where('table.' . $parameter . '=?', $reference);
         $collections = $this->fetchAllQuery($query);
         if (empty($collections)) {
@@ -2513,7 +2513,7 @@ class Data extends \Magento\Payment\Helper\Data
         if (isset($responseParams['payment_option']) && $responseParams['payment_option'] == 'VALU') {
             $query = $connection
                 ->select()
-                ->from(['table'=>'aps_order_params'])
+                ->from(['table'=>$this->_connection->getTableName('aps_order_params')])
                 ->where('table.aps_valu_ref=?', $orderId);
             $collections = $this->fetchAllQuery($query);
             if (empty($collections)) {
@@ -2537,7 +2537,7 @@ class Data extends \Magento\Payment\Helper\Data
         ) {
             $query = $connection
                 ->select()
-                ->from(['table'=>'aps_order_params'])
+                ->from(['table'=>$this->_connection->getTableName('aps_order_params')])
                 ->where('table.aps_stc_ref=?', $orderId);
             $collections = $this->fetchAllQuery($query);
             if (empty($collections)) {
@@ -2859,29 +2859,29 @@ class Data extends \Magento\Payment\Helper\Data
 
         $connection = $this->_connection->getConnection();
 
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
         $apsSubEnabled = $connection->fetchRow($query);
 
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
         $apsSubInterval = $connection->fetchRow($query);
 
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
         $apsSubIntervalCount = $connection->fetchRow($query);
 
         foreach ($order->getAllItems() as $item) {
 
             /* @isSubscriptionProduct */
-            $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+            $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_int')], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
             $prodApsSubEnabled = $connection->fetchRow($query);
 
             if (!empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
 
                 /* @Subscription Interval */
-                $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+                $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
                 $prodApsSubInterval = $connection->fetchRow($query);
 
                 /* @Subscription Interval Count*/
-                $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+                $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
                 $prodApsSubIntervalCount = $connection->fetchRow($query);
 
                 $subscriptionStartDate = date('Y-m-d', strtotime('now'));
@@ -2943,12 +2943,12 @@ class Data extends \Magento\Payment\Helper\Data
         try {
             $connection = $this->_connection->getConnection();
 
-            $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+            $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
             $apsSubEnabled = $connection->fetchRow($query);
-            $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
+            $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval');
             $apsSubInterval = $connection->fetchRow($query);
 
-            $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
+            $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_interval_count');
             $apsSubIntervalCount = $connection->fetchRow($query);
 
             foreach ($newOrder->getAllItems() as $item) {
@@ -2971,15 +2971,15 @@ class Data extends \Magento\Payment\Helper\Data
     {
         /* @isSubscriptionProduct */
         $connection = $this->_connection->getConnection();
-        $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_int')], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $item->getProductId());
         $prodApsSubEnabled = $connection->fetchRow($query);
 
         /* @Subscription Interval */
-        $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubInterval['attribute_id'])->where('table.entity_id=?', $item->getProductId());
         $prodApsSubInterval = $connection->fetchRow($query);
 
         /* @Subscription Interval Count*/
-        $query = $connection->select()->from(['table'=>'catalog_product_entity_varchar'], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_varchar')], ['value'])->where('table.attribute_id=?', $apsSubIntervalCount['attribute_id'])->where('table.entity_id=?', $item->getProductId());
         $prodApsSubIntervalCount = $connection->fetchRow($query);
 
         $date_now = date('Y-m-d H:i:s', strtotime('now'));
@@ -3024,7 +3024,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $orderId = $this->getApsStcRefFromOrderParams($newOrder->getId(), null);
 
                 $connection = $this->_connection->getConnection();
-                $query = $connection->select()->from(['table'=>'aps_stc_token_order_relation'], ['token_name'])->where('table.order_increment_id=?', $orderId);
+                $query = $connection->select()->from(['table'=>$this->_connection->getTableName('aps_stc_token_order_relation')], ['token_name'])->where('table.order_increment_id=?', $orderId);
                 $cardList = $connection->fetchAll($query);
                 foreach ($cardList as $card) {
                     $tokenName = $card['token_name'];
@@ -3139,14 +3139,14 @@ class Data extends \Magento\Payment\Helper\Data
         $items = $this->_cart->getQuote()->getAllItems();
         $connection = $this->_connection->getConnection();
 
-        $query = $connection->select()->from(['table'=>'eav_attribute'], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('eav_attribute')], ['attribute_id'])->where('table.attribute_code=?', 'aps_sub_enabled');
         $apsSubEnabled = $connection->fetchRow($query);
 
         foreach ($items as $item) {
             $productEntityId = $item->getProductId();
 
             /** @isSubscriptionProduct */
-            $query = $connection->select()->from(['table'=>'catalog_product_entity_int'], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $productEntityId);
+            $query = $connection->select()->from(['table'=>$this->_connection->getTableName('catalog_product_entity_int')], ['value'])->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])->where('table.entity_id=?', $productEntityId);
             $prodApsSubEnabled = $connection->fetchRow($query);
 
             if (!empty($prodApsSubEnabled) && $prodApsSubEnabled['value'] == 1) {
@@ -3356,7 +3356,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         if ($this->getConfig('payment/aps_fort_stc/token') == 1) {
             $connection = $this->_connection->getConnection();
-            $query = $connection->select()->from(['table'=>'aps_stc_relation'], ['id'])->where('table.token_name=?', $responseParams['token_name']);
+            $query = $connection->select()->from(['table'=>$this->_connection->getTableName('aps_stc_relation')], ['id'])->where('table.token_name=?', $responseParams['token_name']);
             $stcTokenData = $connection->fetchRow($query);
             if (empty($stcTokenData)) {
                 $connection->insert(
@@ -3475,7 +3475,7 @@ class Data extends \Magento\Payment\Helper\Data
         $connection = $this->_connection->getConnection();
 
         if ($orderId) {
-            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_id=?', $orderId);
+            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_id=?', $orderId);
             $orderParams = $this->fetchAllQuery($query);
 
             if (empty($orderParams)) {
@@ -3483,11 +3483,11 @@ class Data extends \Magento\Payment\Helper\Data
                 // in case the value is not inside the new table
                 // search it inside the sales_order table
 
-                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.entity_id=?', $orderId);
+                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.entity_id=?', $orderId);
                 $orderParams = $this->fetchAllQuery($query);
             }
         } else {
-            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_increment_id=?', $orderIncrementId);
+            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_increment_id=?', $orderIncrementId);
             $orderParams = $this->fetchAllQuery($query);
 
             if (empty($orderParams)) {
@@ -3495,7 +3495,7 @@ class Data extends \Magento\Payment\Helper\Data
                 // in case the value is not inside the new table
                 // search it inside the sales_order table
 
-                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.increment_id=?', $orderIncrementId);
+                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.increment_id=?', $orderIncrementId);
                 $orderParams = $this->fetchAllQuery($query);
             }
         }
@@ -3521,25 +3521,25 @@ class Data extends \Magento\Payment\Helper\Data
         $connection = $this->_connection->getConnection();
 
         if ($orderId) {
-            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_id=?', $orderId);
+            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_id=?', $orderId);
             $orderParams = $this->fetchAllQuery($query);
             if (empty($orderParams)) {
                 // backwards compatibility
                 // in case the value is not inside the new table
                 // search it inside the sales_order table
 
-                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.entity_id=?', $orderId);
+                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.entity_id=?', $orderId);
                 $orderParams = $this->fetchAllQuery($query);
             }
         } else {
-            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_increment_id=?', $orderIncrementId);
+            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_increment_id=?', $orderIncrementId);
             $orderParams = $this->fetchAllQuery($query);
             if (empty($orderParams)) {
                 // backwards compatibility
                 // in case the value is not inside the new table
                 // search it inside the sales_order table
 
-                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.increment_id=?', $orderIncrementId);
+                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.increment_id=?', $orderIncrementId);
                 $orderParams = $this->fetchAllQuery($query);
             }
         }
@@ -3566,25 +3566,25 @@ class Data extends \Magento\Payment\Helper\Data
         $connection = $this->_connection->getConnection();
 
         if ($orderId) {
-            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_id=?', $orderId);
+            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_id=?', $orderId);
             $orderParams = $this->fetchAllQuery($query);
             if (empty($orderParams)) {
                 // backwards compatibility
                 // in case the value is not inside the new table
                 // search it inside the sales_order table
 
-                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.entity_id=?', $orderId);
+                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.entity_id=?', $orderId);
                 $orderParams = $this->fetchAllQuery($query);
             }
         } else {
-            $query = $connection->select()->from(['table' => 'aps_order_params'])->where('table.order_increment_id=?', $orderId);
+            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_increment_id=?', $orderId);
             $orderParams = $this->fetchAllQuery($query);
             if (empty($orderParams)) {
                 // backwards compatibility
                 // in case the value is not inside the new table
                 // search it inside the sales_order table
 
-                $query = $connection->select()->from(['table' => 'sales_order'])->where('table.increment_id=?', $orderId);
+                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.increment_id=?', $orderId);
                 $orderParams = $this->fetchAllQuery($query);
             }
         }
@@ -3609,7 +3609,7 @@ class Data extends \Magento\Payment\Helper\Data
     {
         $connection = $this->_connection->getConnection();
 
-        $query = $connection->select()->from(['table'=>'aps_order_params'])->where('table.order_id=?', $orderId);
+        $query = $connection->select()->from(['table'=>$this->_connection->getTableName('aps_order_params')])->where('table.order_id=?', $orderId);
         $orderParams = $this->fetchAllQuery($query);
         if (empty($orderParams)) {
             // backwards compatibility

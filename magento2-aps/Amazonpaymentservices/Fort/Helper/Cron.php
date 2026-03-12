@@ -260,12 +260,12 @@ class Cron extends \Magento\Payment\Helper\Data
             $connection = $this->_connection->getConnection();
             /* @isSubscriptionProduct */
             $query = $connection->select()
-                ->from(['table' => 'eav_attribute'], ['attribute_id'])
+                ->from(['table' => $this->_connection->getTableName('eav_attribute')], ['attribute_id'])
                 ->where('table.attribute_code=?', 'aps_sub_enabled');
             $apsSubEnabled = $connection->fetchRow($query);
 
             $query = $connection->select()
-                ->from(['table' => 'catalog_product_entity_int'], ['value'])
+                ->from(['table' => $this->_connection->getTableName('catalog_product_entity_int')], ['value'])
                 ->where('table.attribute_id=?', $apsSubEnabled['attribute_id'])
                 ->where('table.entity_id=?', $item->getProductId());
             $prodApsSubEnabled = $connection->fetchRow($query);

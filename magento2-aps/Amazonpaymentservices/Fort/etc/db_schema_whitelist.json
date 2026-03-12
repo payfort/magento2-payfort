@@ -1,0 +1,105 @@
+{
+    "aps_capture_payment": {
+        "column": {
+            "id": true,
+            "payment_type": true,
+            "order_number": true,
+            "amount": true,
+            "added_date": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "IDX_APS_CAPTURE_PAYMENT_ORDER_NUMBER": true
+        }
+    },
+    "aps_subscriptions": {
+        "column": {
+            "id": true,
+            "product_id": true,
+            "product_name": true,
+            "product_sku": true,
+            "order_id": true,
+            "order_increment_id": true,
+            "qty": true,
+            "customer_id": true,
+            "item_id": true,
+            "subscription_start_date": true,
+            "next_payment_date": true,
+            "subscription_status": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_SUBSCRIPTION_ORDER": true
+        }
+    },
+    "aps_subscription_orders": {
+        "column": {
+            "id": true,
+            "aps_subscription_id": true,
+            "order_id": true,
+            "order_increment_id": true,
+            "customer_id": true,
+            "item_id": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_SUBSCRIPTION_ORDERS": true
+        }
+    },
+    "aps_stc_relation": {
+        "column": {
+            "id": true,
+            "customer_id": true,
+            "order_increment_id": true,
+            "phone_number": true,
+            "token_name": true,
+            "added_date": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "IDX_APS_STC_RELATION_ORDER_INCREMENT_ID": true
+        }
+    },
+    "aps_stc_token_order_relation": {
+        "column": {
+            "id": true,
+            "order_increment_id": true,
+            "token_name": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        },
+        "index": {
+            "IDX_APS_STC_TOKEN_ORDER_RELATION_ORDER_INCREMENT_ID": true
+        }
+    },
+    "aps_order_params": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "order_increment_id": true,
+            "aps_stc_ref": true,
+            "aps_valu_ref": true,
+            "aps_params": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "FK_ORDER_PARAMS": true
+        },
+        "index": {
+            "index_aps_stc_ref": true,
+            "index_aps_valu_ref": true,
+            "index_order_increment_id": true
+        }
+    }
+}

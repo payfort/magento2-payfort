@@ -80,14 +80,14 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
         $subscriptionOrder = null;
         $subOrderIds = [];
 
-        $query = $connection->select()->from(['table'=>'aps_subscription_orders'])->where('table.order_increment_id=?', $orderIncrementId);
+        $query = $connection->select()->from(['table'=>$this->_helper->_connection->getTableName('aps_subscription_orders')])->where('table.order_increment_id=?', $orderIncrementId);
         $subscriptionItems = $this->_helper->fetchAllQuery($query);
         
         foreach ($subscriptionItems as $subItems) {
             $subOrderIds[] = $subItems['aps_subscription_id'];
         }
 
-        $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.id IN(?)', $subOrderIds);
+        $query = $connection->select()->from(['table'=>$this->_helper->_connection->getTableName('aps_subscriptions')])->where('table.id IN(?)', $subOrderIds);
         return $this->_helper->fetchAllQuery($query);
     }
 
@@ -95,7 +95,7 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
     {
         $connection = $this->getConnection();
         
-        $query = $connection->select()->from(['table'=>'aps_subscription_orders'])->where('table.order_increment_id=?', $orderIncrementId);
+        $query = $connection->select()->from(['table'=>$this->_helper->_connection->getTableName('aps_subscription_orders')])->where('table.order_increment_id=?', $orderIncrementId);
         $subOrderDetail = $this->_helper->fetchAllQuery($query);
         
         if (!empty($subOrderDetail)) {
@@ -104,7 +104,7 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
                 $parentIds[] = $subOrder['aps_subscription_id'];
             }
             
-            $query = $connection->select()->from(['table'=>'aps_subscription_orders'])->where('table.aps_subscription_id IN(?)', $parentIds)->order(['table.created_at DESC']);
+            $query = $connection->select()->from(['table'=>$this->_helper->_connection->getTableName('aps_subscription_orders')])->where('table.aps_subscription_id IN(?)', $parentIds)->order(['table.created_at DESC']);
             return $this->_helper->fetchAllQuery($query);
         } else {
             return [];
@@ -115,7 +115,7 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
     {
         $connection = $this->getConnection();
         
-        $query = $connection->select()->from(['table'=>'aps_subscriptions'])->where('table.id=?', $subOrderId);
+        $query = $connection->select()->from(['table'=>$this->_helper->_connection->getTableName('aps_subscriptions')])->where('table.id=?', $subOrderId);
         return $this->_helper->fetchAllQuery($query);
     }
 
@@ -123,7 +123,7 @@ class SubscriptionList extends \Magento\Framework\View\Element\Template
     {
         $connection = $this->getConnection();
 
-        $query = $connection->select()->from(['table'=>'aps_subscription_orders'])->where('table.aps_subscription_id=?', $subOrderId)->order(['table.created_at DESC']);
+        $query = $connection->select()->from(['table'=>$this->_helper->_connection->getTableName('aps_subscription_orders')])->where('table.aps_subscription_id=?', $subOrderId)->order(['table.created_at DESC']);
         return $this->_helper->fetchAllQuery($query);
     }
 

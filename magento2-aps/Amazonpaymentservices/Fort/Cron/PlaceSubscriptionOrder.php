@@ -86,7 +86,7 @@ class PlaceSubscriptionOrder
             $this->_helper->log('Date Now: ' . $dateNow);
 
             $query = $connection->select()
-                ->from(['table' => 'aps_subscriptions'])
+                ->from(['table' => $this->_connection->getTableName('aps_subscriptions')])
                 ->where('table.next_payment_date=?', $dateNow)
                 ->where('table.subscription_status = 1');
             $getAllSubscriptionOrders = $this->_helper->fetchAllQuery($query);

@@ -181,7 +181,7 @@ if (!empty($subscriptionOrderDetails)) {
                 $itemDetail = $connection->fetchRow($query);
                 ?>
                 <?= "<tr>" ?>
-                <?= "<td><a href = '". $block->escapeUrl($block->getMainOrderlUrl() . "order_id/" . escapeHtml($orderDetail['order_id'])) . "'>" . $block->escapeHtml($orderDetail['order_increment_id']) . "</a></td>" ?>
+                <?= "<td><a href = '". $block->escapeUrl($block->getMainOrderlUrl() . "order_id/" . $block->escapeHtml($orderDetail['order_id'])) . "'>" . $block->escapeHtml($orderDetail['order_increment_id']) . "</a></td>" ?>
                 <?= "<td>" . $block->escapeHtml($subProductDetail['product_name']) . "<br>SKU: " . $block->escapeHtml($subProductDetail['product_sku']) . "</td>" ?>
                 <?php /* = "<td>".$orderDetail['order_id']."</td>" ?>
                 <?= "<td>".$orderDetail['order_increment_id']."</td>" */ ?>

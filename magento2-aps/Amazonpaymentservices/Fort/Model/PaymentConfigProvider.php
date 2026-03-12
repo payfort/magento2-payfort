@@ -304,7 +304,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
         if ($this->apsHelper->getConfig('payment/aps_fort_stc/token')) {
             $customerId = $this->session->getCustomer()->getId();
             $connection = $this->_connection->getConnection();
-            $query = $connection->select()->from(['table'=>'aps_stc_relation'], ['token_name','phone_number'])->where('table.customer_id=?', $customerId);
+            $query = $connection->select()->from(['table'=>$this->_connection->getTableName('aps_stc_relation')], ['token_name','phone_number'])->where('table.customer_id=?', $customerId);
             $cardList = $connection->fetchAll($query);
             $temp=0;
             foreach ($cardList as $card) {

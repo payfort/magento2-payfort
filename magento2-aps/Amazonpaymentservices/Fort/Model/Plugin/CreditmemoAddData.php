@@ -169,8 +169,6 @@ class CreditmemoAddData
             $baseCurrency = $this->_storeManager->getStore()->getBaseCurrencyCode();
             $this->_helper->log("\n\n 'Config Currency : ".$configCurrency."\n\n");
             $this->_helper->log("\n\n 'Base Currency : ".$baseCurrency."\n\n");
-            $this->_helper->log("\n\n 'Store Code : ".$order->getStoreId()."\n\n");
-
             if ($configCurrency === "base") {
                 $currencyCode = $baseCurrency;
             } else {

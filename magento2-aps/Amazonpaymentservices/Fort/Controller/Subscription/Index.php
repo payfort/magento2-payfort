@@ -43,16 +43,14 @@ class Index extends \Magento\Framework\App\Action\Action
 
     public function execute()
     {
-        // $newOrder = $this->_helper->getOrderById('006000051');
-        // $a = $newOrder->getPayment()->getExtensionAttributes()->getVaultPaymentToken()->getEntityId();
-        // print_r($a); exit();
-
         $customerSession = ObjectManager::getInstance()->create('Magento\Customer\Model\Session');
 
         if (!($customerId = $customerSession->getId())) {
             $url = $this->_url->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
             $ref_login_url = $this->_url->getUrl('customer/account/login', ['referer' => base64_encode($url)]);
-            $this->_redirect($ref_login_url);
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setUrl($ref_login_url);
+            return $resultRedirect;
         }
 
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);

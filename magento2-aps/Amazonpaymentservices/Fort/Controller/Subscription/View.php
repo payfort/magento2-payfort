@@ -41,7 +41,34 @@ class View extends \Magento\Framework\App\Action\Action
         if (!($customerId = $customerSession->getId())) {
             $url = $this->_url->getUrl('*/*/*', ['_current' => true, '_use_rewrite' => true]);
             $ref_login_url = $this->_url->getUrl('customer/account/login', ['referer' => base64_encode($url)]);
-            $this->_redirect($ref_login_url);
+            $resultRedirect = $this->resultRedirectFactory->create();
+            $resultRedirect->setUrl($ref_login_url);
+            return $resultRedirect;
+        }
+
+        // Validate order_id parameter exists
+        $orderId = $this->getRequest()->getParam('order_id');
+        if (!$orderId) {
+            $this->messageManager->addErrorMessage(__('Invalid subscription.'));
+            $resultRedirect = $this->resultRedirectFactory->create();
+            return $resultRedirect->setPath('apsfort/subscription/index');
+        }
+
+        // Verify the subscription belongs to the authenticated customer
+        $resource = ObjectManager::getInstance()->get(\Magento\Framework\App\ResourceConnection::class);
+        $connection = $resource->getConnection();
+        $tableName = $resource->getTableName('aps_subscriptions');
+
+        $query = $connection->select()
+            ->from($tableName)
+            ->where('id = ?', (int)$orderId)
+            ->where('customer_id = ?', (int)$customerId);
+        $subscription = $connection->fetchRow($query);
+
+        if (!$subscription) {
+            $this->messageManager->addErrorMessage(__('You do not have permission to view this subscription.'));
+            $resultRedirect = $this->resultRedirectFactory->create();
+            return $resultRedirect->setPath('apsfort/subscription/index');
         }
 
         $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);

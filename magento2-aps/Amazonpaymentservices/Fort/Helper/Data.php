@@ -2371,14 +2371,9 @@ class Data extends \Magento\Payment\Helper\Data
             $responseParams  = $fortParams;
             $success         = false;
 
-            $orderId = $this->getOrderId($responseParams);
-
-            $order = $this->getOrderById($orderId);
-
             if (empty($responseParams)) {
                 $responseMessage = __('Invalid fort response parameters');
                 $this->log($responseMessage);
-                $this->restoreQuote($order);
                 $this->_messageManager->addError($responseMessage);
                 return false;
             }
@@ -2386,10 +2381,26 @@ class Data extends \Magento\Payment\Helper\Data
             if (empty($responseParams['merchant_reference'])) {
                 $responseMessage = "Merchant Reference not found\n\n" . json_encode($responseParams, 1);
                 $this->log($responseMessage);
-                $this->restoreQuote($order);
                 $this->_messageManager->addError($responseMessage);
                 return false;
             }
+
+            // Require signature and essential fields that all legitimate APS responses contain.
+            // This prevents attackers from sending minimal payloads (e.g., just merchant_reference + response_code)
+            // to manipulate order states via the webhook endpoint.
+            $requiredFields = ['signature', 'response_code', 'merchant_reference'];
+            foreach ($requiredFields as $requiredField) {
+                if (empty($responseParams[$requiredField])) {
+                    $responseMessage = "Security validation failed: missing required field '$requiredField'";
+                    $this->log($responseMessage);
+                    $this->_messageManager->addError(__('Invalid response parameters.'));
+                    return false;
+                }
+            }
+
+            $orderId = $this->getOrderId($responseParams);
+
+            $order = $this->getOrderById($orderId);
 
             $responseType          = $responseParams['response_message'] ?? '';
             $responseStatusMessage = $responseType;
@@ -2667,6 +2678,32 @@ class Data extends \Magento\Payment\Helper\Data
             $orderId = $this->getApsParamsIncrementIdByReference('aps_valu_ref', $orderId);
             $orders = $this->_orderInterface->loadByIncrementId($orderId);
         }
+
+        // Validate that the order exists and is in a valid state for capture/void operations
+        if (empty($orders->getId())) {
+            $this->log("captureAuthorize: Order not found for merchant_reference: $orderId. Skipping.");
+            return;
+        }
+
+        // Verify the order was paid using an APS payment method
+        $paymentMethod = $orders->getPayment() ? $orders->getPayment()->getMethod() : '';
+        if (!$this->isApsPaymentMethod($paymentMethod)) {
+            $this->log("captureAuthorize: Order $orderId payment method ($paymentMethod) is not an APS method. Skipping.");
+            return;
+        }
+
+        // Validate order state: only allow capture/void on orders in valid states
+        $allowedStatesForCaptureVoid = [
+            Order::STATE_PROCESSING,
+            Order::STATE_PENDING_PAYMENT,
+            Order::STATE_NEW,
+            Order::STATE_PAYMENT_REVIEW,
+        ];
+        if (!in_array($orders->getState(), $allowedStatesForCaptureVoid)) {
+            $this->log("captureAuthorize: Order $orderId is in state '{$orders->getState()}' which is not valid for capture/void. Skipping.");
+            return;
+        }
+
         if ($responseParams['response_code'] == self::PAYMENT_METHOD_CAPTURE_STATUS) {
             $saveData['payment_type'] = 'capture';
         } elseif ($responseParams['response_code'] == self::PAYMENT_METHOD_VOID_STATUS) {
@@ -2706,6 +2743,30 @@ class Data extends \Magento\Payment\Helper\Data
             $this->log('Refund Orderid:'.$orderId);
             $orders = $this->_orderInterface->loadByIncrementId($orderId);
         }
+
+        // Validate that the order exists and is in a valid state for refund operations
+        if (empty($orders->getId())) {
+            $this->log("refundAps: Order not found for merchant_reference: $orderId. Skipping.");
+            return;
+        }
+
+        // Verify the order was paid using an APS payment method
+        $paymentMethod = $orders->getPayment() ? $orders->getPayment()->getMethod() : '';
+        if (!$this->isApsPaymentMethod($paymentMethod)) {
+            $this->log("refundAps: Order $orderId payment method ($paymentMethod) is not an APS method. Skipping.");
+            return;
+        }
+
+        // Validate order state: only allow refund on orders that have been processed
+        $allowedStatesForRefund = [
+            Order::STATE_PROCESSING,
+            Order::STATE_COMPLETE,
+        ];
+        if (!in_array($orders->getState(), $allowedStatesForRefund)) {
+            $this->log("refundAps: Order $orderId is in state '{$orders->getState()}' which is not valid for refund. Skipping.");
+            return;
+        }
+
         $amountRate = $orders->getBaseToOrderRate();
         $orderIncId = $orders->getId();
         $this->log('AmountRate:'.$amountRate);

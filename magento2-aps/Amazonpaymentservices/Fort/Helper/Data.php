@@ -2582,11 +2582,8 @@ class Data extends \Magento\Payment\Helper\Data
         $responseMessage = __('Invalid response signature.');
         $logMsg = sprintf('Invalid Signature. Calculated: %1s, Response: %2s', $signature, $responseSignature);
         $this->log($logMsg);
-        $r = $this->orderFailed($order, 'Invalid Signature.', '15777');
-        if ($r) {
-            $this->restoreQuote($order);
-            $this->_messageManager->addError($responseMessage);
-        }
+
+        $this->_messageManager->addError($responseMessage);
 
         return false;
     }

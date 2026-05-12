@@ -46,9 +46,17 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
             } else {
                 $returnUrl = $this->getHelper()->getUrl('checkout/cart');
 
+                // Only perform destructive order operations (delete) if the response
+                // signature is valid. This prevents forged callback requests with
+                // invalid signatures from triggering order deletion.
+                $notIncludedParams = ['signature', 'aps_fort', 'integration_type', 'form_key'];
+                $responseGatewayParams = array_diff_key($responseParams, array_flip($notIncludedParams));
+                $calculatedSignature = $helper->calculateSignature($responseGatewayParams, 'response');
+                $isSignatureValid = strtolower($calculatedSignature) === strtolower($responseParams['signature'] ?? '');
+
                 $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
 
-                if ($orderAfterPayment === OrderOptions::DELETE_ORDER && !$helper->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
+                if ($isSignatureValid && $orderAfterPayment === OrderOptions::DELETE_ORDER && !$helper->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
                     $helper->deleteOrder($order);
                 }
             }

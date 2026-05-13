@@ -17,7 +17,7 @@ if (isset($data['additionalData']['command']) && \Amazonpaymentservices\Fort\Mod
         </tr>
         <tr>
             <th><?= /* @noEscape */ __('Title:') ?></th>
-            <td><?= /* @noEscape */ $data['title']; ?></td>
+            <td><?= $block->escapeHtml($data['title']); ?></td>
         </tr>
     </table>
     <br>
@@ -50,7 +50,7 @@ if (isset($data['additionalData']['command']) && \Amazonpaymentservices\Fort\Mod
                         continue;
                     }
                     ?>
-                        <td><?= /* @noEscape */ $v; ?></td>
+                        <td><?= $block->escapeHtml($v); ?></td>
                     <?php
                 }
                 ?>

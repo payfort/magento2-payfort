@@ -66,8 +66,8 @@ class GetPurchaseData extends \Magento\Framework\App\Action\Action implements Cs
         $mobileNumber = $this->getRequest()->getParam('mobileNumber');
         $otp = $this->getRequest()->getParam('otp');
         $tenure = $this->getRequest()->getParam('tenure');
-        $valuTenureAmount = $this->getRequest()->getParam('valu_tenure_amount');
-        $valuTenureInterest = $this->getRequest()->getParam('valu_tenure_interest');
+        $valuTenureAmount = preg_replace('/[^0-9.,]/', '', (string)$this->getRequest()->getParam('valu_tenure_amount'));
+        $valuTenureInterest = preg_replace('/[^0-9.,]/', '', (string)$this->getRequest()->getParam('valu_tenure_interest'));
         $downPayment = $this->getRequest()->getParam('downPayment');
         $wallet_amount = $this->getRequest()->getParam('walletAmount');
         $cashback_amount = $this->getRequest()->getParam('cashbackAmount');

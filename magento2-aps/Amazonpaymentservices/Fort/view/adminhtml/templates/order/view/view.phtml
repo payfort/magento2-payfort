@@ -17,7 +17,7 @@ if ($isAvailable) {
             <td>
                 <?php if (isset($data['additionalData']['command'])) {
                     ?>
-                    <?= /* @noEscape */ $block->escapeHtml($data['additionalData']['command']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['command']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -25,7 +25,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Merchant Reference')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['merchant_reference'])) { ?>
-                    <?= /* @noEscape */  ($data['additionalData']['merchant_reference']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['merchant_reference']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -33,7 +33,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Payment Option')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['payment_option'])) { ?>
-                    <?= /* @noEscape */  ($data['additionalData']['payment_option']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['payment_option']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -43,7 +43,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__('Installments')); ?></strong></td>
                 <td>
-                    <?= /* @noEscape */ ($data['additionalData']['number_of_installments']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['number_of_installments']); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -53,7 +53,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__('Installment Amount')); ?></strong></td>
                 <td>
-                    <?= /* @noEscape */ ($data['additionalData']['installment_amount']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['installment_amount']); ?>
                 </td>
             </tr>
         <?php } ?>
@@ -63,7 +63,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__('Installment Interest')); ?></strong></td>
                 <td>
-                    <?= /* @noEscape */ $data['additionalData']['installment_interest']; ?>
+                    <?= $block->escapeHtml($data['additionalData']['installment_interest']); ?>
                 </td>
             </tr>
             <?php } ?>
@@ -75,7 +75,7 @@ if ($isAvailable) {
                 <td><strong><?= $block->escapeHtml(__('Tenure')); ?></strong></td>
                 <td>
                     <?php if (isset($data['additionalData']['valu_tenure'])) { ?>
-                        <?=  /* @noEscape */($data['additionalData']['valu_tenure']);?>
+                        <?= $block->escapeHtml($data['additionalData']['valu_tenure']); ?>
                     <?php } ?>
                 </td>
             </tr>
@@ -83,7 +83,7 @@ if ($isAvailable) {
                 <td><strong><?= $block->escapeHtml(__('Tenure Amount')); ?></strong></td>
                 <td>
                     <?php if (isset($data['additionalData']['valu_tenure_amount'])) { ?>
-                        <?= /* @noEscape */($data['additionalData']['valu_tenure_amount']); ?>
+                        <?= $block->escapeHtml($data['additionalData']['valu_tenure_amount']); ?>
                     <?php } ?>
                 </td>
             </tr>
@@ -91,7 +91,7 @@ if ($isAvailable) {
                 <td><strong><?= $block->escapeHtml(__('Admin Fee')); ?></strong></td>
                 <td>
                     <?php if (isset($data['additionalData']['valu_tenure_interest'])) { ?>
-                        <?= /* @noEscape */ ($data['additionalData']['valu_tenure_interest']); ?>
+                        <?= $block->escapeHtml($data['additionalData']['valu_tenure_interest']); ?>
                         <?php } ?>
                 </td>
             </tr>
@@ -102,7 +102,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Card Token')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['token_name'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['token_name']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['token_name']); ?>
                     <?php } ?>
             </td>
         </tr>
@@ -110,7 +110,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Card Expiry')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['expiry_date'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['expiry_date']);?>
+                    <?= $block->escapeHtml($data['additionalData']['expiry_date']); ?>
                     <?php } ?>
             </td>
         </tr>
@@ -118,7 +118,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Card Number')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['card_number'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['card_number']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['card_number']); ?>
                     <?php } ?>
             </td>
         </tr>
@@ -126,7 +126,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Authorization Code')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['authorization_code'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['authorization_code']);?>
+                    <?= $block->escapeHtml($data['additionalData']['authorization_code']); ?>
                      <?php } ?>
             </td>
         </tr>
@@ -134,7 +134,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Response Code')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['response_code'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['response_code']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['response_code']); ?>
                     <?php } ?>
             </td>
         </tr>
@@ -142,7 +142,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Acquier Response Code')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['acquirer_response_code'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['acquirer_response_code']);?>
+                    <?= $block->escapeHtml($data['additionalData']['acquirer_response_code']); ?>
                     <?php } ?>
             </td>
         </tr>
@@ -150,7 +150,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Reconciliation Reference')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['reconciliation_reference'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['reconciliation_reference']);?>
+                    <?= $block->escapeHtml($data['additionalData']['reconciliation_reference']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -158,7 +158,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Acquirer Response Message')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['acquirer_response_message'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['acquirer_response_message']);?>
+                    <?= $block->escapeHtml($data['additionalData']['acquirer_response_message']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -166,7 +166,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Customer IP')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['customer_ip'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['customer_ip']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['customer_ip']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -174,7 +174,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Customer Email')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['customer_email'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['customer_email']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['customer_email']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -182,7 +182,7 @@ if ($isAvailable) {
             <td><strong><?= $block->escapeHtml(__('Phone Number')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['phone_number'])) { ?>
-                    <?= /* @noEscape */ ($data['additionalData']['phone_number']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['phone_number']); ?>
                 <?php } ?>
             </td>
         </tr>
@@ -190,7 +190,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__($data['additionalData']['payment_option'] . ' third party transaction number')); ?></strong></td>
                 <td>
-                    <?= /* @noEscape */ ($data['additionalData']['third_party_transaction_number']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['third_party_transaction_number']); ?>
                 </td>
             </tr>
         <?php endif ?>
@@ -198,7 +198,7 @@ if ($isAvailable) {
             <tr>
                 <td><strong><?= $block->escapeHtml(__('KNET Reference Number')); ?></strong></td>
                 <td>
-                    <?= /* @noEscape */ ($data['additionalData']['knet_ref_number']); ?>
+                    <?= $block->escapeHtml($data['additionalData']['knet_ref_number']); ?>
                 </td>
             </tr>
         <?php endif ?>

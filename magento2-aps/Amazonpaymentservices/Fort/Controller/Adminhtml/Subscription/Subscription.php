@@ -6,8 +6,6 @@ use Magento\Backend\App\Action\Context;
 
 class Subscription extends \Magento\Backend\App\Action
 {
-    protected $_publicActions = ['subscription'];
-
     /**
      * @var Data
      */

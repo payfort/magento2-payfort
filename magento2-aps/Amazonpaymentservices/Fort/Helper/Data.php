@@ -1527,6 +1527,18 @@ class Data extends \Magento\Payment\Helper\Data
         $shaInPassPhrase = html_entity_decode(htmlentities($shaInPassPhrase));
         $shaOutPassPhrase = html_entity_decode(htmlentities($shaOutPassPhrase));
         //@codingStandardsIgnoreEnd
+
+        // Reject signature computation when passphrase or algorithm is not configured
+        if ($signType == 'request') {
+            if (empty($shaInPassPhrase) || empty($shaType)) {
+                return false;
+            }
+        } else {
+            if (empty($shaOutPassPhrase) || empty($shaType)) {
+                return false;
+            }
+        }
+
         $shaString = '';
 
         ksort($arrData);
@@ -2423,15 +2435,15 @@ class Data extends \Magento\Payment\Helper\Data
             $responseGatewayParams = $this->getGatewayResponseParams($responseParams, $notIncludedParams);
 
             $signType = '';
-            if (!empty($responseParams['digital_wallet']) && $responseParams['digital_wallet']=='APPLE_PAY') {
+            if ($paymentMethod === \Amazonpaymentservices\Fort\Model\Method\Apple::CODE) {
                 $signType = 'apple_pay';
             }
 
             $responseSignature = $this->calculateSignature($responseGatewayParams, 'response', $signType);
 
-            // check the signature
-            if (strtolower($responseSignature) !== strtolower($signature)) {
-                return $this->invalidSignature($signature, $responseSignature, $order);
+            // check the signature — reject if passphrase/algorithm is unconfigured (false) or mismatch
+            if ($responseSignature === false || strtolower($responseSignature) !== strtolower($signature)) {
+                return $this->invalidSignature($signature, (string)$responseSignature, $order);
             }
 
             if ($responseSource == 'h2h' && isset($responseParams['3ds_url'])) {

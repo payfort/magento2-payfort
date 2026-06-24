@@ -126,6 +126,11 @@
                         <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Meezaoptions</source_model>
                         <config_path>payment/aps_fort_cc/meeza_branding</config_path>
                     </field>
+                    <field id="jaywan_branding" translate="label" type="select" sortOrder="65" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Show Jaywan Branding</label>
+                        <source_model>Amazonpaymentservices\Fort\Model\Config\Source\Jaywanoptions</source_model>
+                        <config_path>payment/aps_fort_cc/jaywan_branding</config_path>
+                    </field>
                     <field id="mada_regex" translate="label" type="text" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>mada Bin</label>
                         <config_path>payment/aps_fort/mada_regex</config_path>
@@ -133,6 +138,10 @@
                     <field id="meeza_regex" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Meeza Bin</label>
                         <config_path>payment/aps_fort/meeza_regex</config_path>
+                    </field>
+                    <field id="jaywan_regex" translate="label" type="text" sortOrder="115" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Jaywan Bin</label>
+                        <config_path>payment/aps_fort/jaywan_regex</config_path>
                     </field>
                 </group>
                 <group id="aps_fort_naps" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">

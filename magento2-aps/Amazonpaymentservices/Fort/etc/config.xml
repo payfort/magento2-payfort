@@ -23,9 +23,10 @@
                 <order_status_on_fail>aps_fort_failed</order_status_on_fail>
                 <gateway_currency>base</gateway_currency>
                 <group>aps_fort</group>
-                <cctypes>AE,VI,MC,MZ,MD</cctypes>
+                <cctypes>AE,VI,MC,MZ,MD,JW</cctypes>
                 <mada_regex>|22331122|440647|440795|446404|457865|968208|457997|474491|636120|417633|468540|468541|468542|468543|968201|446393|409201|458456|484783|462220|455708|410621|455036|486094|486095|486096|504300|440533|489318|489319|445564|968211|410685|406996|432328|428671|428672|428673|968206|446672|543357|434107|407197|407395|412565|431361|604906|521076|529415|535825|543085|524130|554180|549760|968209|524514|529741|537767|535989|536023|513213|520058|558563|588982|589005|531095|530906|532013|968204|422817|422818|422819|428331|483010|483011|483012|589206|968207|419593|439954|530060|531196|420132|421141|588845|403024|968205|42689700|406136</mada_regex>
                 <meeza_regex>507803[0-6][0-9]|507808[3-9][0-9]|507809[0-9][0-9]|507810[0-2][0-9]</meeza_regex>
+                <jaywan_regex>517554|443913|669010|669009|978450</jaywan_regex>
             </aps_fort>
             <aps_apple>
                 <model>Amazonpaymentservices\Fort\Model\Method\Apple</model>
@@ -49,6 +50,7 @@
                 <group>aps_fort</group>
                 <order_status>pending</order_status>
                 <meeza_branding>no</meeza_branding>
+                <jaywan_branding>no</jaywan_branding>
                 <mada_branding>no</mada_branding>
                 <sort_order>20</sort_order>
             </aps_fort_cc>

@@ -43,6 +43,9 @@
         </method>
     </methods>
     <credit_cards>
+        <type id="JW" order="100">
+            <label>Jaywan</label>
+        </type>
         <type id="MZ" order="110">
             <label>Meeza</label>
         </type>

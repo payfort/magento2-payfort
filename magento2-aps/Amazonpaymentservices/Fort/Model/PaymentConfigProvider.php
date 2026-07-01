@@ -70,6 +70,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
      * @var string[]
      */
     protected $_cardTypes = [
+        'jaywan' => 'jaywan-logo.png',
         'mada' => 'mada-logo.png',
         'amex' => 'amex-logo.png',
         'visa' => 'visa-logo.png',
@@ -81,6 +82,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
      * @var string[]
      */
     protected $_cardShortName = [
+        'jaywan' => 'JW',
         'mada' => 'MD',
         'amex' => 'AE',
         'visa' => 'VI',
@@ -92,6 +94,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
      * @var string[]
      */
     protected $_cardTokenShortName = [
+        'jaywan' => 'JW',
         'mada' => 'MD',
         'amex' => 'AE',
         'visa' => 'VI',
@@ -324,12 +327,12 @@ class PaymentConfigProvider implements ConfigProviderInterface
     private function getCardImages()
     {
         foreach ($this->_cardTypes as $key => $value) {
-            if ($key == 'mada' || $key == 'meeza') {
+            if ($key == 'mada' || $key == 'meeza' || $key == 'jaywan') {
                 if ($this->methods[\Amazonpaymentservices\Fort\Model\Method\Cc::CODE]->getConfigData($key.'_branding') !== 'yes') {
                     continue;
                 }
             }
-            if ($key == 'visa' || $key == 'master') {
+            if ($key == 'visa' || $key == 'master' || $key == 'jaywan') {
                 $this->config['payment']['apsFort']['cardInstallImg'][] = $this->getCardTypeImg($value);
             }
             $this->config['payment']['apsFort']['cardImg'][] = $this->getCardTypeImg($value);
@@ -340,7 +343,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
     {
         foreach ($this->_cardTypes as $key => $value) {
             $this->config['payment']['apsFort']['templogoImg'][$this->_cardShortName[$key]] = $this->getCardTypeImg($value);
-            if ($key == 'mada' || $key == 'meeza') {
+            if ($key == 'mada' || $key == 'meeza' || $key == 'jaywan') {
                 if ($this->methods[\Amazonpaymentservices\Fort\Model\Method\Cc::CODE]->getConfigData($key.'_branding') !== 'yes') {
                     continue;
                 }
@@ -357,6 +360,14 @@ class PaymentConfigProvider implements ConfigProviderInterface
         $this->config['payment']['apsFort'][$code]['installmentResponse']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/installmentStandardPageResponse');
         $this->config['payment']['apsFort'][$code]['bankLogo']  = $this->apsHelper->getConfig('payment/aps_installment/bank_logo');
         $this->config['payment']['apsFort'][$code]['issuerCode']  = $this->apsHelper->getConfig('payment/aps_installment/issuer_code');
+
+        $this->config['payment']['apsFort'][$code]['mada'] = $this->apsHelper->getConfig('payment/aps_fort_cc/mada_branding');
+        $this->config['payment']['apsFort'][$code]['meeza'] = $this->apsHelper->getConfig('payment/aps_fort_cc/meeza_branding');
+        $this->config['payment']['apsFort'][$code]['jaywan'] = $this->apsHelper->getConfig('payment/aps_fort_cc/jaywan_branding');
+        $this->config['payment']['apsFort'][$code]['madabin'] = $this->apsHelper->getConfig('payment/aps_fort/mada_regex');
+        $this->config['payment']['apsFort'][$code]['meezabin'] = $this->apsHelper->getConfig('payment/aps_fort/meeza_regex');
+        $this->config['payment']['apsFort'][$code]['jaywabin'] = $this->apsHelper->getConfig('payment/aps_fort/jaywan_regex');
+
 
         if ($installIntegrationType == \Amazonpaymentservices\Fort\Helper\Data::INTEGRATION_TYPE_HOSTED) {
             $this->config['payment']['apsFort'][$code]['ajaxUrl']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/getPaymentData');
@@ -383,7 +394,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
     private function installmentVault($cardList, $code, $vaultCode)
     {
         $temp=0;
-        $cardType = ['MASTERCARD','VISA'];
+        $cardType = ['MASTERCARD','VISA','JAYWAN'];
         foreach ($cardList as $card) {
             if ($card->getIsActive()) {
                 $vaultData = $card->getData();
@@ -392,7 +403,7 @@ class PaymentConfigProvider implements ConfigProviderInterface
                     if (in_array($details['type'], $cardType)) {
                         $this->config['payment']['apsFort'][$code][$vaultCode]['data'][$temp]['public_hash'] = $vaultData['public_hash'];
                         $this->config['payment']['apsFort'][$code][$vaultCode]['data'][$temp]['type'] = $details['type'];
-                        $this->config['payment']['apsFort'][$code][$vaultCode]['data'][$temp]['typename'] = $this->config['payment']['apsFort']['logoImg'][$this->_cardTokenShortName[strtolower($details['type'])]];
+                        $this->config['payment']['apsFort'][$code][$vaultCode]['data'][$temp]['typename'] = $this->config['payment']['apsFort']['templogoImg'][$this->_cardTokenShortName[strtolower($details['type'])]];
                         $this->config['payment']['apsFort'][$code][$vaultCode]['data'][$temp]['maskedCC'] = $details['maskedCC'];
                         $this->config['payment']['apsFort'][$code][$vaultCode]['data'][$temp]['expirationDate'] = $details['expirationDate'];
                         $temp++;
@@ -424,8 +435,10 @@ class PaymentConfigProvider implements ConfigProviderInterface
     {
         $this->config['payment']['apsFort'][$code]['mada'] = $this->apsHelper->getConfig('payment/aps_fort_cc/mada_branding');
         $this->config['payment']['apsFort'][$code]['meeza'] = $this->apsHelper->getConfig('payment/aps_fort_cc/meeza_branding');
+        $this->config['payment']['apsFort'][$code]['jaywan'] = $this->apsHelper->getConfig('payment/aps_fort_cc/jaywan_branding');
         $this->config['payment']['apsFort'][$code]['madabin'] = $this->apsHelper->getConfig('payment/aps_fort/mada_regex');
         $this->config['payment']['apsFort'][$code]['meezabin'] = $this->apsHelper->getConfig('payment/aps_fort/meeza_regex');
+        $this->config['payment']['apsFort'][$code]['jaywabin'] = $this->apsHelper->getConfig('payment/aps_fort/jaywan_regex');
         $this->config['payment']['apsFort'][$code]['getInstallmentPlans']  = $this->apsHelper->getReturnUrl('amazonpaymentservicesfort/payment/getInstallmentPlans');
 
         $vaultCode = \Amazonpaymentservices\Fort\Model\Method\Vault::CODE;

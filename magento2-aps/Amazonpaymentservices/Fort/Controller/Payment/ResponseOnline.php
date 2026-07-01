@@ -69,8 +69,8 @@ class ResponseOnline extends \Amazonpaymentservices\Fort\Controller\Checkout imp
         $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
         $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
 
-        $this->orderRedirect($returnUrl);
-
-        return true;
+        $result = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

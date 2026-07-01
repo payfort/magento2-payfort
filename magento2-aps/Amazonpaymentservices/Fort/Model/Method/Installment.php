@@ -132,7 +132,7 @@ class Installment extends \Amazonpaymentservices\Fort\Model\Payment
     public function getCcAvailableTypes()
     {
         $types = $this->_paymentConfig->getCcTypes();
-        $availableTypes = explode(',', 'VI,MC,OT,MD,MZ,AE');
+        $availableTypes = explode(',', 'VI,MC,OT,MD,MZ,AE,JW');
         foreach ($types as $code => $name) {
             if (!in_array($code, $availableTypes)) {
                 unset($types[$code]);

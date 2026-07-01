@@ -9,9 +9,22 @@ define([
     'mageUtils'
 ], function ($, utils) {
     'use strict';
-    var meezaPattern =  window.checkoutConfig.payment.apsFort.aps_fort_cc.meezabin;
-    var madaPattern = "/^" + window.checkoutConfig.payment.apsFort.aps_fort_cc.madabin + "/";
+    var apsConfig = window.checkoutConfig.payment.apsFort.aps_fort_cc || window.checkoutConfig.payment.apsFort.aps_installment || {};
+    var jaywaPattern = "^(" + (apsConfig.jaywabin || '') + ")";
+    var meezaPattern = apsConfig.meezabin || '';
+    var madaPattern = "/^" + (apsConfig.madabin || '') + "/";
     var types = [
+        {
+            title: 'Jaywan',
+            type: 'JW',
+            pattern: jaywaPattern,
+            gaps: [4, 10],
+            lengths: [16],
+            code: {
+                name: 'CVV',
+                size: 3
+            }
+    },
         {
             title: 'Meeza',
             type: 'MZ',

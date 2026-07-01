@@ -1187,10 +1187,14 @@ class Data extends \Magento\Payment\Helper\Data
         if ($paymentMethod === \Amazonpaymentservices\Fort\Model\Method\Cc::CODE) {
             $meeza = '/^'.$this->getConfig('payment/aps_fort/meeza_regex').'$/';
             $mada = '/^'.$this->getConfig('payment/aps_fort/mada_regex').'$/';
+            $jaywan = '/^'.$this->getConfig('payment/aps_fort/jaywan_regex').'$/';
             if (preg_match($meeza, $fortParams['card_bin'])) {
                 $postData['command'] = \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE;
             }
             if (preg_match($mada, $fortParams['card_bin'])) {
+                $postData['command'] = \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE;
+            }
+            if (preg_match($jaywan, $fortParams['card_bin'])) {
                 $postData['command'] = \Amazonpaymentservices\Fort\Model\Config\Source\Commandoptions::PURCHASE;
             }
         }

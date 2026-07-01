@@ -133,7 +133,7 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
     public function getCcAvailableTypes()
     {
         $types = $this->_paymentConfig->getCcTypes();
-        $availableTypes = explode(',', 'VI,MC,OT,MD,MZ,AE');
+        $availableTypes = explode(',', 'VI,MC,OT,MD,MZ,AE,JW');
         foreach ($types as $code => $name) {
             if (!in_array($code, $availableTypes)) {
                 unset($types[$code]);
@@ -257,6 +257,7 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
             'AE' => '/^[0-9]{4}$/',
             'MD' => '/^[0-9]{3}$/',
             'MZ' => '/^[0-9]{3}$/',
+            'JW' => '/^[0-9]{3}$/',
         ];
     }
  

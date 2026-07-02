@@ -191,7 +191,7 @@ class Cc extends \Amazonpaymentservices\Fort\Model\Payment
     {
         $years = [];
         $first = (int)$this->_date->date('Y');
-        for ($index = 0; $index <= \Magento\Payment\Model\Config::YEARS_RANGE; $index++) {
+        for ($index = 0; $index <= 20; $index++) {
             $year = $first + $index;
             $years[$year] = $year;
         }

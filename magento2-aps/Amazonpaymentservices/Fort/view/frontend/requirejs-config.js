@@ -23,6 +23,9 @@ var config = {
         mixins: {
             'Magento_Checkout/js/view/minicart': {
                 'Amazonpaymentservices_Fort/js/view/minicart-apple': true
+            },
+            'mage/validation': {
+                'Amazonpaymentservices_Fort/js/validation-mixin': true
             }
         }
     }

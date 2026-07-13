@@ -84,10 +84,12 @@ class InstallmentstandardPageResponse extends \Amazonpaymentservices\Fort\Contro
             }
         }
         
-        $this->_checkoutSession->setLastOrderId($order->getId());
-        $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
-        $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
-        $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        if ($success && $order->getQuoteId() == $this->_checkoutSession->getQuoteId()) {
+            $this->_checkoutSession->setLastOrderId($order->getId());
+            $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
+            $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
+            $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        }
 
         if ($integrationType == \Amazonpaymentservices\Fort\Model\Config\Source\Integrationtypeoptions::STANDARD) {
             $redirectURL =  '<script>window.top.location.href = "'.$returnUrl.'"</script>';

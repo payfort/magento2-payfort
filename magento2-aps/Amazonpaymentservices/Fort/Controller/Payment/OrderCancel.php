@@ -25,14 +25,19 @@ class OrderCancel extends \Amazonpaymentservices\Fort\Controller\Checkout implem
     public function execute()
     {
         $helper = $this->getHelper();
-        
         $order = $this->_checkoutSession->getLastRealOrder();
+        $returnUrl = $helper->getUrl('checkout/cart');
+
+        if (!$order->getId() || $order->getQuoteId() != $this->_checkoutSession->getQuoteId()) {
+            $this->orderRedirect($returnUrl);
+            return;
+        }
+
         if ($order->getState() != $order::STATE_PROCESSING) {
             $success = $helper->orderFailed($order, 'Payment cancelled by user', '');
             $helper->restoreQuote($order);
             $this->messageManager->addError(__('Payment cancelled by user'));
         }
-        $returnUrl = $helper->getUrl('checkout/cart');
 
         $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
 
@@ -40,11 +45,13 @@ class OrderCancel extends \Amazonpaymentservices\Fort\Controller\Checkout implem
         if ($orderAfterPayment === OrderOptions::DELETE_ORDER && !$helper->isOrderResponseOnHold($responseParams['response_code'] ?? '')) {
             $helper->deleteOrder($order);
         }
-        
-        $this->_checkoutSession->setLastOrderId($order->getId());
-        $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
-        $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
-        $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+
+        if ($order->getQuoteId() && $order->getQuoteId() == $this->_checkoutSession->getQuoteId()) {
+            $this->_checkoutSession->setLastOrderId($order->getId());
+            $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
+            $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
+            $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        }
         
         $this->orderRedirect($returnUrl);
     }

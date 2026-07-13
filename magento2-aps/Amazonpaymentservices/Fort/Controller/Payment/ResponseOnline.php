@@ -64,10 +64,12 @@ class ResponseOnline extends \Amazonpaymentservices\Fort\Controller\Checkout imp
             }
         }
 
-        $this->_checkoutSession->setLastOrderId($order->getId());
-        $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
-        $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
-        $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        if ($order->getQuoteId() == $this->_checkoutSession->getQuoteId()) {
+            $this->_checkoutSession->setLastOrderId($order->getId());
+            $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
+            $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
+            $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        }
 
         $result = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         $result->setUrl($returnUrl);

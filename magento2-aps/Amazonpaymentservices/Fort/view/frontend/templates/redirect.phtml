@@ -49,7 +49,7 @@
                             }
                             jQuery("#review-buttons-container .btn-checkout").hide();
                             jQuery("#review-please-wait").show();
-                            jQuery('<iframe  name="aps_merchant_page" id="aps_merchant_page"height="640px" frameborder="0" scrolling="no" onload="apsFortStandard.iframeLoaded(this)" style="display:none"></iframe>').appendTo('#pf_iframe_content');
+                            jQuery('<iframe  name="aps_merchant_page" id="aps_merchant_page"height="640px" frameborder="0" scrolling="no" sandbox="allow-forms allow-scripts allow-same-origin allow-top-navigation allow-popups" onload="apsFortStandard.iframeLoaded(this)" style="display:none"></iframe>').appendTo('#pf_iframe_content');
                             jQuery('.pf-iframe-spin').show();
                             jQuery('.pf-iframe-close').hide();
                             jQuery("#aps_merchant_page").attr("src", gatewayUrl);

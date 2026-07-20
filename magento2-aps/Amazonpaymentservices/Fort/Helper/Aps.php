@@ -76,8 +76,12 @@ class Aps extends \Magento\Payment\Helper\Data
 
     public function getAppleCertificatePath()
     {
-        $mediapath = $this->_filesystem->getPath('media');
-        $certificate_path = $mediapath.'/aps/certificate_keys/'.$this->apsHelper->getConfig('payment/aps_apple/apple_certificate_pem');
+        // Read the Apple Pay merchant certificate from the Magento ``var``
+        // directory (not web-served) instead of ``pub/media``. This prevents
+        // unauthenticated over-HTTP retrieval of the certificate even if the
+        // filename is known or guessable.
+        $varpath = $this->_filesystem->getPath('var');
+        $certificate_path = $varpath.'/aps/certificate_keys/'.$this->apsHelper->getConfig('payment/aps_apple/apple_certificate_pem');
         $read = $this->_driver->create($certificate_path, \Magento\Framework\Filesystem\DriverPool::FILE);
         $merchantidentifier = '';
         if ($read) {

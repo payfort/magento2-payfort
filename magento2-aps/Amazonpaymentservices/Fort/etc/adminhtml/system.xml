@@ -189,8 +189,14 @@
                            showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Key Pem File</label>
                         <config_path>payment/aps_apple/apple_key_pem</config_path>
-                        <backend_model>Magento\Config\Model\Config\Backend\File</backend_model>
-                        <upload_dir config="system">aps/certificate_keys</upload_dir>
+                        <!--
+                          Custom backend model uploads pem files under
+                          <magento_root>/var/aps/certificate_keys/ rather than
+                          the web-served pub/media directory so private keys
+                          cannot be retrieved over HTTP.
+                        -->
+                        <backend_model>Amazonpaymentservices\Fort\Model\Config\Backend\AppleCertificateFile</backend_model>
+                        <upload_dir config="var">aps/certificate_keys</upload_dir>
                         <depends>
                             <field id="active">1</field>
                         </depends>
@@ -199,8 +205,14 @@
                            showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>Certificate Pem File</label>
                         <config_path>payment/aps_apple/apple_certificate_pem</config_path>
-                        <backend_model>Magento\Config\Model\Config\Backend\File</backend_model>
-                        <upload_dir config="system">aps/certificate_keys</upload_dir>
+                        <!--
+                          Custom backend model uploads pem files under
+                          <magento_root>/var/aps/certificate_keys/ rather than
+                          the web-served pub/media directory so certificates
+                          cannot be retrieved over HTTP.
+                        -->
+                        <backend_model>Amazonpaymentservices\Fort\Model\Config\Backend\AppleCertificateFile</backend_model>
+                        <upload_dir config="var">aps/certificate_keys</upload_dir>
                         <depends>
                             <field id="active">1</field>
                         </depends>

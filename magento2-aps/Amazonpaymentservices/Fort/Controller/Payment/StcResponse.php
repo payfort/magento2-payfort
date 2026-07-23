@@ -62,10 +62,12 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
             }
         }
 
-        $this->_checkoutSession->setLastOrderId($order->getId());
-        $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
-        $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
-        $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        if ($success && $order->getQuoteId() == $this->_checkoutSession->getQuoteId()) {
+            $this->_checkoutSession->setLastOrderId($order->getId());
+            $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
+            $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
+            $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        }
 
         $this->orderRedirect($returnUrl);
     }

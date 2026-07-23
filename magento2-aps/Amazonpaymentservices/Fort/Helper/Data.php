@@ -1887,10 +1887,12 @@ class Data extends \Magento\Payment\Helper\Data
         }
         if ($order->getId() && $order->getState() != Order::STATE_CANCELED) {
             $order->cancel();
-            $order->addStatusToHistory($order::STATE_CANCELED, $comment, false);
+            if ($order->getState() == Order::STATE_CANCELED) {
+                $order->addStatusToHistory($order::STATE_CANCELED, $comment, false);
+            } else {
+                $order->addCommentToStatusHistory($comment, false, false);
+            }
             $order->save();
-
-//            $order->registerCancellation($comment)->save();
             return true;
         }
         return false;
@@ -1909,14 +1911,12 @@ class Data extends \Magento\Payment\Helper\Data
         }
         if ($order->getState() != Order::STATE_CANCELED) {
             $order->cancel();
-            $order->addStatusToHistory($order::STATE_CANCELED, $comment, false);
+            if ($order->getState() == Order::STATE_CANCELED) {
+                $order->addStatusToHistory($order::STATE_CANCELED, $comment, false);
+            } else {
+                $order->addCommentToStatusHistory($comment, false, false);
+            }
             $order->save();
-
-//            $order->registerCancellation($comment)->save();
-            /*if ($this->restoreQuote()) {
-                //Redirect to payment step
-                $gotoSection = 'paymentMethod';
-            }*/
             $gotoSection = true;
         }
         return $gotoSection;

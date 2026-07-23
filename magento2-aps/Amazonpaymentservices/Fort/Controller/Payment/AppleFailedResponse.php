@@ -46,6 +46,13 @@ class AppleFailedResponse extends \Amazonpaymentservices\Fort\Controller\Checkou
     {
         $order = $this->_checkoutSession->getLastRealOrder();
         $helper = $this->getHelper();
+        $returnUrl = $helper->getUrl('checkout/cart');
+
+        if (!$order->getId() || $order->getQuoteId() != $this->_checkoutSession->getQuoteId()) {
+            $this->orderRedirect($returnUrl);
+            return;
+        }
+
         $integrationType = $helper->getConfig('payment/aps_installment/integration_type');
         $r = $helper->cancelOrder($order, 'You have cancelled the payment, please try again.');
         
@@ -53,8 +60,6 @@ class AppleFailedResponse extends \Amazonpaymentservices\Fort\Controller\Checkou
             $helper->restoreQuote();
             $this->messageManager->addError('You have cancelled the payment, please try again.');
         }
-        
-        $returnUrl = $helper->getUrl('checkout/cart');
 
         $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
 

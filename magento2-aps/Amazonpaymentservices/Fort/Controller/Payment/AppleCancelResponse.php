@@ -46,12 +46,15 @@ class AppleCancelResponse extends \Amazonpaymentservices\Fort\Controller\Checkou
     {
         $order = $this->_checkoutSession->getLastRealOrder();
         $helper = $this->getHelper();
-        $integrationType = $helper->getConfig('payment/aps_installment/integration_type');
-        
+        $returnUrl = $helper->getUrl('checkout/cart');
+
+        if (!$order->getId() || $order->getQuoteId() != $this->_checkoutSession->getQuoteId()) {
+            $this->orderRedirect($returnUrl);
+            return;
+        }
+
         $this->messageManager
         ->addError(__('You have cancelled the payment, please try again.'));
-        
-        $returnUrl = $helper->getUrl('checkout/cart');
 
         $orderAfterPayment = $helper->getMainConfigData('orderafterpayment');
 

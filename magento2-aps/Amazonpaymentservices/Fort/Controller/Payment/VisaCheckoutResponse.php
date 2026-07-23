@@ -94,10 +94,12 @@ class VisaCheckoutResponse extends \Amazonpaymentservices\Fort\Controller\Checko
                 }
             }
         }
-        $this->_checkoutSession->setLastOrderId($order->getId());
-        $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
-        $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
-        $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        if ($success && $order->getQuoteId() == $this->_checkoutSession->getQuoteId()) {
+            $this->_checkoutSession->setLastOrderId($order->getId());
+            $this->_checkoutSession->setLastRealOrderId($order->getIncrementId());
+            $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
+            $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
+        }
         
         $helper->log('Checkout Session Data3:'.$this->_checkoutSession->getLastSuccessQuoteId());
         $helper->log('Checkout Session order Id Data3:'.$this->_checkoutSession->getLastRealOrderId());

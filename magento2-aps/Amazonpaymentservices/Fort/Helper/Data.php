@@ -233,6 +233,21 @@ class Data extends \Magento\Payment\Helper\Data
     const INSTALLMENTS_PLAN_TOKEN = 'TOKEN';
     const PAYMENT_METHOD_BENEFIT = 'aps_benefit';
 
+    const SENSITIVE_RESPONSE_FIELDS = [
+        'token_name',
+        'expiry_date',
+        'card_number',
+        'card_bin',
+        'authorization_code',
+        'customer_ip',
+        'customer_email',
+        'phone_number',
+        'signature',
+        'card_holder_name',
+        'remember_me',
+        'return_url',
+    ];
+
     const PAYMENT_METHOD = [
         \Amazonpaymentservices\Fort\Model\Method\Vault::CODE,
         \Amazonpaymentservices\Fort\Model\Method\Cc::CODE,
@@ -388,6 +403,11 @@ class Data extends \Magento\Payment\Helper\Data
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeCode
         );
+    }
+
+    public function sanitizeResponseForStorage(array $responseParams): array
+    {
+        return array_diff_key($responseParams, array_flip(self::SENSITIVE_RESPONSE_FIELDS));
     }
 
     /**
@@ -2238,7 +2258,7 @@ class Data extends \Magento\Payment\Helper\Data
                 }
             }
 
-            $payment->setAdditionalData(json_encode($responseParams));
+            $payment->setAdditionalData(json_encode($this->sanitizeResponseForStorage($responseParams)));
             $payment->save();
 
             $this->log('process order2');
@@ -3142,7 +3162,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $payment = $newOrder->getPayment();
                 $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
                 $payment->setAdditionalInformation($responseParams['merchant_reference']);
-                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->setAdditionalData(json_encode($this->sanitizeResponseForStorage($responseParams)));
                 $payment->save();
 
                 try {
@@ -3182,7 +3202,7 @@ class Data extends \Magento\Payment\Helper\Data
             } else {
                 $payment = $newOrder->getPayment();
                 $payment->setAdditionalInformation($responseParams['merchant_reference']);
-                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->setAdditionalData(json_encode($this->sanitizeResponseForStorage($responseParams)));
                 $payment->save();
             }
             return $responseParams;

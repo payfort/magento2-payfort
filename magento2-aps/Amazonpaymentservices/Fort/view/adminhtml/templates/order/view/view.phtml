@@ -99,38 +99,6 @@ if ($isAvailable) {
             }
             ?>
         <tr>
-            <td><strong><?= $block->escapeHtml(__('Card Token')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['token_name'])) { ?>
-                    <?= $block->escapeHtml($data['additionalData']['token_name']); ?>
-                    <?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('Card Expiry')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['expiry_date'])) { ?>
-                    <?= $block->escapeHtml($data['additionalData']['expiry_date']); ?>
-                    <?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('Card Number')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['card_number'])) { ?>
-                    <?= $block->escapeHtml($data['additionalData']['card_number']); ?>
-                    <?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('Authorization Code')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['authorization_code'])) { ?>
-                    <?= $block->escapeHtml($data['additionalData']['authorization_code']); ?>
-                     <?php } ?>
-            </td>
-        </tr>
-        <tr>
             <td><strong><?= $block->escapeHtml(__('Response Code')); ?></strong></td>
             <td>
                 <?php if (isset($data['additionalData']['response_code'])) { ?>
@@ -159,30 +127,6 @@ if ($isAvailable) {
             <td>
                 <?php if (isset($data['additionalData']['acquirer_response_message'])) { ?>
                     <?= $block->escapeHtml($data['additionalData']['acquirer_response_message']); ?>
-                <?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('Customer IP')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['customer_ip'])) { ?>
-                    <?= $block->escapeHtml($data['additionalData']['customer_ip']); ?>
-                <?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('Customer Email')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['customer_email'])) { ?>
-                    <?= $block->escapeHtml($data['additionalData']['customer_email']); ?>
-                <?php } ?>
-            </td>
-        </tr>
-        <tr>
-            <td><strong><?= $block->escapeHtml(__('Phone Number')); ?></strong></td>
-            <td>
-                <?php if (isset($data['additionalData']['phone_number'])) { ?>
-                    <?= $block->escapeHtml($data['additionalData']['phone_number']); ?>
                 <?php } ?>
             </td>
         </tr>

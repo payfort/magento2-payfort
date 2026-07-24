@@ -40,7 +40,10 @@ class View extends \Magento\Backend\Block\Template
         $data = $payment->getAdditionalData();
         $sendData['additionalData'] = [];
         if (!empty($data)) {
-            $sendData['additionalData'] = json_decode($data, true);
+            $decoded = json_decode($data, true);
+            $sendData['additionalData'] = is_array($decoded)
+                ? array_diff_key($decoded, array_flip(\Amazonpaymentservices\Fort\Helper\Data::SENSITIVE_RESPONSE_FIELDS))
+                : [];
         }
         $sendData['payment'] = $order->getPayment()->toArray();
 

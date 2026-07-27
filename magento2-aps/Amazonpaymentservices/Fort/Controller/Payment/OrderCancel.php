@@ -29,8 +29,9 @@ class OrderCancel extends \Amazonpaymentservices\Fort\Controller\Checkout implem
         $returnUrl = $helper->getUrl('checkout/cart');
 
         if (!$order->getId() || $order->getQuoteId() != $this->_checkoutSession->getQuoteId()) {
-            $this->orderRedirect($returnUrl);
-            return;
+            $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+            $result->setUrl($returnUrl);
+            return $result;
         }
 
         if ($order->getState() != $order::STATE_PROCESSING) {
@@ -53,6 +54,8 @@ class OrderCancel extends \Amazonpaymentservices\Fort\Controller\Checkout implem
             $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
         }
         
-        $this->orderRedirect($returnUrl);
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

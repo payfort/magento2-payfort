@@ -89,7 +89,9 @@ class Response extends \Amazonpaymentservices\Fort\Controller\Checkout implement
             $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
         }
 
-        $this->orderRedirect($returnUrl);
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 
     private function checkOrderId($valu, $responseParams)

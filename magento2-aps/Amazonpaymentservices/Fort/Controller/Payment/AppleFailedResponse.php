@@ -49,8 +49,9 @@ class AppleFailedResponse extends \Amazonpaymentservices\Fort\Controller\Checkou
         $returnUrl = $helper->getUrl('checkout/cart');
 
         if (!$order->getId() || $order->getQuoteId() != $this->_checkoutSession->getQuoteId()) {
-            $this->orderRedirect($returnUrl);
-            return;
+            $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+            $result->setUrl($returnUrl);
+            return $result;
         }
 
         $integrationType = $helper->getConfig('payment/aps_installment/integration_type');
@@ -68,6 +69,8 @@ class AppleFailedResponse extends \Amazonpaymentservices\Fort\Controller\Checkou
             $helper->deleteOrder($order);
         }
         
-        $this->orderRedirect($returnUrl);
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

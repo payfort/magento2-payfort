@@ -99,8 +99,8 @@ class MerchantPageVaultResponse extends \Amazonpaymentservices\Fort\Controller\C
             $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
         }
 
-        $this->orderRedirect($returnUrl);
-
-        return true;
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

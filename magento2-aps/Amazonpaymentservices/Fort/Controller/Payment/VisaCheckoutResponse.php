@@ -103,8 +103,8 @@ class VisaCheckoutResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         
         $helper->log('Checkout Session Data3:'.$this->_checkoutSession->getLastSuccessQuoteId());
         $helper->log('Checkout Session order Id Data3:'.$this->_checkoutSession->getLastRealOrderId());
-        $this->orderRedirect($returnUrl);
-
-        return true;
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

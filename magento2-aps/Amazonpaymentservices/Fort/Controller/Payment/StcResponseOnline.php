@@ -71,7 +71,9 @@ class StcResponseOnline extends \Amazonpaymentservices\Fort\Controller\Checkout 
             $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
         }
         
-        $this->orderRedirect($returnUrl);
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 
     private function stcSaveCard($connection, $order, $responseParams)

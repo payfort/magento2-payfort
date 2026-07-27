@@ -96,10 +96,10 @@ class InstallmentstandardPageResponse extends \Amazonpaymentservices\Fort\Contro
             $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
             $response->setContents($redirectURL);
             return $response;
-        } else {
-            $this->orderRedirect($returnUrl);
         }
 
-        return false;
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

@@ -65,14 +65,17 @@ class View extends \Magento\Backend\Block\Template implements \Magento\Backend\B
         $order = $this->_orderRepository->get($this->getOrderId());
         $payment = $order->getPayment();
         $method = $payment->getMethodInstance();
-        $data['title'] = $method->getTitle(); // Cash On Delivery
-        $data['code'] = $method->getCode(); // cashondelivery
+        $data['title'] = $method->getTitle();
+        $data['code'] = $method->getCode();
         if (in_array($order->getPayment()->getMethod(), \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD)) {
             $data['amountPaid'] = $payment->getAmountPaid();
             $additionalData = $payment->getAdditionalData();
             $data['additionalData'] = [];
             if (!empty($additionalData)) {
-                $data['additionalData'] = json_decode($additionalData, true);
+                $decoded = json_decode($additionalData, true);
+                $data['additionalData'] = is_array($decoded)
+                    ? array_diff_key($decoded, array_flip(\Amazonpaymentservices\Fort\Helper\Data::SENSITIVE_RESPONSE_FIELDS))
+                    : [];
             }
         } else {
             $data['amountPaid'] = 0;

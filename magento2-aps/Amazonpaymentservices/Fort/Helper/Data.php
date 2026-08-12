@@ -704,7 +704,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-        $this->log("Fort Valu Customer Verify Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+        $this->log("Fort Valu Customer Verify Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
         $response = $this->callApi($postData, $gatewayUrl);
         $responseData = [];
@@ -791,7 +791,7 @@ class Data extends \Magento\Payment\Helper\Data
             ];
             $signature = $this->calculateSignature($postData, 'request');
             $postData['signature'] = $signature;
-            $this->log("Fort Valu Generate OTP Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+            $this->log("Fort Valu Generate OTP Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
             $debugMsg = "Fort Valu Generate OTP Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
@@ -927,7 +927,7 @@ class Data extends \Magento\Payment\Helper\Data
 
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-            $this->log("Fort Valu OTP Verify Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+            $this->log("Fort Valu OTP Verify Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
             $debugMsg = "Fort Valu OTP Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
@@ -1014,7 +1014,7 @@ class Data extends \Magento\Payment\Helper\Data
 
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-            $this->log("Fort Valu Purchase Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+            $this->log("Fort Valu Purchase Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
             $responseData = [];
@@ -1210,12 +1210,12 @@ class Data extends \Magento\Payment\Helper\Data
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-        $this->log("standardNotifyFort: Request Params : " . json_encode($postData, 1));
+        $this->log("standardNotifyFort: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("standardNotifyFort: Gateway URL : " . $gatewayUrl);
 
         $response = $this->callApi($postData, $gatewayUrl);
 
-        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1289,8 +1289,8 @@ class Data extends \Magento\Payment\Helper\Data
         $postData['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("installmentPageNotifyFort: Response Params : " . json_encode($responseParams, 1));
-        $this->log("installmentPageNotifyFort: Request Params : " . json_encode($postData, 1));
+        $this->log("installmentPageNotifyFort: Response Params : " . json_encode($this->sanitizeForLog($responseParams), 1));
+        $this->log("installmentPageNotifyFort: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("installmentPageNotifyFort: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
 
@@ -1342,7 +1342,7 @@ class Data extends \Magento\Payment\Helper\Data
         $postData['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("visaCheckoutPageNotifyFort: Request Params : " . json_encode($postData, 1));
+        $this->log("visaCheckoutPageNotifyFort: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("visaCheckoutPageNotifyFort: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
 
@@ -1382,10 +1382,10 @@ class Data extends \Magento\Payment\Helper\Data
 
         $postData['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("APS Capture: Request Params : " . json_encode($postData, 1));
+        $this->log("APS Capture: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("Aps Capture: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
-        $debugMsg = "APs Capture Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "APs Capture Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1420,10 +1420,10 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $postData['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("APS Void: Request Params : " . json_encode($postData, 1));
+        $this->log("APS Void: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("Aps Void: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
-        $debugMsg = "APs Void Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "APs Void Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1446,10 +1446,10 @@ class Data extends \Magento\Payment\Helper\Data
         $signature = $this->calculateSignature($postData, 'request');
         $postData['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("APS Vault Status ".$status." : Request Params : " . json_encode($postData, 1));
+        $this->log("APS Vault Status ".$status." : Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("Aps Vault Status: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
-        $debugMsg = "APs Vault Status Response Params :"."\n".json_encode($response, 1);
+        $debugMsg = "APs Vault Status Response Params :"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1479,7 +1479,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->getCurlClient()->post($gatewayUrl, json_encode($postData));
 
             $response = $this->getCurlClient()->getBody();
-            $this->log("CURL Response :". json_encode($response));
+            $this->log("CURL Response :". json_encode($this->sanitizeForLog($response)));
             $array_result = json_decode($response, true);
             if (empty($array_result)) {
                 return false;
@@ -2200,7 +2200,7 @@ class Data extends \Magento\Payment\Helper\Data
         ];
 
         $data['signature'] = $this->calculateSignature($data, 'request', $type, $storeCode);
-        $this->log('APS verify order request:'. json_encode($data));
+        $this->log('APS verify order request:'. json_encode($this->sanitizeForLog($data)));
         $gatewayUrl = $this->getGatewayUrl('notificationApi', $storeCode);
 
         return $this->callApi($data, $gatewayUrl);
@@ -2499,7 +2499,7 @@ class Data extends \Magento\Payment\Helper\Data
             }
 
             $paymentMethod = $order->getPayment()->getMethod();
-            $this->log("Pay method ($paymentMethod)" . json_encode($responseParams, 1));
+            $this->log("Pay method ($paymentMethod)" . json_encode($this->sanitizeForLog($responseParams), 1));
 
             $notIncludedParams = ['signature', 'aps_fort', 'integration_type','form_key'];
 
@@ -2729,6 +2729,51 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_logger->debug($debugMsg);
     }
 
+    /**
+     * Keys whose values are redacted before being written to the debug log.
+     */
+    private const LOG_REDACT_KEYS = [
+        'token_name',
+        'authorization_code',
+        'signature',
+        'card_number',
+        'card_security_code',
+        'expiry_date',
+        'phone_number',
+        'customer_email',
+        'customer_ip',
+        'otp',
+        'access_code',
+        'merchant_identifier',
+    ];
+
+    /**
+     * Redact sensitive values in a parameter array before logging.
+     *
+     * Keeps a short prefix so entries remain correlatable when debugging.
+     *
+     * @param mixed $params
+     * @return mixed
+     */
+    public function sanitizeForLog($params)
+    {
+        if (!is_array($params)) {
+            return $params;
+        }
+
+        foreach ($params as $key => $value) {
+            if (is_array($value)) {
+                $params[$key] = $this->sanitizeForLog($value);
+                continue;
+            }
+            if (in_array((string)$key, self::LOG_REDACT_KEYS, true) && $value !== null && $value !== '') {
+                $params[$key] = substr((string)$value, 0, 4) . '***REDACTED***';
+            }
+        }
+
+        return $params;
+    }
+
     public function countryId()
     {
         return $this->_checkoutSession->getQuote()->getShippingAddress()->getCountryId();
@@ -2807,7 +2852,7 @@ class Data extends \Magento\Payment\Helper\Data
         $model->setData($saveData)->save();
         $logMsg = "WebHooks CaptureVoid Data (capture void) \n\n" . json_encode($saveData, 1);
         $this->log($logMsg);
-        $logMsg = "WebHooks Response for payment method (capture void) \n\n" . json_encode($responseParams, 1);
+        $logMsg = "WebHooks Response for payment method (capture void) \n\n" . json_encode($this->sanitizeForLog($responseParams), 1);
         $this->log($logMsg);
     }
 
@@ -2868,7 +2913,7 @@ class Data extends \Magento\Payment\Helper\Data
             $differenceInSeconds = strtotime($todayDate) - strtotime($createdAt);
 
             if ($differenceInSeconds < 60 && ($amount/$amountRate) == $adjustment) {
-                $this->log('Refund Already done for this order.'.json_encode($responseParams));
+                $this->log('Refund Already done for this order.'.json_encode($this->sanitizeForLog($responseParams)));
                 $flag = 1;
             }
             $creditMemoTotal += $adjustment;
@@ -2915,7 +2960,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->creditmemoLoader->setCreditmemo($creditMemoData);
 
             $creditmemo = $this->creditmemoLoader->load();
-            $this->log(__('Refund Credit memo data:'.json_encode($creditMemoData)));
+            $this->log(__('Refund Credit memo data:'.json_encode($this->sanitizeForLog($creditMemoData))));
             $this->log(__('Refund:'.json_encode($creditmemo)));
             if ($creditmemo) {
                 $this->log(__('Credit Memo loaded'));
@@ -3408,7 +3453,7 @@ class Data extends \Magento\Payment\Helper\Data
         $signature = $this->calculateSignature($data, 'request');
         $data['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log(json_encode($data));
+        $this->log(json_encode($this->sanitizeForLog($data)));
         return $this->callApi($data, $gatewayUrl);
     }
 
@@ -3463,7 +3508,7 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_gatewayParams['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("Request Data STC:".json_encode($this->_gatewayParams));
+        $this->log("Request Data STC:".json_encode($this->sanitizeForLog($this->_gatewayParams)));
         $responseParams = $this->callApi($this->_gatewayParams, $gatewayUrl);
 
         $integrationType = self::INTEGRATION_TYPE_REDIRECTION;

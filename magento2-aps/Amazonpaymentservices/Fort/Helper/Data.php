@@ -2663,7 +2663,11 @@ class Data extends \Magento\Payment\Helper\Data
     private function invalidSignature($signature, $responseSignature, $order)
     {
         $responseMessage = __('Invalid response signature.');
-        $logMsg = sprintf('Invalid Signature. Calculated: %1s, Response: %2s', $signature, $responseSignature);
+        $logMsg = sprintf(
+            'Invalid Signature for order %s. Received signature prefix: %s (mismatch)',
+            $order ? $order->getIncrementId() : 'unknown',
+            substr((string)$signature, 0, 8) . '...'
+        );
         $this->log($logMsg);
 
         $this->_messageManager->addError($responseMessage);

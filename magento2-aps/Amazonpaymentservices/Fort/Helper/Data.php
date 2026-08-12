@@ -3406,7 +3406,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $payment = $newOrder->getPayment();
                 $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
                 $payment->setAdditionalInformation($responseParams['merchant_reference']);
-                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->setAdditionalData(json_encode($this->filterParamsForPersistence($responseParams)));
                 $payment->save();
 
                 try {
@@ -3446,7 +3446,7 @@ class Data extends \Magento\Payment\Helper\Data
             } else {
                 $payment = $newOrder->getPayment();
                 $payment->setAdditionalInformation($responseParams['merchant_reference']);
-                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->setAdditionalData(json_encode($this->filterParamsForPersistence($responseParams)));
                 $payment->save();
             }
             return $responseParams;

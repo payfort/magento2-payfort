@@ -85,8 +85,10 @@ class GetVaultData extends \Magento\Framework\App\Action\Action implements CsrfA
     public function execute()
     {
         $responseParams = $this->getRequest()->getParams();
-        $this->_checkoutSession->setHashData($responseParams['publicHash']);
-        $this->_checkoutSession->setCvvData($responseParams['cvv']);
+        $this->_checkoutSession->setHashData($responseParams['publicHash'] ?? '');
+
+        unset($responseParams['cvv']);
+
         $result = [
             'success' => true,
             'error_message' => false,

@@ -2998,6 +2998,24 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $this->log('Refund Flag:'.$flag);
         if ($flag == 0) {
+            // Bound the refund by the order total, less refunds already issued.
+            $refundAmount = $amount / $amountRate;
+            $orderGrandTotal = (float)$orders->getGrandTotal() / $amountRate;
+            $refundableAmount = $orderGrandTotal - $creditMemoTotal;
+
+            if ($refundAmount > ($refundableAmount + 0.0001)) {
+                $this->log(sprintf(
+                    'refundAps: refund amount %s exceeds refundable amount %s '
+                    . '(order total %s, already refunded %s) for order %s - rejecting.',
+                    $refundAmount,
+                    $refundableAmount,
+                    $orderGrandTotal,
+                    $creditMemoTotal,
+                    $orderId
+                ));
+                return;
+            }
+
             $this->creditMemoCalculation($amount, $amountRate, $responseParams, $orders);
         } else {
             $orderTotal = $orders->getGrandTotal()/$amountRate;

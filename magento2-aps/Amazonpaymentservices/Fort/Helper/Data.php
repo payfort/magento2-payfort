@@ -2244,7 +2244,7 @@ class Data extends \Magento\Payment\Helper\Data
                     }
                 }
 
-                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->setAdditionalData(json_encode($this->filterParamsForPersistence($responseParams)));
                 $payment->save();
 
                 $this->log('process order2');
@@ -2752,6 +2752,36 @@ class Data extends \Magento\Payment\Helper\Data
     ];
 
     /**
+     * Keys of the APS response that are persisted on the order payment.
+     */
+    private const PERSIST_ALLOWED_KEYS = [
+        'command',
+        'merchant_reference',
+        'fort_id',
+        'response_code',
+        'response_message',
+        'status',
+        'amount',
+        'currency',
+        'payment_option',
+        'card_number',
+        'acquirer_response_code',
+        'acquirer_response_message',
+        'knet_ref_number',
+        'reconciliation_reference',
+        'third_party_transaction_number',
+        'number_of_installments',
+        'installment_amount',
+        'installment_interest',
+        'valu_tenure',
+        'valu_tenure_amount',
+        'valu_tenure_interest',
+        'valu_transaction_id',
+        'cashback_wallet_amount',
+        'loan_number',
+    ];
+
+    /**
      * Redact sensitive values in a parameter array before logging.
      *
      * Keeps a short prefix so entries remain correlatable when debugging.
@@ -2805,6 +2835,21 @@ class Data extends \Magento\Payment\Helper\Data
     private function normalizeMobileNumber($mobileNumber): string
     {
         return preg_replace('/[\s\-()]/', '', (string)$mobileNumber) ?? '';
+    }
+
+    /**
+     * Reduce an APS response to the fields this module needs to keep.
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function filterParamsForPersistence($params): array
+    {
+        if (!is_array($params)) {
+            return [];
+        }
+
+        return array_intersect_key($params, array_flip(self::PERSIST_ALLOWED_KEYS));
     }
 
     public function countryId()
@@ -2978,7 +3023,7 @@ class Data extends \Magento\Payment\Helper\Data
         $creditMemoData['shipping_amount'] = 0;
         $creditMemoData['adjustment_positive'] = $amount/$amountRate;
         $creditMemoData['adjustment_negative'] = 0;
-        $creditMemoData['comment_text'] = json_encode($responseParams);
+        $creditMemoData['comment_text'] = json_encode($this->filterParamsForPersistence($responseParams));
         $creditMemoData['send_email'] = 1;
 
         $itemToCredit = [];

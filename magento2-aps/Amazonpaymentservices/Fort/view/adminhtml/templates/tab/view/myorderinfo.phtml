@@ -13,7 +13,7 @@ if (isset($data['additionalData']['command']) && \Amazonpaymentservices\Fort\Mod
         <tbody>
         <tr>
             <th><?= /* @noEscape */ __('Order ID:') ?></th>
-            <td><?= /* @noEscape */ $block->getOrderIncrementId(); ?></td>
+            <td><?= $block->escapeHtml($block->getOrderIncrementId()); ?></td>
         </tr>
         <tr>
             <th><?= /* @noEscape */ __('Title:') ?></th>
@@ -98,8 +98,8 @@ if (isset($data['additionalData']['command']) && \Amazonpaymentservices\Fort\Mod
         'jquery',
         'prototype'
     ], function(jQuery){
-        var orderVal = parseFloat('<?= /* @noEscape */ $data['amountPaid']?>');
-        var orderValPaid = parseFloat('<?= /* @noEscape */ $valuePaid?>');
+        var orderVal = parseFloat(<?= json_encode((string)$data['amountPaid']) ?>);
+        var orderValPaid = parseFloat(<?= json_encode((string)$valuePaid) ?>);
         jQuery("#amount").on('input', function() {
             if(jQuery('#paymentType :selected').val() != 'void' && jQuery('#amount').val().length > 0) {
                 jQuery('#save').prop('disabled', false);
@@ -124,8 +124,8 @@ if (isset($data['additionalData']['command']) && \Amazonpaymentservices\Fort\Mod
         jQuery('#save').click(function () {
             var getAmount = jQuery('#amount').val();
             var getPaymentType = jQuery('#paymentType :selected').val();
-            var orderNumber = '<?= /* @noEscape */ $block->getOrderIncrementId();?>';
-            var orderId = '<?= /* @noEscape */  $block->getOrderId();?>';
+            var orderNumber = <?= json_encode((string)$block->getOrderIncrementId()) ?>;
+            var orderId = <?= json_encode((string)$block->getOrderId()) ?>;
             var remainingAmount = orderVal - orderValPaid - getAmount;
             if(jQuery('#paymentType :selected').val() != 'void' && remainingAmount < 0) {
                 alert('Amount cannot be greater than order amount');

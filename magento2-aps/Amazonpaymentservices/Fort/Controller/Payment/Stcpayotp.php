@@ -61,6 +61,16 @@ class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwar
         $orderId = $quote->getReservedOrderId();
 
         $mobileNumber = $this->getRequest()->getParam('mobileNumber');
+
+        if (!$this->_helper->isValidStcMobileNumber($mobileNumber)) {
+            $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+            $resultJson->setData([
+                'response_code' => '',
+                'response_message' => __('Mobile number is not valid.'),
+            ]);
+            return $resultJson;
+        }
+
         $data = [];
         $data = $this->_helper->stcPayRequestOtp($orderId, $mobileNumber);
         $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);

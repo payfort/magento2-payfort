@@ -2778,6 +2778,35 @@ class Data extends \Magento\Payment\Helper\Data
         return $params;
     }
 
+    /**
+     * Validate a Saudi mobile number for the STC Pay OTP flow.
+     *
+     * The optional 966 / 00966 / +966 prefix is accepted because the checkout
+     * form permits country-code-prefixed entry; the national part must be a
+     * Saudi mobile number (5XXXXXXXX, optionally written 05XXXXXXXX).
+     *
+     * @param mixed $mobileNumber
+     * @return bool
+     */
+    public function isValidStcMobileNumber($mobileNumber): bool
+    {
+        return (bool)preg_match(
+            '/^(?:\+?966|00966)?0?5[0-9]{8}$/',
+            $this->normalizeMobileNumber($mobileNumber)
+        );
+    }
+
+    /**
+     * Strip formatting characters merchants' customers commonly type.
+     *
+     * @param mixed $mobileNumber
+     * @return string
+     */
+    private function normalizeMobileNumber($mobileNumber): string
+    {
+        return preg_replace('/[\s\-()]/', '', (string)$mobileNumber) ?? '';
+    }
+
     public function countryId()
     {
         return $this->_checkoutSession->getQuote()->getShippingAddress()->getCountryId();

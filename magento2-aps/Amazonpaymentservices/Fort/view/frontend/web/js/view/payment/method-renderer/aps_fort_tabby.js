@@ -16,7 +16,8 @@ define(
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
         'Magento_Customer/js/model/customer',
-        'mage/translate'
+        'mage/translate',
+        'mage/cookies'
     ],
     function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customer) {
         'use strict';
@@ -88,7 +89,7 @@ define(
                         url: window.checkoutConfig.payment.apsFort.aps_fort_tabby.ajaxUrlToken,
                         type: 'post',
                         context: this,
-                        data:{tabbyToken:tabbyToken},
+                        data:{form_key: $.mage.cookies.get('form_key'), tabbyToken:tabbyToken},
                         dataType: 'json',
                         showLoader: true,
                         success: function (response) {

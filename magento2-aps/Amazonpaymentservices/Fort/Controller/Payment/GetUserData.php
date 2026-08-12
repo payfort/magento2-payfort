@@ -3,8 +3,6 @@
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
@@ -12,6 +10,8 @@ use Magento\Sales\Model\Order;
 
 class GetUserData extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
+    use \Amazonpaymentservices\Fort\Controller\FormKeyCsrfTrait;
+
     /**
      * @var \Magento\Checkout\Model\Session
      */
@@ -38,17 +38,6 @@ class GetUserData extends \Magento\Framework\App\Action\Action implements CsrfAw
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
         $this->_helper = $helperFort;
-    }
-    
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-            return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
     }
     
     public function execute()

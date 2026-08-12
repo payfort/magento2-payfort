@@ -23,6 +23,7 @@ define(
         'uiRegistry',
         'mage/utils/wrapper',
         'slick',
+        'mage/cookies'
     ],
     function (ko, $, Component, quote, _, fullScreenLoader, setPaymentInformationAction, placeOrderAction, additionalValidators, messageList, $t,customer) {
         'use strict';
@@ -327,7 +328,7 @@ define(
                         $.ajax({
                             url: window.checkoutConfig.payment.apsFort.aps_installment.getInstallmentPlans,
                             type: 'post',
-                            data:{cardNumber:cardNumber},
+                            data:{form_key: $.mage.cookies.get('form_key'), cardNumber:cardNumber},
                             context: this,
                             dataType: 'json',
                             showLoader: true,
@@ -361,7 +362,7 @@ define(
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_installment.getInstallmentPlans,
                         type: 'post',
-                        data:{vaultSelected:vaultSelected},
+                        data:{form_key: $.mage.cookies.get('form_key'), vaultSelected:vaultSelected},
                         context: this,
                         dataType: 'json',
                         showLoader: true,
@@ -418,7 +419,7 @@ define(
                         url: window.checkoutConfig.payment.apsFort.aps_installment.ajaxUrl,
                         type: 'post',
                         context: this,
-                        data:{tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,installment_amount:instaValue,installment_interest:instaInterest},
+                        data:{form_key: $.mage.cookies.get('form_key'), tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,installment_amount:instaValue,installment_interest:instaInterest},
                         dataType: 'json',
                         success: function (response) {
                             var preparedData,
@@ -467,7 +468,7 @@ define(
                         url: window.checkoutConfig.payment.apsFort.aps_installment.vaultInstallment,
                         type: 'post',
                         context: this,
-                        data:{vaultSelected:vaultSelected,tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,cvv:cvv,installment_amount:instaValue,installment_interest:instaInterest},
+                        data:{form_key: $.mage.cookies.get('form_key'), vaultSelected:vaultSelected,tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,cvv:cvv,installment_amount:instaValue,installment_interest:instaInterest},
                         dataType: 'json',
                         success: function (response) {
                             var preparedData,

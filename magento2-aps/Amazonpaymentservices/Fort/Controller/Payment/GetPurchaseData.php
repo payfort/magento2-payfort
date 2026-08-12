@@ -61,9 +61,18 @@ class GetPurchaseData extends \Magento\Framework\App\Action\Action implements Cs
         $wallet_amount = $this->getRequest()->getParam('walletAmount');
         $cashback_amount = $this->getRequest()->getParam('cashbackAmount');
 
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+
+        if (!$this->_helper->isValidValuMobileNumber($mobileNumber)) {
+            $resultJson->setData([
+                'response_code' => '',
+                'response_message' => __('Mobile number is not valid.'),
+            ]);
+            return $resultJson;
+        }
+
         $data = $this->_helper->merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment,  $wallet_amount, $cashback_amount);
 
-        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         $resultJson->setData($data);
         return $resultJson;
     }

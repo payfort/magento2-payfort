@@ -2827,6 +2827,24 @@ class Data extends \Magento\Payment\Helper\Data
     }
 
     /**
+     * Validate an Egyptian mobile number for the Valu flows.
+     *
+     * Accepts an optional 20 / 0020 / +20 country-code prefix; the national part
+     * must be a real Egyptian mobile number (1XXXXXXXXX, usually written
+     * 01XXXXXXXXX).
+     *
+     * @param mixed $mobileNumber
+     * @return bool
+     */
+    public function isValidValuMobileNumber($mobileNumber): bool
+    {
+        return (bool)preg_match(
+            '/^(?:\+?20|0020)?0?1[0-9]{9}$/',
+            $this->normalizeMobileNumber($mobileNumber)
+        );
+    }
+
+    /**
      * Strip formatting characters merchants' customers commonly type.
      *
      * @param mixed $mobileNumber

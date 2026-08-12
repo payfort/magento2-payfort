@@ -47,9 +47,18 @@ class GetOtpVerifyData extends \Magento\Framework\App\Action\Action implements C
         $mobileNumber = $this->getRequest()->getParam('mobileNumber');
         $otp = $this->getRequest()->getParam('otp');
 
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+
+        if (!$this->_helper->isValidValuMobileNumber($mobileNumber)) {
+            $resultJson->setData([
+                'response_code' => '',
+                'response_message' => __('Mobile number is not valid.'),
+            ]);
+            return $resultJson;
+        }
+
         $data = $this->_helper->merchantOtpVerifyValuFort($order, $mobileNumber, $otp);
 
-        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         $resultJson->setData($data);
         return $resultJson;
     }

@@ -51,7 +51,7 @@ class InstallmentstandardPageResponse extends \Amazonpaymentservices\Fort\Contro
         $response = $helper->installmentPageNotifyFort($responseParams, $order);
         if (!empty($response['response_code']) && $response['response_code'] == \Amazonpaymentservices\Fort\Model\Payment::PAYMENT_STATUS_3DS_CHECK && isset($response['3ds_url'])) {
 
-            $redirectURL =  '<script>window.top.location.href = "'.$response['3ds_url'].'"</script>';
+            $redirectURL =  '<script>window.top.location.href = '.json_encode($response['3ds_url']).'</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
                 return $response;
@@ -92,7 +92,7 @@ class InstallmentstandardPageResponse extends \Amazonpaymentservices\Fort\Contro
         }
 
         if ($integrationType == \Amazonpaymentservices\Fort\Model\Config\Source\Integrationtypeoptions::STANDARD) {
-            $redirectURL =  '<script>window.top.location.href = "'.$returnUrl.'"</script>';
+            $redirectURL =  '<script>window.top.location.href = '.json_encode($returnUrl).'</script>';
             $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
             $response->setContents($redirectURL);
             return $response;

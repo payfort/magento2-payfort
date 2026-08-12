@@ -2213,74 +2213,141 @@ class Data extends \Magento\Payment\Helper\Data
             return false;
         }
         if ($order->getState() != $order::STATE_PROCESSING) {
-            $this->log('process order1');
-            $payment = $order->getPayment();
-            $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
-            $payment->setAdditionalInformation($responseParams['merchant_reference']);
-
-            $sessionData = $this->_custmerSession->getCustomValue();
-
-            if (!empty($sessionData)) {
-                if (!empty($sessionData['installment_interest'])) {
-                    $responseParams['installment_interest'] = $sessionData['installment_interest'];
-                }
-                if (!empty($sessionData['installment_amount'])) {
-                    $responseParams['installment_amount'] = $sessionData['installment_amount'];
-                }
-                if (!empty($sessionData['valu_tenure'])) {
-                    $responseParams['valu_tenure'] = $sessionData['valu_tenure'];
-                }
-                if (!empty($sessionData['valu_tenure_amount'])) {
-                    $responseParams['valu_tenure_amount'] = $sessionData['valu_tenure_amount'];
-                }
-                if (!empty($sessionData['valu_tenure_interest'])) {
-                    $responseParams['valu_tenure_interest'] = $sessionData['valu_tenure_interest'];
-                }
+            if (!$this->claimOrderForProcessing($order)) {
+                $this->log('processOrder: order '.$order->getIncrementId().' already claimed by a concurrent request - skipping');
+                return false;
             }
 
-            $payment->setAdditionalData(json_encode($responseParams));
-            $payment->save();
+            try {
+                $this->log('process order1');
+                $payment = $order->getPayment();
+                $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
+                $payment->setAdditionalInformation($responseParams['merchant_reference']);
 
-            $this->log('process order2');
-            $invoice = $this->createInvoice($order, $responseParams);
+                $sessionData = $this->_custmerSession->getCustomValue();
 
-            $order->setState($order::STATE_PROCESSING)->save();
-            $order->setStatus($order::STATE_PROCESSING)->save();
-
-            $this->sendOrderEmail($order);
-
-            $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order has been paid.', true);
-            $order->save();
-            $this->log('process order2');
-            $paymentMethod = $order->getPayment()->getMethod();
-            if (( $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE && $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Stc::CODE ) && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
-                $this->log('process order3');
-                $this->log('process order4');
-                $year = substr($responseParams['expiry_date'], 0, 2);
-                $month = substr($responseParams['expiry_date'], 2, 4);
-                $paymentMethodCode = Payment::CODE;
-
-                $hashKey = $responseParams['token_name'];
-                if ($order->getCustomerId()) {
-                    $hashKey = $order->getCustomerId();
+                if (!empty($sessionData)) {
+                    if (!empty($sessionData['installment_interest'])) {
+                        $responseParams['installment_interest'] = $sessionData['installment_interest'];
+                    }
+                    if (!empty($sessionData['installment_amount'])) {
+                        $responseParams['installment_amount'] = $sessionData['installment_amount'];
+                    }
+                    if (!empty($sessionData['valu_tenure'])) {
+                        $responseParams['valu_tenure'] = $sessionData['valu_tenure'];
+                    }
+                    if (!empty($sessionData['valu_tenure_amount'])) {
+                        $responseParams['valu_tenure_amount'] = $sessionData['valu_tenure_amount'];
+                    }
+                    if (!empty($sessionData['valu_tenure_interest'])) {
+                        $responseParams['valu_tenure_interest'] = $sessionData['valu_tenure_interest'];
+                    }
                 }
-                $hashKey .= $paymentMethodCode
-                    . 'card'
-                    . '{"type":"'.$responseParams['payment_option'].'","maskedCC":"'.$responseParams['card_number'].'","expirationDate":"'.$year."\/".$month.'","orderId":"'.$responseParams['merchant_reference'].'"}';
 
-                $publicHash = $this->_encryptorInterface->getHash($hashKey);
+                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->save();
 
-                $tokenobjectManagerDuplicate = $this->_paymentToken->getByGatewayToken($responseParams['token_name'], $paymentMethodCode, $order->getCustomerId());
-                $this->log('process order5');
-                $this->saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month);
+                $this->log('process order2');
+                $invoice = $this->createInvoice($order, $responseParams);
+
+                $order->setState($order::STATE_PROCESSING)->save();
+                $order->setStatus($order::STATE_PROCESSING)->save();
+
+                $this->sendOrderEmail($order);
+
+                $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order has been paid.', true);
+                $order->save();
+                $this->log('process order2');
+                $paymentMethod = $order->getPayment()->getMethod();
+                if (( $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE && $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Stc::CODE ) && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
+                    $this->log('process order3');
+                    $this->log('process order4');
+                    $year = substr($responseParams['expiry_date'], 0, 2);
+                    $month = substr($responseParams['expiry_date'], 2, 4);
+                    $paymentMethodCode = Payment::CODE;
+
+                    $hashKey = $responseParams['token_name'];
+                    if ($order->getCustomerId()) {
+                        $hashKey = $order->getCustomerId();
+                    }
+                    $hashKey .= $paymentMethodCode
+                        . 'card'
+                        . '{"type":"'.$responseParams['payment_option'].'","maskedCC":"'.$responseParams['card_number'].'","expirationDate":"'.$year."\/".$month.'","orderId":"'.$responseParams['merchant_reference'].'"}';
+
+                    $publicHash = $this->_encryptorInterface->getHash($hashKey);
+
+                    $tokenobjectManagerDuplicate = $this->_paymentToken->getByGatewayToken($responseParams['token_name'], $paymentMethodCode, $order->getCustomerId());
+                    $this->log('process order5');
+                    $this->saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month);
+                }
+                $this->log('process order8');
+                $this->sendInvoiceEmail($invoice);
+                $this->apsSubscriptionOrder($order, 1);
+
+                return true;
+            } catch (\Exception $e) {
+                $this->releaseOrderProcessingClaim($order);
+                throw $e;
             }
-            $this->log('process order8');
-            $this->sendInvoiceEmail($invoice);
-            $this->apsSubscriptionOrder($order, 1);
-
-            return true;
         }
         return false;
+    }
+
+    /**
+     * Atomically claim an order for post-payment processing.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return bool True when this caller won the claim.
+     */
+    private function claimOrderForProcessing($order): bool
+    {
+        try {
+            $connection = $this->_connection->getConnection('sales');
+            $affected = $connection->update(
+                $this->_connection->getTableName('sales_order', 'sales'),
+                ['state' => Order::STATE_PROCESSING, 'status' => Order::STATE_PROCESSING],
+                [
+                    'entity_id = ?' => (int)$order->getEntityId(),
+                    'state NOT IN (?)' => [Order::STATE_PROCESSING, Order::STATE_COMPLETE],
+                ]
+            );
+
+            if ($affected > 0) {
+                $order->setState(Order::STATE_PROCESSING);
+                $order->setStatus(Order::STATE_PROCESSING);
+                return true;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            $this->log('claimOrderForProcessing failed, proceeding without lock: '.$e->getMessage());
+            return true;
+        }
+    }
+
+    /**
+     * Undo a processing claim after post-payment handling failed.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    private function releaseOrderProcessingClaim($order): void
+    {
+        try {
+            $connection = $this->_connection->getConnection('sales');
+            $connection->update(
+                $this->_connection->getTableName('sales_order', 'sales'),
+                ['state' => Order::STATE_NEW, 'status' => Order::STATE_NEW],
+                [
+                    'entity_id = ?' => (int)$order->getEntityId(),
+                    'state = ?' => Order::STATE_PROCESSING,
+                ]
+            );
+            $order->setState(Order::STATE_NEW);
+            $order->setStatus(Order::STATE_NEW);
+        } catch (\Exception $e) {
+            $this->log('releaseOrderProcessingClaim failed: '.$e->getMessage());
+        }
     }
 
     private function saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month)

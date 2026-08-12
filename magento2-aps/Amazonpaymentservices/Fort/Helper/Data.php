@@ -2253,7 +2253,7 @@ class Data extends \Magento\Payment\Helper\Data
             $order->save();
             $this->log('process order2');
             $paymentMethod = $order->getPayment()->getMethod();
-            if (( $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE || $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Stc::CODE ) && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
+            if (( $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE && $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Stc::CODE ) && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
                 $this->log('process order3');
                 $this->log('process order4');
                 $year = substr($responseParams['expiry_date'], 0, 2);

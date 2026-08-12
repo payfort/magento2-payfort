@@ -425,7 +425,7 @@ define(
                                             sliderText += '<div class="slide instaslider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + values.number_of_installment + '" data-code="' + values.issuer_code + '" data-plan="' + values.plan_code + '" data-intvalue="'+ values.amountPerMonth +'" data-interest="'+ values.interest +'"><span class="tenure">' + values.number_of_installment+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + values.amountPerMonth + '</span> <span class="emitext">'+$.mage.__(values.currency_code) + '/'+$.mage.__('Month')+'</span><br><span class="interestrate">' + values.interest + "% "+$.mage.__('interest')+"</span></div>";
                                         });
                                         
-                                        $('.ccform [data-action="issuer-name"]').html(response.issuer_text);
+                                        $('.ccform [data-action="issuer-name"]').text(response.issuer_text);
                                         $('.ccform [data-action="plan-info"]').html(response.plan_info);
                                         $('.ccform [data-action="widget-cc-insta-grid"]').html(sliderText);
                                         $('.ccform .instaslider-tenure:eq(0)').height($('.ccform .instaslider-tenure:eq(1)').height());
@@ -461,7 +461,7 @@ define(
                                         sliderText += '<div class="slide instaslider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + values.number_of_installment + '" data-code="' + values.issuer_code + '" data-plan="' + values.plan_code + '" data-intvalue="'+ values.amountPerMonth +'" data-interest="'+ values.interest +'"><span class="tenure">' + values.number_of_installment+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + values.amountPerMonth + '</span> <span class="emitext">'+$.mage.__(values.currency_code + '/Month')+'</span><br><span class="interestrate">' + values.interest + "% "+$.mage.__('interest')+"</span></div>";
                                     });
                                     $('.ccform [data-action="issuer-logo"]').attr("src", response.issuer_logo);
-                                    $('.ccform [data-action="issuer-name"]').html(response.issuer_text);
+                                    $('.ccform [data-action="issuer-name"]').text(response.issuer_text);
                                     $('.ccform [data-action="plan-info"]').html(response.plan_info);
                                     $('.ccform [data-action="widget-cc-insta-grid"]').html(sliderText);
 

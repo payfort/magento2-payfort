@@ -3397,7 +3397,7 @@ class Data extends \Magento\Payment\Helper\Data
             }
             $signature = $this->calculateSignature($gatewayParams, 'request', '', $storeCode);
             $gatewayParams['signature'] = $signature;
-            $this->log('API PARAM: '.json_encode($gatewayParams), $storeCode);
+            $this->log('API PARAM: '.json_encode($this->sanitizeForLog($gatewayParams)), $storeCode);
             $gatewayUrl = $this->getGatewayUrl('notificationApi', $storeCode);
             $responseParams = $this->callApi($gatewayParams, $gatewayUrl);
             $payment = $invoice = '';

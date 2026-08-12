@@ -2856,6 +2856,44 @@ class Data extends \Magento\Payment\Helper\Data
     }
 
     /**
+     * Check the requested Valu amounts against the order grand total.
+     *
+     * All values are compared in major units (the Valu helpers convert to
+     * piastres themselves).
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @param mixed $downPayment
+     * @param mixed $walletAmount
+     * @param mixed $cashbackAmount
+     * @return bool
+     */
+    public function areValuAmountsWithinOrderTotal(
+        $order,
+        $downPayment = 0,
+        $walletAmount = 0,
+        $cashbackAmount = 0
+    ): bool {
+        if (empty($order) || empty($order->getId())) {
+            return false;
+        }
+
+        foreach ([$downPayment, $walletAmount, $cashbackAmount] as $value) {
+            if ($value !== null && $value !== '' && !is_numeric($value)) {
+                return false;
+            }
+            if ((float)$value < 0) {
+                return false;
+            }
+        }
+
+        $requested = (float)$downPayment + (float)$walletAmount + (float)$cashbackAmount;
+        $orderTotal = (float)$order->getGrandTotal();
+
+        // Tolerance absorbs float representation error on currency values.
+        return $requested <= ($orderTotal + 0.0001);
+    }
+
+    /**
      * Reduce an APS response to the fields this module needs to keep.
      *
      * @param mixed $params

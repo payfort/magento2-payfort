@@ -63,6 +63,14 @@ class GetUserData extends \Magento\Framework\App\Action\Action implements CsrfAw
         if ($otpCheck == 'customerVerify') {
             $data = $this->_helper->merchantVerifyValuFort($mobileNumber);
         } elseif ($otpCheck == 'requestOtp') {
+            if (!$this->_helper->areValuAmountsWithinOrderTotal($order, $downPayment, $wallet_amount, $cashback_amount)) {
+                $resultJson->setData([
+                    'response_code' => '',
+                    'response_message' => __('Requested amounts exceed the order total.'),
+                ]);
+                return $resultJson;
+            }
+
             $data = $this->_helper->execGenOtp($order, $mobileNumber, $downPayment, $wallet_amount, $cashback_amount);
         }
         $resultJson->setData($data);

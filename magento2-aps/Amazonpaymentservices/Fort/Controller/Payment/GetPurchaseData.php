@@ -71,6 +71,14 @@ class GetPurchaseData extends \Magento\Framework\App\Action\Action implements Cs
             return $resultJson;
         }
 
+        if (!$this->_helper->areValuAmountsWithinOrderTotal($order, $downPayment, $wallet_amount, $cashback_amount)) {
+            $resultJson->setData([
+                'response_code' => '',
+                'response_message' => __('Requested amounts exceed the order total.'),
+            ]);
+            return $resultJson;
+        }
+
         $data = $this->_helper->merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment,  $wallet_amount, $cashback_amount);
 
         $resultJson->setData($data);

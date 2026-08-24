@@ -22,7 +22,8 @@ define(
         'Magento_Customer/js/model/customer',
         'uiRegistry',
         'mage/utils/wrapper',
-        'slick'
+        'slick',
+        'mage/cookies'
     ],
     function (ko, $, Component, quote, _, fullScreenLoader, setPaymentInformationAction, placeOrderAction, additionalValidators, messageList, $t,customer) {
         'use strict';
@@ -411,7 +412,7 @@ define(
                             $.ajax({
                                 url: window.checkoutConfig.payment.apsFort.aps_fort_cc.getInstallmentPlans,
                                 type: 'post',
-                                data:{cardNumber:cardNumber},
+                                data:{form_key: $.mage.cookies.get('form_key'), cardNumber:cardNumber},
                                 context: this,
                                 dataType: 'json',
                                 showLoader: true,
@@ -424,7 +425,7 @@ define(
                                             sliderText += '<div class="slide instaslider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + values.number_of_installment + '" data-code="' + values.issuer_code + '" data-plan="' + values.plan_code + '" data-intvalue="'+ values.amountPerMonth +'" data-interest="'+ values.interest +'"><span class="tenure">' + values.number_of_installment+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + values.amountPerMonth + '</span> <span class="emitext">'+$.mage.__(values.currency_code) + '/'+$.mage.__('Month')+'</span><br><span class="interestrate">' + values.interest + "% "+$.mage.__('interest')+"</span></div>";
                                         });
                                         
-                                        $('.ccform [data-action="issuer-name"]').html(response.issuer_text);
+                                        $('.ccform [data-action="issuer-name"]').text(response.issuer_text);
                                         $('.ccform [data-action="plan-info"]').html(response.plan_info);
                                         $('.ccform [data-action="widget-cc-insta-grid"]').html(sliderText);
                                         $('.ccform .instaslider-tenure:eq(0)').height($('.ccform .instaslider-tenure:eq(1)').height());
@@ -447,7 +448,7 @@ define(
                         $.ajax({
                             url: window.checkoutConfig.payment.apsFort.aps_fort_cc.getInstallmentPlans,
                             type: 'post',
-                            data:{vaultSelected:vault},
+                            data:{form_key: $.mage.cookies.get('form_key'), vaultSelected:vault},
                             context: this,
                             dataType: 'json',
                             showLoader: true,
@@ -460,7 +461,7 @@ define(
                                         sliderText += '<div class="slide instaslider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + values.number_of_installment + '" data-code="' + values.issuer_code + '" data-plan="' + values.plan_code + '" data-intvalue="'+ values.amountPerMonth +'" data-interest="'+ values.interest +'"><span class="tenure">' + values.number_of_installment+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + values.amountPerMonth + '</span> <span class="emitext">'+$.mage.__(values.currency_code + '/Month')+'</span><br><span class="interestrate">' + values.interest + "% "+$.mage.__('interest')+"</span></div>";
                                     });
                                     $('.ccform [data-action="issuer-logo"]').attr("src", response.issuer_logo);
-                                    $('.ccform [data-action="issuer-name"]').html(response.issuer_text);
+                                    $('.ccform [data-action="issuer-name"]').text(response.issuer_text);
                                     $('.ccform [data-action="plan-info"]').html(response.plan_info);
                                     $('.ccform [data-action="widget-cc-insta-grid"]').html(sliderText);
 
@@ -557,7 +558,7 @@ define(
                             url: window.checkoutConfig.payment.apsFort.aps_fort_vault.ajaxVaultUrl,
                             type: 'post',
                             context: this,
-                            data:{publicHash:publicHash,cvv:cvv},
+                            data:{form_key: $.mage.cookies.get('form_key'), publicHash:publicHash,cvv:cvv},
                             dataType: 'json',
                             showLoader: true,
                             success: function (response) {
@@ -623,7 +624,7 @@ define(
                             url: window.checkoutConfig.payment.apsFort.aps_installment.ajaxInstallmentUrl,
                             type: 'post',
                             context: this,
-                            data:{tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,installment_amount:instaValue,installment_interest:instaInterest},
+                            data:{form_key: $.mage.cookies.get('form_key'), tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,installment_amount:instaValue,installment_interest:instaInterest},
                             dataType: 'json',
                             success: function (response) {
                                 var preparedData,
@@ -672,7 +673,7 @@ define(
                             url: window.checkoutConfig.payment.apsFort.aps_installment.vaultInstallment,
                             type: 'post',
                             context: this,
-                            data:{vaultSelected:vault,tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,cvv:cvv,installment_amount:instaValue,installment_interest:instaInterest},
+                            data:{form_key: $.mage.cookies.get('form_key'), vaultSelected:vault,tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,cvv:cvv,installment_amount:instaValue,installment_interest:instaInterest},
                             dataType: 'json',
                             success: function (response) {
                                 var preparedData,
@@ -785,7 +786,7 @@ define(
                             url: window.checkoutConfig.payment.apsFort.aps_fort_vault.ajaxVaultUrl,
                             type: 'post',
                             context: this,
-                            data:{publicHash:publicHash,cvv:cvv},
+                            data:{form_key: $.mage.cookies.get('form_key'), publicHash:publicHash,cvv:cvv},
                             dataType: 'json',
                             showLoader: true,
                             success: function (response) {

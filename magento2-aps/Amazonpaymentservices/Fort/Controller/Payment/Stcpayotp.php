@@ -3,8 +3,6 @@
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
@@ -12,6 +10,8 @@ use Magento\Sales\Model\Order;
 
 class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
+    use \Amazonpaymentservices\Fort\Controller\FormKeyCsrfTrait;
+
     /**
      * @var \Magento\Checkout\Model\Session
      */
@@ -52,26 +52,25 @@ class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwar
         $this->_helper = $helperFort;
     }
     
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-            return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
-    
     public function execute()
     {
         
         $quote = $this->_cart->getQuote();
-        $this->_helper->log(json_encode($quote->getData()));
+        $this->_helper->log(json_encode($this->_helper->sanitizeForLog($quote->getData())));
         $quote->reserveOrderId()->save();
         $orderId = $quote->getReservedOrderId();
 
         $mobileNumber = $this->getRequest()->getParam('mobileNumber');
+
+        if (!$this->_helper->isValidStcMobileNumber($mobileNumber)) {
+            $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+            $resultJson->setData([
+                'response_code' => '',
+                'response_message' => __('Mobile number is not valid.'),
+            ]);
+            return $resultJson;
+        }
+
         $data = [];
         $data = $this->_helper->stcPayRequestOtp($orderId, $mobileNumber);
         $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);

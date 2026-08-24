@@ -5,7 +5,8 @@
  define([
     'jquery',
     'Magento_Ui/js/modal/modalToggle',
-    'mage/translate'
+    'mage/translate',
+    'mage/cookies'
 ], function ($, modalToggle) {
     'use strict';
     return function (config, deleteButton) {
@@ -28,7 +29,7 @@
                         url: config.url,
                         type: 'post',
                         context: this,
-                        data:{publicHash:config.publicHash},
+                        data:{form_key: $.mage.cookies.get('form_key'), publicHash:config.publicHash},
                         dataType: 'json',
                         showLoader: true,
                         success: function (response) {

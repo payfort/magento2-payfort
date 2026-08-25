@@ -59,6 +59,8 @@ class SendAppleCartDataToAps extends \Amazonpaymentservices\Fort\Controller\Chec
         $this->_checkoutSession->setLastQuoteId($order->getQuoteId());
         $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
         
-        $this->orderRedirect($returnUrl);
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

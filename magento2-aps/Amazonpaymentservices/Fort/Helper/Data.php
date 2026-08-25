@@ -704,7 +704,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-        $this->log("Fort Valu Customer Verify Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+        $this->log("Fort Valu Customer Verify Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
         $response = $this->callApi($postData, $gatewayUrl);
         $responseData = [];
@@ -791,7 +791,7 @@ class Data extends \Magento\Payment\Helper\Data
             ];
             $signature = $this->calculateSignature($postData, 'request');
             $postData['signature'] = $signature;
-            $this->log("Fort Valu Generate OTP Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+            $this->log("Fort Valu Generate OTP Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
             $debugMsg = "Fort Valu Generate OTP Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
@@ -927,7 +927,7 @@ class Data extends \Magento\Payment\Helper\Data
 
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-            $this->log("Fort Valu OTP Verify Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+            $this->log("Fort Valu OTP Verify Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
             $debugMsg = "Fort Valu OTP Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
@@ -1014,7 +1014,7 @@ class Data extends \Magento\Payment\Helper\Data
 
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-            $this->log("Fort Valu Purchase Request Params for payment method (PayFort Valu) : " . json_encode($postData, 1));
+            $this->log("Fort Valu Purchase Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
             $responseData = [];
@@ -1210,12 +1210,12 @@ class Data extends \Magento\Payment\Helper\Data
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
 
-        $this->log("standardNotifyFort: Request Params : " . json_encode($postData, 1));
+        $this->log("standardNotifyFort: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("standardNotifyFort: Gateway URL : " . $gatewayUrl);
 
         $response = $this->callApi($postData, $gatewayUrl);
 
-        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1289,8 +1289,8 @@ class Data extends \Magento\Payment\Helper\Data
         $postData['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("installmentPageNotifyFort: Response Params : " . json_encode($responseParams, 1));
-        $this->log("installmentPageNotifyFort: Request Params : " . json_encode($postData, 1));
+        $this->log("installmentPageNotifyFort: Response Params : " . json_encode($this->sanitizeForLog($responseParams), 1));
+        $this->log("installmentPageNotifyFort: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("installmentPageNotifyFort: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
 
@@ -1342,7 +1342,7 @@ class Data extends \Magento\Payment\Helper\Data
         $postData['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("visaCheckoutPageNotifyFort: Request Params : " . json_encode($postData, 1));
+        $this->log("visaCheckoutPageNotifyFort: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("visaCheckoutPageNotifyFort: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
 
@@ -1382,10 +1382,10 @@ class Data extends \Magento\Payment\Helper\Data
 
         $postData['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("APS Capture: Request Params : " . json_encode($postData, 1));
+        $this->log("APS Capture: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("Aps Capture: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
-        $debugMsg = "APs Capture Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "APs Capture Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1420,10 +1420,10 @@ class Data extends \Magento\Payment\Helper\Data
         }
         $postData['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("APS Void: Request Params : " . json_encode($postData, 1));
+        $this->log("APS Void: Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("Aps Void: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
-        $debugMsg = "APs Void Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "APs Void Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1446,10 +1446,10 @@ class Data extends \Magento\Payment\Helper\Data
         $signature = $this->calculateSignature($postData, 'request');
         $postData['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("APS Vault Status ".$status." : Request Params : " . json_encode($postData, 1));
+        $this->log("APS Vault Status ".$status." : Request Params : " . json_encode($this->sanitizeForLog($postData), 1));
         $this->log("Aps Vault Status: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
-        $debugMsg = "APs Vault Status Response Params :"."\n".json_encode($response, 1);
+        $debugMsg = "APs Vault Status Response Params :"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1479,7 +1479,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->getCurlClient()->post($gatewayUrl, json_encode($postData));
 
             $response = $this->getCurlClient()->getBody();
-            $this->log("CURL Response :". json_encode($response));
+            $this->log("CURL Response :". json_encode($this->sanitizeForLog($response)));
             $array_result = json_decode($response, true);
             if (empty($array_result)) {
                 return false;
@@ -2200,7 +2200,7 @@ class Data extends \Magento\Payment\Helper\Data
         ];
 
         $data['signature'] = $this->calculateSignature($data, 'request', $type, $storeCode);
-        $this->log('APS verify order request:'. json_encode($data));
+        $this->log('APS verify order request:'. json_encode($this->sanitizeForLog($data)));
         $gatewayUrl = $this->getGatewayUrl('notificationApi', $storeCode);
 
         return $this->callApi($data, $gatewayUrl);
@@ -2213,74 +2213,141 @@ class Data extends \Magento\Payment\Helper\Data
             return false;
         }
         if ($order->getState() != $order::STATE_PROCESSING) {
-            $this->log('process order1');
-            $payment = $order->getPayment();
-            $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
-            $payment->setAdditionalInformation($responseParams['merchant_reference']);
-
-            $sessionData = $this->_custmerSession->getCustomValue();
-
-            if (!empty($sessionData)) {
-                if (!empty($sessionData['installment_interest'])) {
-                    $responseParams['installment_interest'] = $sessionData['installment_interest'];
-                }
-                if (!empty($sessionData['installment_amount'])) {
-                    $responseParams['installment_amount'] = $sessionData['installment_amount'];
-                }
-                if (!empty($sessionData['valu_tenure'])) {
-                    $responseParams['valu_tenure'] = $sessionData['valu_tenure'];
-                }
-                if (!empty($sessionData['valu_tenure_amount'])) {
-                    $responseParams['valu_tenure_amount'] = $sessionData['valu_tenure_amount'];
-                }
-                if (!empty($sessionData['valu_tenure_interest'])) {
-                    $responseParams['valu_tenure_interest'] = $sessionData['valu_tenure_interest'];
-                }
+            if (!$this->claimOrderForProcessing($order)) {
+                $this->log('processOrder: order '.$order->getIncrementId().' already claimed by a concurrent request - skipping');
+                return false;
             }
 
-            $payment->setAdditionalData(json_encode($responseParams));
-            $payment->save();
+            try {
+                $this->log('process order1');
+                $payment = $order->getPayment();
+                $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
+                $payment->setAdditionalInformation($responseParams['merchant_reference']);
 
-            $this->log('process order2');
-            $invoice = $this->createInvoice($order, $responseParams);
+                $sessionData = $this->_custmerSession->getCustomValue();
 
-            $order->setState($order::STATE_PROCESSING)->save();
-            $order->setStatus($order::STATE_PROCESSING)->save();
-
-            $this->sendOrderEmail($order);
-
-            $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order has been paid.', true);
-            $order->save();
-            $this->log('process order2');
-            $paymentMethod = $order->getPayment()->getMethod();
-            if (( $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE || $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Stc::CODE ) && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
-                $this->log('process order3');
-                $this->log('process order4');
-                $year = substr($responseParams['expiry_date'], 0, 2);
-                $month = substr($responseParams['expiry_date'], 2, 4);
-                $paymentMethodCode = Payment::CODE;
-
-                $hashKey = $responseParams['token_name'];
-                if ($order->getCustomerId()) {
-                    $hashKey = $order->getCustomerId();
+                if (!empty($sessionData)) {
+                    if (!empty($sessionData['installment_interest'])) {
+                        $responseParams['installment_interest'] = $sessionData['installment_interest'];
+                    }
+                    if (!empty($sessionData['installment_amount'])) {
+                        $responseParams['installment_amount'] = $sessionData['installment_amount'];
+                    }
+                    if (!empty($sessionData['valu_tenure'])) {
+                        $responseParams['valu_tenure'] = $sessionData['valu_tenure'];
+                    }
+                    if (!empty($sessionData['valu_tenure_amount'])) {
+                        $responseParams['valu_tenure_amount'] = $sessionData['valu_tenure_amount'];
+                    }
+                    if (!empty($sessionData['valu_tenure_interest'])) {
+                        $responseParams['valu_tenure_interest'] = $sessionData['valu_tenure_interest'];
+                    }
                 }
-                $hashKey .= $paymentMethodCode
-                    . 'card'
-                    . '{"type":"'.$responseParams['payment_option'].'","maskedCC":"'.$responseParams['card_number'].'","expirationDate":"'.$year."\/".$month.'","orderId":"'.$responseParams['merchant_reference'].'"}';
 
-                $publicHash = $this->_encryptorInterface->getHash($hashKey);
+                $payment->setAdditionalData(json_encode($this->filterParamsForPersistence($responseParams)));
+                $payment->save();
 
-                $tokenobjectManagerDuplicate = $this->_paymentToken->getByGatewayToken($responseParams['token_name'], $paymentMethodCode, $order->getCustomerId());
-                $this->log('process order5');
-                $this->saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month);
+                $this->log('process order2');
+                $invoice = $this->createInvoice($order, $responseParams);
+
+                $order->setState($order::STATE_PROCESSING)->save();
+                $order->setStatus($order::STATE_PROCESSING)->save();
+
+                $this->sendOrderEmail($order);
+
+                $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order has been paid.', true);
+                $order->save();
+                $this->log('process order2');
+                $paymentMethod = $order->getPayment()->getMethod();
+                if (( $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Tabby::CODE && $paymentMethod != \Amazonpaymentservices\Fort\Model\Method\Stc::CODE ) && !empty($responseParams['token_name']) && !empty($order->getCustomerId()) && $this->getConfig('payment/aps_fort_vault/active') == '1') {
+                    $this->log('process order3');
+                    $this->log('process order4');
+                    $year = substr($responseParams['expiry_date'], 0, 2);
+                    $month = substr($responseParams['expiry_date'], 2, 4);
+                    $paymentMethodCode = Payment::CODE;
+
+                    $hashKey = $responseParams['token_name'];
+                    if ($order->getCustomerId()) {
+                        $hashKey = $order->getCustomerId();
+                    }
+                    $hashKey .= $paymentMethodCode
+                        . 'card'
+                        . '{"type":"'.$responseParams['payment_option'].'","maskedCC":"'.$responseParams['card_number'].'","expirationDate":"'.$year."\/".$month.'","orderId":"'.$responseParams['merchant_reference'].'"}';
+
+                    $publicHash = $this->_encryptorInterface->getHash($hashKey);
+
+                    $tokenobjectManagerDuplicate = $this->_paymentToken->getByGatewayToken($responseParams['token_name'], $paymentMethodCode, $order->getCustomerId());
+                    $this->log('process order5');
+                    $this->saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month);
+                }
+                $this->log('process order8');
+                $this->sendInvoiceEmail($invoice);
+                $this->apsSubscriptionOrder($order, 1);
+
+                return true;
+            } catch (\Exception $e) {
+                $this->releaseOrderProcessingClaim($order);
+                throw $e;
             }
-            $this->log('process order8');
-            $this->sendInvoiceEmail($invoice);
-            $this->apsSubscriptionOrder($order, 1);
-
-            return true;
         }
         return false;
+    }
+
+    /**
+     * Atomically claim an order for post-payment processing.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return bool True when this caller won the claim.
+     */
+    private function claimOrderForProcessing($order): bool
+    {
+        try {
+            $connection = $this->_connection->getConnection('sales');
+            $affected = $connection->update(
+                $this->_connection->getTableName('sales_order', 'sales'),
+                ['state' => Order::STATE_PROCESSING, 'status' => Order::STATE_PROCESSING],
+                [
+                    'entity_id = ?' => (int)$order->getEntityId(),
+                    'state NOT IN (?)' => [Order::STATE_PROCESSING, Order::STATE_COMPLETE],
+                ]
+            );
+
+            if ($affected > 0) {
+                $order->setState(Order::STATE_PROCESSING);
+                $order->setStatus(Order::STATE_PROCESSING);
+                return true;
+            }
+
+            return false;
+        } catch (\Exception $e) {
+            $this->log('claimOrderForProcessing failed, proceeding without lock: '.$e->getMessage());
+            return true;
+        }
+    }
+
+    /**
+     * Undo a processing claim after post-payment handling failed.
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @return void
+     */
+    private function releaseOrderProcessingClaim($order): void
+    {
+        try {
+            $connection = $this->_connection->getConnection('sales');
+            $connection->update(
+                $this->_connection->getTableName('sales_order', 'sales'),
+                ['state' => Order::STATE_NEW, 'status' => Order::STATE_NEW],
+                [
+                    'entity_id = ?' => (int)$order->getEntityId(),
+                    'state = ?' => Order::STATE_PROCESSING,
+                ]
+            );
+            $order->setState(Order::STATE_NEW);
+            $order->setStatus(Order::STATE_NEW);
+        } catch (\Exception $e) {
+            $this->log('releaseOrderProcessingClaim failed: '.$e->getMessage());
+        }
     }
 
     private function saveTokenisation($tokenobjectManagerDuplicate, $order, $publicHash, $paymentMethodCode, $responseParams, $year, $month)
@@ -2432,7 +2499,7 @@ class Data extends \Magento\Payment\Helper\Data
             }
 
             $paymentMethod = $order->getPayment()->getMethod();
-            $this->log("Pay method ($paymentMethod)" . json_encode($responseParams, 1));
+            $this->log("Pay method ($paymentMethod)" . json_encode($this->sanitizeForLog($responseParams), 1));
 
             $notIncludedParams = ['signature', 'aps_fort', 'integration_type','form_key'];
 
@@ -2596,7 +2663,11 @@ class Data extends \Magento\Payment\Helper\Data
     private function invalidSignature($signature, $responseSignature, $order)
     {
         $responseMessage = __('Invalid response signature.');
-        $logMsg = sprintf('Invalid Signature. Calculated: %1s, Response: %2s', $signature, $responseSignature);
+        $logMsg = sprintf(
+            'Invalid Signature for order %s. Received signature prefix: %s (mismatch)',
+            $order ? $order->getIncrementId() : 'unknown',
+            substr((string)$signature, 0, 8) . '...'
+        );
         $this->log($logMsg);
 
         $this->_messageManager->addError($responseMessage);
@@ -2660,6 +2731,181 @@ class Data extends \Magento\Payment\Helper\Data
 
         $debugMsg = "=============== APS Module =============== \n".$messages."\n";
         $this->_logger->debug($debugMsg);
+    }
+
+    /**
+     * Keys whose values are redacted before being written to the debug log.
+     */
+    private const LOG_REDACT_KEYS = [
+        'token_name',
+        'authorization_code',
+        'signature',
+        'card_number',
+        'card_security_code',
+        'expiry_date',
+        'phone_number',
+        'customer_email',
+        'customer_ip',
+        'otp',
+        'access_code',
+        'merchant_identifier',
+    ];
+
+    /**
+     * Keys of the APS response that are persisted on the order payment.
+     */
+    private const PERSIST_ALLOWED_KEYS = [
+        'command',
+        'merchant_reference',
+        'fort_id',
+        'response_code',
+        'response_message',
+        'status',
+        'amount',
+        'currency',
+        'payment_option',
+        'card_number',
+        'acquirer_response_code',
+        'acquirer_response_message',
+        'knet_ref_number',
+        'reconciliation_reference',
+        'third_party_transaction_number',
+        'number_of_installments',
+        'installment_amount',
+        'installment_interest',
+        'valu_tenure',
+        'valu_tenure_amount',
+        'valu_tenure_interest',
+        'valu_transaction_id',
+        'cashback_wallet_amount',
+        'loan_number',
+    ];
+
+    /**
+     * Redact sensitive values in a parameter array before logging.
+     *
+     * Keeps a short prefix so entries remain correlatable when debugging.
+     *
+     * @param mixed $params
+     * @return mixed
+     */
+    public function sanitizeForLog($params)
+    {
+        if (!is_array($params)) {
+            return $params;
+        }
+
+        foreach ($params as $key => $value) {
+            if (is_array($value)) {
+                $params[$key] = $this->sanitizeForLog($value);
+                continue;
+            }
+            if (in_array((string)$key, self::LOG_REDACT_KEYS, true) && $value !== null && $value !== '') {
+                $params[$key] = substr((string)$value, 0, 4) . '***REDACTED***';
+            }
+        }
+
+        return $params;
+    }
+
+    /**
+     * Validate a Saudi mobile number for the STC Pay OTP flow.
+     *
+     * The optional 966 / 00966 / +966 prefix is accepted because the checkout
+     * form permits country-code-prefixed entry; the national part must be a
+     * Saudi mobile number (5XXXXXXXX, optionally written 05XXXXXXXX).
+     *
+     * @param mixed $mobileNumber
+     * @return bool
+     */
+    public function isValidStcMobileNumber($mobileNumber): bool
+    {
+        return (bool)preg_match(
+            '/^(?:\+?966|00966)?0?5[0-9]{8}$/',
+            $this->normalizeMobileNumber($mobileNumber)
+        );
+    }
+
+    /**
+     * Validate an Egyptian mobile number for the Valu flows.
+     *
+     * Accepts an optional 20 / 0020 / +20 country-code prefix; the national part
+     * must be a real Egyptian mobile number (1XXXXXXXXX, usually written
+     * 01XXXXXXXXX).
+     *
+     * @param mixed $mobileNumber
+     * @return bool
+     */
+    public function isValidValuMobileNumber($mobileNumber): bool
+    {
+        return (bool)preg_match(
+            '/^(?:\+?20|0020)?0?1[0-9]{9}$/',
+            $this->normalizeMobileNumber($mobileNumber)
+        );
+    }
+
+    /**
+     * Strip formatting characters merchants' customers commonly type.
+     *
+     * @param mixed $mobileNumber
+     * @return string
+     */
+    private function normalizeMobileNumber($mobileNumber): string
+    {
+        return preg_replace('/[\s\-()]/', '', (string)$mobileNumber) ?? '';
+    }
+
+    /**
+     * Check the requested Valu amounts against the order grand total.
+     *
+     * All values are compared in major units (the Valu helpers convert to
+     * piastres themselves).
+     *
+     * @param \Magento\Sales\Model\Order $order
+     * @param mixed $downPayment
+     * @param mixed $walletAmount
+     * @param mixed $cashbackAmount
+     * @return bool
+     */
+    public function areValuAmountsWithinOrderTotal(
+        $order,
+        $downPayment = 0,
+        $walletAmount = 0,
+        $cashbackAmount = 0
+    ): bool {
+        if (empty($order) || empty($order->getId())) {
+            return false;
+        }
+
+        foreach ([$downPayment, $walletAmount, $cashbackAmount] as $value) {
+            if ($value !== null && $value !== '' && !is_numeric($value)) {
+                return false;
+            }
+            if ((float)$value < 0) {
+                return false;
+            }
+        }
+
+        $requested = (float)$downPayment + (float)$walletAmount + (float)$cashbackAmount;
+        $orderTotal = (float)$order->getGrandTotal();
+
+        // Tolerance absorbs float representation error on currency values.
+        return $requested <= ($orderTotal + 0.0001);
+    }
+
+    /**
+     * Reduce an APS response to the fields this module needs to keep.
+     *
+     * @param mixed $params
+     * @return array
+     */
+    public function filterParamsForPersistence($params): array
+    {
+        if (!is_array($params)) {
+            return [];
+        }
+
+        return array_intersect_key($params, array_flip(self::PERSIST_ALLOWED_KEYS));
     }
 
     public function countryId()
@@ -2740,7 +2986,7 @@ class Data extends \Magento\Payment\Helper\Data
         $model->setData($saveData)->save();
         $logMsg = "WebHooks CaptureVoid Data (capture void) \n\n" . json_encode($saveData, 1);
         $this->log($logMsg);
-        $logMsg = "WebHooks Response for payment method (capture void) \n\n" . json_encode($responseParams, 1);
+        $logMsg = "WebHooks Response for payment method (capture void) \n\n" . json_encode($this->sanitizeForLog($responseParams), 1);
         $this->log($logMsg);
     }
 
@@ -2801,13 +3047,31 @@ class Data extends \Magento\Payment\Helper\Data
             $differenceInSeconds = strtotime($todayDate) - strtotime($createdAt);
 
             if ($differenceInSeconds < 60 && ($amount/$amountRate) == $adjustment) {
-                $this->log('Refund Already done for this order.'.json_encode($responseParams));
+                $this->log('Refund Already done for this order.'.json_encode($this->sanitizeForLog($responseParams)));
                 $flag = 1;
             }
             $creditMemoTotal += $adjustment;
         }
         $this->log('Refund Flag:'.$flag);
         if ($flag == 0) {
+            // Bound the refund by the order total, less refunds already issued.
+            $refundAmount = $amount / $amountRate;
+            $orderGrandTotal = (float)$orders->getGrandTotal() / $amountRate;
+            $refundableAmount = $orderGrandTotal - $creditMemoTotal;
+
+            if ($refundAmount > ($refundableAmount + 0.0001)) {
+                $this->log(sprintf(
+                    'refundAps: refund amount %s exceeds refundable amount %s '
+                    . '(order total %s, already refunded %s) for order %s - rejecting.',
+                    $refundAmount,
+                    $refundableAmount,
+                    $orderGrandTotal,
+                    $creditMemoTotal,
+                    $orderId
+                ));
+                return;
+            }
+
             $this->creditMemoCalculation($amount, $amountRate, $responseParams, $orders);
         } else {
             $orderTotal = $orders->getGrandTotal()/$amountRate;
@@ -2833,7 +3097,7 @@ class Data extends \Magento\Payment\Helper\Data
         $creditMemoData['shipping_amount'] = 0;
         $creditMemoData['adjustment_positive'] = $amount/$amountRate;
         $creditMemoData['adjustment_negative'] = 0;
-        $creditMemoData['comment_text'] = json_encode($responseParams);
+        $creditMemoData['comment_text'] = json_encode($this->filterParamsForPersistence($responseParams));
         $creditMemoData['send_email'] = 1;
 
         $itemToCredit = [];
@@ -2848,7 +3112,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->creditmemoLoader->setCreditmemo($creditMemoData);
 
             $creditmemo = $this->creditmemoLoader->load();
-            $this->log(__('Refund Credit memo data:'.json_encode($creditMemoData)));
+            $this->log(__('Refund Credit memo data:'.json_encode($this->sanitizeForLog($creditMemoData))));
             $this->log(__('Refund:'.json_encode($creditmemo)));
             if ($creditmemo) {
                 $this->log(__('Credit Memo loaded'));
@@ -3133,7 +3397,7 @@ class Data extends \Magento\Payment\Helper\Data
             }
             $signature = $this->calculateSignature($gatewayParams, 'request', '', $storeCode);
             $gatewayParams['signature'] = $signature;
-            $this->log('API PARAM: '.json_encode($gatewayParams), $storeCode);
+            $this->log('API PARAM: '.json_encode($this->sanitizeForLog($gatewayParams)), $storeCode);
             $gatewayUrl = $this->getGatewayUrl('notificationApi', $storeCode);
             $responseParams = $this->callApi($gatewayParams, $gatewayUrl);
             $payment = $invoice = '';
@@ -3142,7 +3406,7 @@ class Data extends \Magento\Payment\Helper\Data
                 $payment = $newOrder->getPayment();
                 $payment->setTransactionId($responseParams['fort_id'])->setIsTransactionClosed(0);
                 $payment->setAdditionalInformation($responseParams['merchant_reference']);
-                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->setAdditionalData(json_encode($this->filterParamsForPersistence($responseParams)));
                 $payment->save();
 
                 try {
@@ -3182,7 +3446,7 @@ class Data extends \Magento\Payment\Helper\Data
             } else {
                 $payment = $newOrder->getPayment();
                 $payment->setAdditionalInformation($responseParams['merchant_reference']);
-                $payment->setAdditionalData(json_encode($responseParams));
+                $payment->setAdditionalData(json_encode($this->filterParamsForPersistence($responseParams)));
                 $payment->save();
             }
             return $responseParams;
@@ -3341,7 +3605,7 @@ class Data extends \Magento\Payment\Helper\Data
         $signature = $this->calculateSignature($data, 'request');
         $data['signature'] = $signature;
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log(json_encode($data));
+        $this->log(json_encode($this->sanitizeForLog($data)));
         return $this->callApi($data, $gatewayUrl);
     }
 
@@ -3396,7 +3660,7 @@ class Data extends \Magento\Payment\Helper\Data
         $this->_gatewayParams['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $this->log("Request Data STC:".json_encode($this->_gatewayParams));
+        $this->log("Request Data STC:".json_encode($this->sanitizeForLog($this->_gatewayParams)));
         $responseParams = $this->callApi($this->_gatewayParams, $gatewayUrl);
 
         $integrationType = self::INTEGRATION_TYPE_REDIRECTION;

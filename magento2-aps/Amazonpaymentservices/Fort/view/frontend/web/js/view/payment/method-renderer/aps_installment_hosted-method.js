@@ -23,6 +23,7 @@ define(
         'uiRegistry',
         'mage/utils/wrapper',
         'slick',
+        'mage/cookies'
     ],
     function (ko, $, Component, quote, _, fullScreenLoader, setPaymentInformationAction, placeOrderAction, additionalValidators, messageList, $t,customer) {
         'use strict';
@@ -327,7 +328,7 @@ define(
                         $.ajax({
                             url: window.checkoutConfig.payment.apsFort.aps_installment.getInstallmentPlans,
                             type: 'post',
-                            data:{cardNumber:cardNumber},
+                            data:{form_key: $.mage.cookies.get('form_key'), cardNumber:cardNumber},
                             context: this,
                             dataType: 'json',
                             showLoader: true,
@@ -338,7 +339,7 @@ define(
                                         sliderText += '<div class="slide instaslider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + values.number_of_installment + '" data-code="' + values.issuer_code + '" data-plan="' + values.plan_code + '" data-intvalue="'+ values.amountPerMonth +'" data-interest="'+ values.interest +'"><span class="tenure">' + values.number_of_installment+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + values.amountPerMonth + '</span> <span class="emitext">'+$.mage.__(values.currency_code) + '/'+$.mage.__('Month')+'</span><br><span class="interestrate">' + values.interest + "% "+$.mage.__('interest')+"</span></div>";
                                     });
                                     
-                                    $('.instaform [data-action="issuer-name"]').html(response.issuer_text);
+                                    $('.instaform [data-action="issuer-name"]').text(response.issuer_text);
                                     $('.instaform [data-action="plan-info"]').html(response.plan_info);
                                     $('.instaform [data-action="widget-insta-grid"]').html(sliderText);
                                     $('.show-insta-slider .widget-insta-grid').not('.slick-initialized').slick({
@@ -350,7 +351,7 @@ define(
                                     });
                                 } else {
                                     flag = 1;
-                                    $('.instaform [data-action="widget-insta-grid"]').html(response.error_message);
+                                    $('.instaform [data-action="widget-insta-grid"]').text(response.error_message);
                                     document.getElementById("installplace").disabled = true;
                                 }
                             }
@@ -361,7 +362,7 @@ define(
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_installment.getInstallmentPlans,
                         type: 'post',
-                        data:{vaultSelected:vaultSelected},
+                        data:{form_key: $.mage.cookies.get('form_key'), vaultSelected:vaultSelected},
                         context: this,
                         dataType: 'json',
                         showLoader: true,
@@ -372,7 +373,7 @@ define(
                                     sliderText += '<div class="slide instaslider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + values.number_of_installment + '" data-code="' + values.issuer_code + '" data-plan="' + values.plan_code + '" data-intvalue="'+ values.amountPerMonth +'" data-interest="'+ values.interest +'"><span class="tenure">' + values.number_of_installment+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + values.amountPerMonth + '</span> <span class="emitext">'+$.mage.__(values.currency_code + '/Month')+'</span><br><span class="interestrate">' + values.interest + "% "+$.mage.__('interest')+"</span></div>";
                                 });
                                 $('.instaform [data-action="issuer-logo"]').attr("src", response.issuer_logo);
-                                $('.instaform [data-action="issuer-name"]').html(response.issuer_text);
+                                $('.instaform [data-action="issuer-name"]').text(response.issuer_text);
                                 $('.instaform [data-action="plan-info"]').html(response.plan_info);
                                 $('.instaform [data-action="widget-insta-grid"]').html(sliderText);
                                 $('.show-insta-slider .widget-insta-grid').not('.slick-initialized').slick({
@@ -384,7 +385,7 @@ define(
                                 });
                             } else {
                                 flag = 1;
-                                $('.instaform [data-action="widget-insta-grid"]').html(response.error_message);
+                                $('.instaform [data-action="widget-insta-grid"]').text(response.error_message);
                                 document.getElementById("installplace").disabled = true;
                             }
                         }
@@ -418,7 +419,7 @@ define(
                         url: window.checkoutConfig.payment.apsFort.aps_installment.ajaxUrl,
                         type: 'post',
                         context: this,
-                        data:{tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,installment_amount:instaValue,installment_interest:instaInterest},
+                        data:{form_key: $.mage.cookies.get('form_key'), tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,installment_amount:instaValue,installment_interest:instaInterest},
                         dataType: 'json',
                         success: function (response) {
                             var preparedData,
@@ -467,7 +468,7 @@ define(
                         url: window.checkoutConfig.payment.apsFort.aps_installment.vaultInstallment,
                         type: 'post',
                         context: this,
-                        data:{vaultSelected:vaultSelected,tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,cvv:cvv,installment_amount:instaValue,installment_interest:instaInterest},
+                        data:{form_key: $.mage.cookies.get('form_key'), vaultSelected:vaultSelected,tenure:tenure,issuer_code:issuer_code,plan_code:plan_code,cvv:cvv,installment_amount:instaValue,installment_interest:instaInterest},
                         dataType: 'json',
                         success: function (response) {
                             var preparedData,

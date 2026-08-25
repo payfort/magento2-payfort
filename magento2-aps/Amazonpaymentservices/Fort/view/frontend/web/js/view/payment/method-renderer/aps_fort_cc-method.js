@@ -15,7 +15,8 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
-        'Magento_Customer/js/model/customer'
+        'Magento_Customer/js/model/customer',
+        'mage/cookies'
     ],
     function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customer) {
         'use strict';
@@ -124,7 +125,7 @@ define(
                         url: window.checkoutConfig.payment.apsFort.aps_fort_vault.ajaxVaultUrl,
                         type: 'post',
                         context: this,
-                        data:{publicHash:vaultSelected},
+                        data:{form_key: $.mage.cookies.get('form_key'), publicHash:vaultSelected},
                         dataType: 'json',
                         showLoader: true,
                         success: function (response) {
@@ -169,7 +170,7 @@ define(
                         url: window.checkoutConfig.payment.apsFort.aps_fort_vault.ajaxVaultUrl,
                         type: 'post',
                         context: this,
-                        data:{publicHash:vaultSelected,cvv:cvv},
+                        data:{form_key: $.mage.cookies.get('form_key'), publicHash:vaultSelected,cvv:cvv},
                         dataType: 'json',
                         showLoader: true,
                         success: function (response) {

@@ -17,6 +17,7 @@ define(
         'Magento_Checkout/js/action/place-order',
         'mage/translate',
         'slick',
+        'mage/cookies'
     ],
     function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder) {
         'use strict';
@@ -136,7 +137,7 @@ define(
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otpCheck:otpCheck},
+                    data:{form_key: $.mage.cookies.get('form_key'), mobileNumber:mobileNumber,otpCheck:otpCheck},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {
@@ -159,7 +160,7 @@ define(
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otpCheck:otpCheck, downPayment:downPayment, walletAmount:walletAmount, cashbackAmount:cashbackAmount},
+                    data:{form_key: $.mage.cookies.get('form_key'), mobileNumber:mobileNumber,otpCheck:otpCheck, downPayment:downPayment, walletAmount:walletAmount, cashbackAmount:cashbackAmount},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {
@@ -210,7 +211,7 @@ define(
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxOtpVerifyUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otp:otp},
+                    data:{form_key: $.mage.cookies.get('form_key'), mobileNumber:mobileNumber,otp:otp},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {
@@ -274,7 +275,7 @@ define(
                     url: window.checkoutConfig.payment.apsFort.aps_fort_valu.ajaxPurchaseUrl,
                     type: 'post',
                     context: this,
-                    data:{mobileNumber:mobileNumber,otp:otp,tenure:tenure,valu_tenure_amount:valuAmount,valu_tenure_interest:valuInterest, downPayment:downPayment, walletAmount:walletAmount, cashbackAmount:cashbackAmount},
+                    data:{form_key: $.mage.cookies.get('form_key'), mobileNumber:mobileNumber,otp:otp,tenure:tenure,valu_tenure_amount:valuAmount,valu_tenure_interest:valuInterest, downPayment:downPayment, walletAmount:walletAmount, cashbackAmount:cashbackAmount},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {

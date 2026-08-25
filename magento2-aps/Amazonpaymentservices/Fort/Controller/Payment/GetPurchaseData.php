@@ -3,8 +3,6 @@
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
@@ -12,6 +10,8 @@ use Magento\Sales\Model\Order;
 
 class GetPurchaseData extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
+    use \Amazonpaymentservices\Fort\Controller\FormKeyCsrfTrait;
+
     /**
      * @var \Magento\Checkout\Model\Session
      */
@@ -47,17 +47,6 @@ class GetPurchaseData extends \Magento\Framework\App\Action\Action implements Cs
         $this->_helper = $helperFort;
     }
     
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-            return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
-    
     public function execute()
     {
         
@@ -72,9 +61,26 @@ class GetPurchaseData extends \Magento\Framework\App\Action\Action implements Cs
         $wallet_amount = $this->getRequest()->getParam('walletAmount');
         $cashback_amount = $this->getRequest()->getParam('cashbackAmount');
 
+        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
+
+        if (!$this->_helper->isValidValuMobileNumber($mobileNumber)) {
+            $resultJson->setData([
+                'response_code' => '',
+                'response_message' => __('Mobile number is not valid.'),
+            ]);
+            return $resultJson;
+        }
+
+        if (!$this->_helper->areValuAmountsWithinOrderTotal($order, $downPayment, $wallet_amount, $cashback_amount)) {
+            $resultJson->setData([
+                'response_code' => '',
+                'response_message' => __('Requested amounts exceed the order total.'),
+            ]);
+            return $resultJson;
+        }
+
         $data = $this->_helper->merchantPurchaseValuFort($order, $mobileNumber, $otp, $tenure, $valuTenureAmount, $valuTenureInterest, $downPayment,  $wallet_amount, $cashback_amount);
 
-        $resultJson = $this->resultFactory->create(ResultFactory::TYPE_JSON);
         $resultJson->setData($data);
         return $resultJson;
     }

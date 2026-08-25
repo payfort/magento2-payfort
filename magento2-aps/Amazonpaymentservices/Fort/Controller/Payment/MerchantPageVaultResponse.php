@@ -54,7 +54,7 @@ class MerchantPageVaultResponse extends \Amazonpaymentservices\Fort\Controller\C
         if ($responseParams['response_code'] == \Amazonpaymentservices\Fort\Model\Payment::PAYMENT_STATUS_3DS_CHECK && isset($responseParams['3ds_url'])) {
             $success = $helper->handleFortResponse($responseParams, 'online', $integrationType, 'h2h');
             if (isset($success['redirect']) && $success['redirect'] === true) {
-                $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
+                $redirectURL =  '<script>window.top.location.href = '.json_encode($success['url']).'</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
                 return $response;
@@ -62,7 +62,7 @@ class MerchantPageVaultResponse extends \Amazonpaymentservices\Fort\Controller\C
         } elseif ($paymentMethod == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_CC || $paymentMethod == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_INSTALLMENT || $paymentMethod == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_VAULT) {
             $success = $helper->handleFortResponse($responseParams, 'offline', $integrationType);
             if (isset($success['redirect']) && $success['redirect'] === true) {
-                $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
+                $redirectURL =  '<script>window.top.location.href = '.json_encode($success['url']).'</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
                 return $response;
@@ -99,8 +99,8 @@ class MerchantPageVaultResponse extends \Amazonpaymentservices\Fort\Controller\C
             $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
         }
 
-        $this->orderRedirect($returnUrl);
-
-        return true;
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

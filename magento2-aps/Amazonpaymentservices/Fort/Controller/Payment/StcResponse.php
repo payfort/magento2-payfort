@@ -69,7 +69,9 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
             $this->_checkoutSession->setLastSuccessQuoteId($order->getQuoteId());
         }
 
-        $this->orderRedirect($returnUrl);
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 
     private function checkOrderId($responseParams)

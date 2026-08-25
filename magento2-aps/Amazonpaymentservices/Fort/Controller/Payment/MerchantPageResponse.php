@@ -53,7 +53,7 @@ class MerchantPageResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         if ($responseParams['response_code'] == \Amazonpaymentservices\Fort\Model\Payment::PAYMENT_STATUS_3DS_CHECK && isset($responseParams['3ds_url'])) {
             $success = $helper->handleFortResponse($responseParams, 'online', $integrationType, 'h2h');
             if (isset($success['redirect']) && $success['redirect'] === true) {
-                $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
+                $redirectURL =  '<script>window.top.location.href = '.json_encode($success['url']).'</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
                 return $response;
@@ -61,7 +61,7 @@ class MerchantPageResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         } elseif ($paymentMethod == \Amazonpaymentservices\Fort\Helper\Data::PAYMENT_METHOD_CC) {
             $success = $helper->handleFortResponse($responseParams, 'online', $integrationType);
             if (isset($success['redirect']) && $success['redirect'] === true) {
-                $redirectURL =  '<script>window.top.location.href = "'.$success['url'].'"</script>';
+                $redirectURL =  '<script>window.top.location.href = '.json_encode($success['url']).'</script>';
                 $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
                 $response->setContents($redirectURL);
                 return $response;
@@ -101,14 +101,14 @@ class MerchantPageResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         }
 
         if ($integrationType == \Amazonpaymentservices\Fort\Model\Config\Source\Integrationtypeoptions::STANDARD) {
-            $redirectURL =  '<script>window.top.location.href = "'.$returnUrl.'"</script>';
+            $redirectURL =  '<script>window.top.location.href = '.json_encode($returnUrl).'</script>';
             $response = $this->_resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_RAW);
             $response->setContents($redirectURL);
             return $response;
-        } else {
-            $this->orderRedirect($returnUrl);
         }
 
-        return false;
+        $result = $this->resultFactory->create(\Magento\Framework\Controller\ResultFactory::TYPE_REDIRECT);
+        $result->setUrl($returnUrl);
+        return $result;
     }
 }

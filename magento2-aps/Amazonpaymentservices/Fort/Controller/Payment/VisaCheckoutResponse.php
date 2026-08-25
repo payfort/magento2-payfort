@@ -52,7 +52,7 @@ class VisaCheckoutResponse extends \Amazonpaymentservices\Fort\Controller\Checko
         $orderId = $this->getRequest()->getParam('merchant_reference');
         $order = $this->getOrderById($orderId);
         $responseParams = $this->getRequest()->getParams();
-        $helper->log('Response:'.json_encode($responseParams));
+        $helper->log('Response:'.json_encode($helper->sanitizeForLog($responseParams)));
         if (isset($responseParams['form_key'])) {
             unset($responseParams['form_key']);
         }

@@ -90,7 +90,7 @@ class Webhook extends \Magento\Framework\App\Action\Action implements CsrfAwareA
                 $responseParams = $this->getRequest()->getParams();
             }
         }
-        $this->_helper->log('WebHook Data:'.json_encode($responseParams));
+        $this->_helper->log('WebHook Data:'.json_encode($this->_helper->sanitizeForLog($responseParams)));
 
         $responseCode = $responseParams['response_code'] ?? '';
         $this->_helper->log('WebHook Data:'.$responseCode);

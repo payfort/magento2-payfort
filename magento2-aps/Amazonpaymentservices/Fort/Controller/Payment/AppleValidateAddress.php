@@ -144,7 +144,7 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
         $addressData = $responseParams['addressObject'];
         $countryCode = null;
 
-        $this->_helper->log('Apple Address:'.json_encode($addressData));
+        $this->_helper->log('Apple Address:'.json_encode($this->_helper->sanitizeForLog($addressData)));
         $result = [];
         if (isset($addressData['countryCode']) && $this->_helper->getConfig('payment/aps_apple/allowspecific') != 0) {
             $countryCode = $this->_helper->getConfig('payment/aps_apple/specificcountry');
@@ -222,7 +222,7 @@ class AppleValidateAddress extends \Magento\Framework\App\Action\Action implemen
         if (!$quote->isVirtual()) {
             $shippingAddress = $this->getShippingAddress($addressData);
             $this->_helper->log('Address1');
-            $this->_helper->log(json_encode($shippingAddress));
+            $this->_helper->log(json_encode($this->_helper->sanitizeForLog($shippingAddress)));
             $quote->getShippingAddress()
                 ->addData($shippingAddress)
                 ->save();

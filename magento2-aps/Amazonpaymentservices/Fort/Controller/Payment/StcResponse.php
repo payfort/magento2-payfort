@@ -30,7 +30,7 @@ class StcResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implem
         $orderId = $this->checkOrderId($responseParams);
         $order = $this->getOrderById($orderId);
         $helper = $this->getHelper();
-        $helper->log('Request Param:'.json_encode($responseParams));
+        $helper->log('Request Param:'.json_encode($helper->sanitizeForLog($responseParams)));
 
         $connection = $helper->_connection->getConnection();
 

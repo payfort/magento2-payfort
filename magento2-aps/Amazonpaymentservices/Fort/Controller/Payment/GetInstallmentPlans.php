@@ -114,9 +114,9 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
                 $details = json_decode($tokenData['details'], 1);
                 $tokenName = $tokenData['gateway_token'];
                 $this->_helper->log("Token details");
-                $this->_helper->log(json_encode($details));
+                $this->_helper->log(json_encode($this->_helper->sanitizeForLog($details)));
                 $this->_helper->log("Token details 2");
-                $this->_helper->log(json_encode($tokenName));
+                $this->_helper->log(json_encode($this->_helper->sanitizeForLog(['token_name' => $tokenName])));
                 //$cardNumberOrToken = substr($details['maskedCC'], 0, 6);
                 $cardNumberOrToken = $tokenName;
                 $arrPaymentPageData = $this->_helper->getInstallmentPlan($cardNumberOrToken,\Amazonpaymentservices\Fort\Helper\Data::INSTALLMENTS_PLAN_TOKEN);

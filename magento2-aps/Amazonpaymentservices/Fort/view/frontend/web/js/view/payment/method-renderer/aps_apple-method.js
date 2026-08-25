@@ -263,7 +263,23 @@ define(
                 }
 
                 session.oncancel = function (event) {
-                    window.location.href = window.checkoutConfig.payment.apsFort.aps_apple.cancelUrl;
+                    submitCancel();
+                }
+
+                function submitCancel()
+                {
+                    var formId = 'frm_aps_fort_apple_cancel';
+                    if (jQuery("#" + formId).length > 0) {
+                        jQuery("#" + formId).remove();
+                    }
+                    $('<form id="' + formId + '" method="POST"></form>').appendTo('body');
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'form_key',
+                        value: $.mage.cookies.get('form_key')
+                    }).appendTo($('#' + formId));
+                    $('#' + formId).attr('action', window.checkoutConfig.payment.apsFort.aps_apple.cancelUrl);
+                    $('#' + formId).submit();
                 }
 
                 function sendPaymentToken(paymentToken)

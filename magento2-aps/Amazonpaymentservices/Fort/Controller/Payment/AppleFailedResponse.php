@@ -14,9 +14,6 @@ namespace Amazonpaymentservices\Fort\Controller\Payment;
 
 use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 
 /**
@@ -28,20 +25,10 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
  * @version  GIT: @1.0.0@
  * @link     Amazonpaymentservices
  **/
-class AppleFailedResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
+class AppleFailedResponse extends \Amazonpaymentservices\Fort\Controller\Checkout implements CsrfAwareActionInterface, HttpPostActionInterface
 {
-    
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-            return null;
-    }
+    use \Amazonpaymentservices\Fort\Controller\FormKeyCsrfTrait;
 
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
-    
     public function execute()
     {
         $order = $this->_checkoutSession->getLastRealOrder();

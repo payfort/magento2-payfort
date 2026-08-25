@@ -342,7 +342,18 @@
                 }
 
                 session.oncancel = function(event) {
-                    window.location.href = '<?= /* @noEscape */ $block->getCancelUrl(); ?>';
+                    var cancelFormId = 'frm_aps_fort_apple_cart_cancel';
+                    if (jQuery("#" + cancelFormId).length > 0) {
+                        jQuery("#" + cancelFormId).remove();
+                    }
+                    $('<form id="' + cancelFormId + '" method="POST"></form>').appendTo('body');
+                    $('<input>').attr({
+                        type: 'hidden',
+                        name: 'form_key',
+                        value: $.mage.cookies.get('form_key')
+                    }).appendTo($('#' + cancelFormId));
+                    $('#' + cancelFormId).attr('action', '<?= /* @noEscape */ $block->getCancelUrl(); ?>');
+                    $('#' + cancelFormId).submit();
                 }
 
                 function sendPaymentToken(paymentToken) {

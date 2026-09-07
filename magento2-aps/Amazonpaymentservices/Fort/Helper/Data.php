@@ -2729,8 +2729,39 @@ class Data extends \Magento\Payment\Helper\Data
             return;
         }
 
-        $debugMsg = "=============== APS Module =============== \n".$messages."\n";
+        $debugMsg = "=============== APS Module =============== \n".$this->redactJsonInMessage($messages)."\n";
         $this->_logger->debug($debugMsg);
+    }
+
+    /**
+     * Redact sensitive values in any JSON object/array embedded in a log message.
+     *
+     * Call sites historically had to remember to wrap payloads with
+     * {@see sanitizeForLog()} before encoding. Centralising redaction here makes
+     * log() the single trust boundary: every JSON payload written through the
+     * debug logger is scrubbed regardless of how the call site built the message,
+     * so no future call site can regress.
+     *
+     * @param string $message
+     * @return string
+     */
+    private function redactJsonInMessage(string $message): string
+    {
+        return preg_replace_callback(
+            '/[\{\[].*[\}\]]/s',
+            function (array $matches): string {
+                $decoded = json_decode($matches[0], true);
+                if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+                    // The greedy match may span surrounding text or two blobs and
+                    // fail to decode. Fail closed: never emit a bracketed span we
+                    // could not parse and therefore could not redact.
+                    return '***REDACTED_UNPARSED_PAYLOAD***';
+                }
+
+                return (string) json_encode($this->sanitizeForLog($decoded));
+            },
+            $message
+        ) ?? $message;
     }
 
     /**
@@ -2741,6 +2772,7 @@ class Data extends \Magento\Payment\Helper\Data
         'authorization_code',
         'signature',
         'card_number',
+        'card_bin',
         'card_security_code',
         'expiry_date',
         'expirationDate',
@@ -2748,13 +2780,57 @@ class Data extends \Magento\Payment\Helper\Data
         'phoneNumber',
         'customer_email',
         'emailAddress',
+        'email',
         'customer_ip',
         'remote_ip',
         'x_forwarded_for',
         'customer_name',
+        'card_holder_name',
         'otp',
         'access_code',
         'merchant_identifier',
+    ];
+
+    /**
+     * Keys where a short leading prefix is kept purely for log correlation.
+     *
+     * Only long, non-cardholder correlation references (tokens, signatures,
+     * ids) qualify. Cardholder data and one-time secrets (CVV, OTP, PAN, email,
+     * phone, name) are never prefixed - they are always fully masked.
+     */
+    private const LOG_PREFIX_KEYS = [
+        'token_name',
+        'signature',
+        'authorization_code',
+        'merchant_identifier',
+    ];
+
+    /**
+     * Safe, non-PII keys retained when dumping a whole order/quote object.
+     *
+     * Order and quote entities carry customer PII (telephone, first/last name,
+     * street, email, IP) under many column keys that a denylist cannot fully
+     * enumerate. Whole-object dumps therefore use this allowlist instead: only
+     * coarse operational fields are logged and every other key is dropped.
+     */
+    private const LOG_ORDER_ALLOWED_KEYS = [
+        'entity_id',
+        'increment_id',
+        'real_order_id',
+        'quote_id',
+        'order_id',
+        'store_id',
+        'state',
+        'status',
+        'order_currency_code',
+        'base_currency_code',
+        'grand_total',
+        'base_grand_total',
+        'response_code',
+        'merchant_reference',
+        'transaction_code',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -2813,11 +2889,66 @@ class Data extends \Magento\Payment\Helper\Data
                 continue;
             }
             if (in_array((string)$key, self::LOG_REDACT_KEYS, true) && $value !== null && $value !== '') {
-                $params[$key] = substr((string)$value, 0, 4) . '***REDACTED***';
+                $params[$key] = $this->maskValue((string)$key, (string)$value);
             }
         }
 
         return $params;
+    }
+
+    /**
+     * Reduce a whole order/quote data dump to a non-PII allowlist for logging.
+     *
+     * {@see sanitizeForLog()} is a denylist tuned for the curated gateway
+     * parameter arrays. A raw ->getData() dump instead exposes every column on
+     * the entity, including PII whose keys are not on that denylist. This keeps
+     * only the coarse operational fields in {@see LOG_ORDER_ALLOWED_KEYS} and
+     * drops everything else, closing the whole-object-dump leak class for good.
+     *
+     * @param mixed $data
+     * @return mixed
+     */
+    public function sanitizeOrderDataForLog($data)
+    {
+        if (is_object($data)) {
+            $data = (array) $data;
+        }
+
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $safe = [];
+        foreach (self::LOG_ORDER_ALLOWED_KEYS as $key) {
+            if (array_key_exists($key, $data)) {
+                $safe[$key] = $data[$key];
+            }
+        }
+
+        return $safe;
+    }
+
+    /**
+     * Mask a sensitive value for logging.
+     *
+     * Full-mask by default. A short leading prefix is retained only for
+     * correlation-only references (see {@see LOG_PREFIX_KEYS}), and only when
+     * the value is long enough that the prefix is a small part of it - never
+     * for cardholder data or one-time secrets such as CVV/OTP, which are short
+     * and would otherwise leak entirely (e.g. a 3-digit CVV under a 4-char
+     * prefix) or in large part.
+     *
+     * @param string $key
+     * @param string $value
+     * @return string
+     */
+    private function maskValue(string $key, string $value): string
+    {
+        if (in_array($key, self::LOG_PREFIX_KEYS, true) && strlen($value) > 10) {
+            return substr($value, 0, 4) . '***REDACTED***';
+        }
+
+        return '***REDACTED***';
     }
 
     /**
@@ -3424,7 +3555,7 @@ class Data extends \Magento\Payment\Helper\Data
                 try {
 
                     $this->log('Gerenating Invoice: '.$newOrder->getId(), $storeCode);
-                    $this->log('OrderData:'.json_encode($this->sanitizeForLog($newOrder->getData())), $storeCode);
+                    $this->log('OrderData:'.json_encode($this->sanitizeOrderDataForLog($newOrder->getData())), $storeCode);
 
                     $invoice = $this->invoiceService->prepareInvoice($newOrder);
                     if (!$invoice) {

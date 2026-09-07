@@ -86,7 +86,7 @@ class Paymentstatus
             $orderId = $this->_helper->getApsValuRefFromOrderParams($order->getId(), null);
         }
         $response = $this->_helper->checkOrderStatus((int)$orderId, $paymentMethod, $storeCode);
-        $this->_logger->debug('APS CHECK_VERIFY_CARD_STATUS Response : '.json_encode($response));
+        $this->_helper->log('APS CHECK_VERIFY_CARD_STATUS Response : '.json_encode($response), $storeCode);
 
         $transactionCode = $response['transaction_code'] ?? '';
 

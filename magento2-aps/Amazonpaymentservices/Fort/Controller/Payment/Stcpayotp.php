@@ -56,7 +56,7 @@ class Stcpayotp extends \Magento\Framework\App\Action\Action implements CsrfAwar
     {
         
         $quote = $this->_cart->getQuote();
-        $this->_helper->log(json_encode($this->_helper->sanitizeForLog($quote->getData())));
+        $this->_helper->log(json_encode($this->_helper->sanitizeOrderDataForLog($quote->getData())));
         $quote->reserveOrderId()->save();
         $orderId = $quote->getReservedOrderId();
 

@@ -283,7 +283,7 @@ class Cron extends \Magento\Payment\Helper\Data
                 $newOrder->setStatus($newOrder::STATE_PROCESSING)->save();
                 $newOrder->addStatusToHistory($newOrder::STATE_PROCESSING, 'APS :: Order has been paid.', true);
                 $newOrder->save();
-                $this->_helper->log('OrderData:'.json_encode($newOrder->getData()), $storeCode);
+                $this->_helper->log('OrderData:'.json_encode($this->_helper->sanitizeOrderDataForLog($newOrder->getData())), $storeCode);
 
                 $connection->insert(
                     $this->_connection->getTableName('vault_payment_token_order_payment_link'),

@@ -103,7 +103,7 @@ class Redirect extends \Magento\Framework\View\Element\Template
         $form_url   = '';
         $arrPaymentPageData = [];
         $this->_helper->log('Redirect 2');
-        $this->_helper->log(json_encode($order));
+        $this->_helper->log(json_encode($this->_helper->sanitizeOrderDataForLog($order->getData())));
         $this->_helper->log($order_is_ok);
         $this->_helper->log($order->getState());
         $this->_helper->log($order_error_message);

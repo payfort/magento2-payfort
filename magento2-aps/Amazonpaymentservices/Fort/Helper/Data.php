@@ -528,7 +528,7 @@ class Data extends \Magento\Payment\Helper\Data
         }
 
         $gatewayUrl = $this->getGatewayUrl();
-        $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($this->_gatewayParams, 1);
+        $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($this->sanitizeForLog($this->_gatewayParams), 1);
         $this->log($logMsg);
 
         return ['url' => $gatewayUrl, 'params' => $this->_gatewayParams];
@@ -610,9 +610,9 @@ class Data extends \Magento\Payment\Helper\Data
 
             $gatewayUrl = $this->getGatewayUrl('notificationApi');
             $response = $this->callApi($gatewayParams, $gatewayUrl);
-            $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($gatewayParams, 1);
+            $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($this->sanitizeForLog($gatewayParams), 1);
             $this->log($logMsg);
-            $logMsg = "Repose for payment method ($paymentMethod) \n\n" . json_encode($response, 1);
+            $logMsg = "Repose for payment method ($paymentMethod) \n\n" . json_encode($this->sanitizeForLog($response), 1);
             $this->log($logMsg);
             return ['url' => $gatewayParams['return_url'], 'params' => $response];
         }
@@ -623,7 +623,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $gatewayUrl = $this->getGatewayUrl();
         //$response = $this->callApi($gatewayUrl, $gatewayParams);
-        $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($gatewayParams, 1);
+        $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($this->sanitizeForLog($gatewayParams), 1);
         $this->log($logMsg);
 
         return ['url' => $gatewayUrl, 'params' => $gatewayParams];
@@ -671,9 +671,9 @@ class Data extends \Magento\Payment\Helper\Data
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
         $response = $this->callApi($gatewayParams, $gatewayUrl);
-        $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($gatewayParams, 1);
+        $logMsg = "Request Params for payment method ($paymentMethod) \n\n" . json_encode($this->sanitizeForLog($gatewayParams), 1);
         $this->log($logMsg);
-        $logMsg = "Response for payment method ($paymentMethod) \n\n" . json_encode($response, 1);
+        $logMsg = "Response for payment method ($paymentMethod) \n\n" . json_encode($this->sanitizeForLog($response), 1);
         $this->log($logMsg);
         return ['url' => $gatewayParams['return_url'], 'params' => $response];
     }
@@ -724,7 +724,7 @@ class Data extends \Magento\Payment\Helper\Data
 
         $this->_custmerSession->setCustomValue(['refId' => $refId]);
 
-        $debugMsg = "Fort Valu Customer Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
+        $debugMsg = "Fort Valu Customer Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($this->sanitizeForLog($response), true);
         $this->log($debugMsg);
 
         return $responseData;
@@ -794,7 +794,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->log("Fort Valu Generate OTP Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
-            $debugMsg = "Fort Valu Generate OTP Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
+            $debugMsg = "Fort Valu Generate OTP Response Parameters for payment method (PayFort Valu)"."\n".json_encode($this->sanitizeForLog($response), true);
             $this->log($debugMsg);
 
             $responseData = [];
@@ -930,7 +930,7 @@ class Data extends \Magento\Payment\Helper\Data
             $this->log("Fort Valu OTP Verify Request Params for payment method (PayFort Valu) : " . json_encode($this->sanitizeForLog($postData), 1));
 
             $response = $this->callApi($postData, $gatewayUrl);
-            $debugMsg = "Fort Valu OTP Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
+            $debugMsg = "Fort Valu OTP Verify Response Parameters for payment method (PayFort Valu)"."\n".json_encode($this->sanitizeForLog($response), true);
             $this->log($debugMsg);
             $responseData = [];
             if (!$response) {
@@ -1024,7 +1024,7 @@ class Data extends \Magento\Payment\Helper\Data
             } else {
                 $responseData = $response;
             }
-            $debugMsg = "Fort Valu Purchase Response Parameters for payment method (PayFort Valu)"."\n".json_encode($response, true);
+            $debugMsg = "Fort Valu Purchase Response Parameters for payment method (PayFort Valu)"."\n".json_encode($this->sanitizeForLog($response), true);
             $this->log($debugMsg);
         } else {
             $responseData['status'] = self::VALU_API_FAILED_STATUS;
@@ -1064,7 +1064,7 @@ class Data extends \Magento\Payment\Helper\Data
         $gatewayParams['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl();
-        $logMsg = "Request Params for payment method (Intallment Hosted) \n\n" . json_encode($gatewayParams, 1);
+        $logMsg = "Request Params for payment method (Intallment Hosted) \n\n" . json_encode($this->sanitizeForLog($gatewayParams), 1);
         $this->log($logMsg);
 
         return ['url' => $gatewayUrl, 'params' => $gatewayParams];
@@ -1101,7 +1101,7 @@ class Data extends \Magento\Payment\Helper\Data
         $gatewayParams['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl('notificationApi');
-        $logMsg = "Request Params for payment method (Intallment Hosted) \n\n" . json_encode($gatewayParams, 1);
+        $logMsg = "Request Params for payment method (Intallment Hosted) \n\n" . json_encode($this->sanitizeForLog($gatewayParams), 1);
         $this->log($logMsg);
 
         return $this->callApi($gatewayParams, $gatewayUrl);
@@ -1294,7 +1294,7 @@ class Data extends \Magento\Payment\Helper\Data
         $this->log("installmentPageNotifyFort: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
 
-        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -1346,7 +1346,7 @@ class Data extends \Magento\Payment\Helper\Data
         $this->log("visaCheckoutPageNotifyFort: Gateway URL : " . $gatewayUrl);
         $response = $this->callApi($postData, $gatewayUrl);
 
-        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($response, 1);
+        $debugMsg = "Response Params ($paymentMethod)"."\n".json_encode($this->sanitizeForLog($response), 1);
         $this->log($debugMsg);
 
         return $response;
@@ -2000,10 +2000,10 @@ class Data extends \Magento\Payment\Helper\Data
 
     public function applePayCartResponse($responseParams, $shipData)
     {
-        $this->log('Apple Submitted Data:'. json_encode($responseParams));
+        $this->log('Apple Submitted Data:'. json_encode($this->sanitizeForLog($responseParams)));
         $customerData = $responseParams->shippingContact;
         $responseParams = $responseParams->token;
-        $this->log('Apple Submitted Data:'. json_encode($responseParams));
+        $this->log('Apple Submitted Data:'. json_encode($this->sanitizeForLog($responseParams)));
         $quote = $this->_cart->getQuote();
 
         $quote->getShippingAddress()->setFirstname($customerData->givenName);
@@ -2021,7 +2021,7 @@ class Data extends \Magento\Payment\Helper\Data
             $quote->getShippingAddress()->setPostcode('00000');
         }
         $quote->getShippingAddress()->setStreet(implode(", ", $customerData->addressLines));
-        $this->log("ShipData:".json_encode($shipData));
+        $this->log("ShipData:".json_encode($this->sanitizeForLog($shipData)));
         if (isset($shipData->id)) {
             $quote->getShippingAddress()->setShippingMethod($shipData->id);
         } else {
@@ -2462,7 +2462,7 @@ class Data extends \Magento\Payment\Helper\Data
             }
 
             if (empty($responseParams['merchant_reference'])) {
-                $responseMessage = "Merchant Reference not found\n\n" . json_encode($responseParams, 1);
+                $responseMessage = "Merchant Reference not found\n\n" . json_encode($this->sanitizeForLog($responseParams), 1);
                 $this->log($responseMessage);
                 $this->_messageManager->addError($responseMessage);
                 return false;
@@ -2729,8 +2729,39 @@ class Data extends \Magento\Payment\Helper\Data
             return;
         }
 
-        $debugMsg = "=============== APS Module =============== \n".$messages."\n";
+        $debugMsg = "=============== APS Module =============== \n".$this->redactJsonInMessage($messages)."\n";
         $this->_logger->debug($debugMsg);
+    }
+
+    /**
+     * Redact sensitive values in any JSON object/array embedded in a log message.
+     *
+     * Call sites historically had to remember to wrap payloads with
+     * {@see sanitizeForLog()} before encoding. Centralising redaction here makes
+     * log() the single trust boundary: every JSON payload written through the
+     * debug logger is scrubbed regardless of how the call site built the message,
+     * so no future call site can regress.
+     *
+     * @param string $message
+     * @return string
+     */
+    private function redactJsonInMessage(string $message): string
+    {
+        return preg_replace_callback(
+            '/[\{\[].*[\}\]]/s',
+            function (array $matches): string {
+                $decoded = json_decode($matches[0], true);
+                if (json_last_error() !== JSON_ERROR_NONE || !is_array($decoded)) {
+                    // The greedy match may span surrounding text or two blobs and
+                    // fail to decode. Fail closed: never emit a bracketed span we
+                    // could not parse and therefore could not redact.
+                    return '***REDACTED_UNPARSED_PAYLOAD***';
+                }
+
+                return (string) json_encode($this->sanitizeForLog($decoded));
+            },
+            $message
+        ) ?? $message;
     }
 
     /**
@@ -2741,14 +2772,65 @@ class Data extends \Magento\Payment\Helper\Data
         'authorization_code',
         'signature',
         'card_number',
+        'card_bin',
         'card_security_code',
         'expiry_date',
+        'expirationDate',
         'phone_number',
+        'phoneNumber',
         'customer_email',
+        'emailAddress',
+        'email',
         'customer_ip',
+        'remote_ip',
+        'x_forwarded_for',
+        'customer_name',
+        'card_holder_name',
         'otp',
         'access_code',
         'merchant_identifier',
+    ];
+
+    /**
+     * Keys where a short leading prefix is kept purely for log correlation.
+     *
+     * Only long, non-cardholder correlation references (tokens, signatures,
+     * ids) qualify. Cardholder data and one-time secrets (CVV, OTP, PAN, email,
+     * phone, name) are never prefixed - they are always fully masked.
+     */
+    private const LOG_PREFIX_KEYS = [
+        'token_name',
+        'signature',
+        'authorization_code',
+        'merchant_identifier',
+    ];
+
+    /**
+     * Safe, non-PII keys retained when dumping a whole order/quote object.
+     *
+     * Order and quote entities carry customer PII (telephone, first/last name,
+     * street, email, IP) under many column keys that a denylist cannot fully
+     * enumerate. Whole-object dumps therefore use this allowlist instead: only
+     * coarse operational fields are logged and every other key is dropped.
+     */
+    private const LOG_ORDER_ALLOWED_KEYS = [
+        'entity_id',
+        'increment_id',
+        'real_order_id',
+        'quote_id',
+        'order_id',
+        'store_id',
+        'state',
+        'status',
+        'order_currency_code',
+        'base_currency_code',
+        'grand_total',
+        'base_grand_total',
+        'response_code',
+        'merchant_reference',
+        'transaction_code',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -2791,21 +2873,82 @@ class Data extends \Magento\Payment\Helper\Data
      */
     public function sanitizeForLog($params)
     {
+        // Objects (e.g. Apple Pay stdClass payloads) are cast so their
+        // properties can be walked and redacted like an array.
+        if (is_object($params)) {
+            $params = (array) $params;
+        }
+
         if (!is_array($params)) {
             return $params;
         }
 
         foreach ($params as $key => $value) {
-            if (is_array($value)) {
+            if (is_array($value) || is_object($value)) {
                 $params[$key] = $this->sanitizeForLog($value);
                 continue;
             }
             if (in_array((string)$key, self::LOG_REDACT_KEYS, true) && $value !== null && $value !== '') {
-                $params[$key] = substr((string)$value, 0, 4) . '***REDACTED***';
+                $params[$key] = $this->maskValue((string)$key, (string)$value);
             }
         }
 
         return $params;
+    }
+
+    /**
+     * Reduce a whole order/quote data dump to a non-PII allowlist for logging.
+     *
+     * {@see sanitizeForLog()} is a denylist tuned for the curated gateway
+     * parameter arrays. A raw ->getData() dump instead exposes every column on
+     * the entity, including PII whose keys are not on that denylist. This keeps
+     * only the coarse operational fields in {@see LOG_ORDER_ALLOWED_KEYS} and
+     * drops everything else, closing the whole-object-dump leak class for good.
+     *
+     * @param mixed $data
+     * @return mixed
+     */
+    public function sanitizeOrderDataForLog($data)
+    {
+        if (is_object($data)) {
+            $data = (array) $data;
+        }
+
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        $safe = [];
+        foreach (self::LOG_ORDER_ALLOWED_KEYS as $key) {
+            if (array_key_exists($key, $data)) {
+                $safe[$key] = $data[$key];
+            }
+        }
+
+        return $safe;
+    }
+
+    /**
+     * Mask a sensitive value for logging.
+     *
+     * Full-mask by default. A short leading prefix is retained only for
+     * correlation-only references (see {@see LOG_PREFIX_KEYS}), and only when
+     * the value is long enough that the prefix is a small part of it - never
+     * for cardholder data or one-time secrets such as CVV/OTP, which are short
+     * and would otherwise leak entirely (e.g. a 3-digit CVV under a 4-char
+     * prefix) or in large part.
+     *
+     * @param string $key
+     * @param string $value
+     * @return string
+     */
+    private function maskValue(string $key, string $value): string
+    {
+        if (in_array($key, self::LOG_PREFIX_KEYS, true) && strlen($value) > 10) {
+            return substr($value, 0, 4) . '***REDACTED***';
+        }
+
+        return '***REDACTED***';
     }
 
     /**
@@ -2984,7 +3127,7 @@ class Data extends \Magento\Payment\Helper\Data
         $saveData['amount'] = $amount;
         $saveData['added_date'] = date('Y-m-d H:i:s');
         $model->setData($saveData)->save();
-        $logMsg = "WebHooks CaptureVoid Data (capture void) \n\n" . json_encode($saveData, 1);
+        $logMsg = "WebHooks CaptureVoid Data (capture void) \n\n" . json_encode($this->sanitizeForLog($saveData), 1);
         $this->log($logMsg);
         $logMsg = "WebHooks Response for payment method (capture void) \n\n" . json_encode($this->sanitizeForLog($responseParams), 1);
         $this->log($logMsg);
@@ -3412,7 +3555,7 @@ class Data extends \Magento\Payment\Helper\Data
                 try {
 
                     $this->log('Gerenating Invoice: '.$newOrder->getId(), $storeCode);
-                    $this->log('OrderData:'.json_encode($newOrder->getData()), $storeCode);
+                    $this->log('OrderData:'.json_encode($this->sanitizeOrderDataForLog($newOrder->getData())), $storeCode);
 
                     $invoice = $this->invoiceService->prepareInvoice($newOrder);
                     if (!$invoice) {
@@ -3570,7 +3713,7 @@ class Data extends \Magento\Payment\Helper\Data
         $gatewayParams['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl();
-        $logMsg = "Request Params for payment method (STC) \n\n" . json_encode($gatewayParams, 1);
+        $logMsg = "Request Params for payment method (STC) \n\n" . json_encode($this->sanitizeForLog($gatewayParams), 1);
         $this->log($logMsg);
 
         return ['url' => $gatewayUrl, 'params' => $gatewayParams];
@@ -3751,7 +3894,7 @@ class Data extends \Magento\Payment\Helper\Data
         $gatewayParams['signature'] = $signature;
 
         $gatewayUrl = $this->getGatewayUrl();
-        $logMsg = "Request Params for payment method (TABBY) \n\n" . json_encode($gatewayParams, 1);
+        $logMsg = "Request Params for payment method (TABBY) \n\n" . json_encode($this->sanitizeForLog($gatewayParams), 1);
         $this->log($logMsg);
 
         return ['url' => $gatewayUrl, 'params' => $gatewayParams];

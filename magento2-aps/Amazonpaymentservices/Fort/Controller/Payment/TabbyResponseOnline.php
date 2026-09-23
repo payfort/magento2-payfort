@@ -31,7 +31,7 @@ class TabbyResponseOnline extends \Amazonpaymentservices\Fort\Controller\Checkou
         $responseParams = $this->getRequest()->getParams();
 
         $helper = $this->getHelper();
-        $helper->log('Request Param:'.json_encode($responseParams));
+        $helper->log('Request Param:'.json_encode($helper->sanitizeForLog($responseParams)));
 
         $connection = $helper->_connection->getConnection();
 

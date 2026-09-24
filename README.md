@@ -97,6 +97,13 @@ All payload logging **must** go through `$this->_helper->log()` (Magento payment
 Never call `$this->_logger->debug()` (or any raw PSR logger) with an encoded request/response payload — it bypasses both the redaction and the debug flag.
 
 
+## Contributing — logging
+
+All payload logging **must** go through `$this->_helper->log()` (Magento payment helper `Amazonpaymentservices\Fort\Helper\Data::log()`). That method is the single trust boundary that redacts sensitive fields (card numbers, OTPs, tokens, emails, IPs, phone numbers, signatures) before anything reaches `var/log/debug.log`, and it also honours the `payment/aps_fort/debug` flag.
+
+Never call `$this->_logger->debug()` (or any raw PSR logger) with an encoded request/response payload — it bypasses both the redaction and the debug flag.
+
+
 ## API Documentation
 This plugin has been implemented by using following [API library](https://paymentservices-reference.payfort.com/docs/api/build/index.html)
 

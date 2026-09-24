@@ -104,9 +104,13 @@ class GetAppleValidation extends \Magento\Framework\App\Action\Action implements
 
         $apple_url = $this->validateAppleUrl($responseParams['valURL'] ?? '');
 
-        $mediapath = $this->_filesystem->getPath('media');
-        $certificate_key =  $mediapath.'/aps/certificate_keys/'.$this->_helper->getConfig('payment/aps_apple/apple_key_pem');
-        $certificate_path = $mediapath.'/aps/certificate_keys/'.$this->_helper->getConfig('payment/aps_apple/apple_certificate_pem');
+        // Read the Apple Pay merchant private key and certificate from the
+        // Magento ``var`` directory (not web-served) instead of ``pub/media``.
+        // This prevents unauthenticated over-HTTP retrieval of the private
+        // key / certificate even if the filename is known or guessable.
+        $varpath = $this->_filesystem->getPath('var');
+        $certificate_key =  $varpath.'/aps/certificate_keys/'.$this->_helper->getConfig('payment/aps_apple/apple_key_pem');
+        $certificate_path = $varpath.'/aps/certificate_keys/'.$this->_helper->getConfig('payment/aps_apple/apple_certificate_pem');
         $read = $this->_driver->create($certificate_path, \Magento\Framework\Filesystem\DriverPool::FILE);
         $fileData = $read->readAll();
         $merchantidentifier = openssl_x509_parse($fileData)['subject']['UID'];

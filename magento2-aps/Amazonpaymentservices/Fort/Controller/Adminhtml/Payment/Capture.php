@@ -56,17 +56,18 @@ class Capture extends Action
         $responseParams = $this->getRequest()->getParams();
         $data['postParams'] = $responseParams;
 
-        if (($responseParams['paymentType'] ?? '') == 'capture') {
+        $captureError = $this->validateOrderReference($responseParams);
+        if ($captureError === null && ($responseParams['paymentType'] ?? '') == 'capture') {
             $captureError = $this->validateCaptureAmount($responseParams);
-            if ($captureError !== null) {
-                return $this->resultJsonFactory->create()->setData([
-                    'postParams' => $responseParams,
-                    'data' => [
-                        'response_code' => '',
-                        'response_message' => $captureError,
-                    ],
-                ]);
-            }
+        }
+        if ($captureError !== null) {
+            return $this->resultJsonFactory->create()->setData([
+                'postParams' => $responseParams,
+                'data' => [
+                    'response_code' => '',
+                    'response_message' => $captureError,
+                ],
+            ]);
         }
 
         if ($responseParams['paymentType'] == 'capture') {
@@ -97,6 +98,27 @@ class Capture extends Action
         $result = $this->resultJsonFactory->create();
 
         return $result->setData($data);
+    }
+
+    /**
+     * Ensure orderNumber (sent to the gateway and used for capture history) belongs to the
+     * order loaded by orderId (used for the amount bound).
+     *
+     * @param array $responseParams
+     * @return string|null Error message, or null when valid
+     */
+    private function validateOrderReference(array $responseParams)
+    {
+        try {
+            $order = $this->orderRepository->get((int)($responseParams['orderId'] ?? 0));
+        } catch (\Exception $e) {
+            return (string)__('Order could not be loaded.');
+        }
+        $orderNumber = $responseParams['orderNumber'] ?? null;
+        if (!is_scalar($orderNumber) || (string)$order->getIncrementId() !== (string)$orderNumber) {
+            return (string)__('Order reference does not match the order.');
+        }
+        return null;
     }
 
     /**

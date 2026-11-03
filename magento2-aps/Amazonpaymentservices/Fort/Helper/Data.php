@@ -4058,14 +4058,14 @@ class Data extends \Magento\Payment\Helper\Data
                 $orderParams = $this->fetchAllQuery($query);
             }
         } else {
-            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_increment_id=?', $orderId);
+            $query = $connection->select()->from(['table' => $this->_connection->getTableName('aps_order_params')])->where('table.order_increment_id=?', $orderIncrementId);
             $orderParams = $this->fetchAllQuery($query);
             if (empty($orderParams)) {
                 // backwards compatibility
                 // in case the value is not inside the new table
                 // search it inside the sales_order table
 
-                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.increment_id=?', $orderId);
+                $query = $connection->select()->from(['table' => $this->_connection->getTableName('sales_order')])->where('table.increment_id=?', $orderIncrementId);
                 $orderParams = $this->fetchAllQuery($query);
             }
         }

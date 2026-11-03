@@ -31,3 +31,14 @@ for (const file of [
         assert.match(source, /postRedirect\(/);
     });
 }
+
+test('aps_fort_valu-method.js binds underscore to its _ factory argument', () => {
+    const file = 'aps_fort_valu-method.js';
+    const source = fs.readFileSync(path.join(renderers, file), 'utf8');
+    let dependencies;
+    let factory;
+    vm.runInNewContext(source, {define: (names, callback) => { dependencies = names; factory = callback; }}, {filename: file});
+    const params = factory.toString().match(/^function\s*\(([^)]*)\)/)[1].split(',').map((param) => param.trim());
+    assert.equal(params[dependencies.indexOf('underscore')], '_');
+    assert.equal(params[dependencies.indexOf('jquery')], '$');
+});

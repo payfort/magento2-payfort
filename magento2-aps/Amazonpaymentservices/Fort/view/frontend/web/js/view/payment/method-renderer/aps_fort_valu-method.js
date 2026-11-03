@@ -15,11 +15,12 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
+        'underscore',
         'mage/translate',
         'slick',
         'mage/cookies'
     ],
-    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder) {
+    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, _) {
         'use strict';
         var tenure = 0;
         
@@ -172,7 +173,7 @@ define(
                             var sliderText = '';
 
                             $.each(response.installment_detail.plan_details, function ( key, value ) {
-                                sliderText += '<div class="slide slider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + value.number_of_installments + '" data-valuint="'+ value.fees_amount +'" data-valuamount="'+ value.amount_per_month +'"><span class="tenure">' + value.number_of_installments+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' +((value.amount_per_month/100).toFixed(2)) + '</span> <span class="emitext">'+$.mage.__('EGP/Month')+'</span><br><span class="interestrate">'+$.mage.__('Admin Fee:')+' '+ ((value.fees_amount/100).toFixed(2)) + '</span></div>';
+                                sliderText += '<div class="slide slider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + _.escape(value.number_of_installments) + '" data-valuint="'+ _.escape(value.fees_amount) +'" data-valuamount="'+ _.escape(value.amount_per_month) +'"><span class="tenure">' + _.escape(value.number_of_installments)+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' +((value.amount_per_month/100).toFixed(2)) + '</span> <span class="emitext">'+$.mage.__('EGP/Month')+'</span><br><span class="interestrate">'+$.mage.__('Admin Fee:')+' '+ ((value.fees_amount/100).toFixed(2)) + '</span></div>';
                             });
                             $('[data-action="show-valu-slider"]').removeClass('_pf-hidden');
                             $('[data-action="widget-valu-grid"]').html(sliderText);
@@ -220,7 +221,7 @@ define(
                             $('[data-action="dv-otp-verify"]').removeClass('_pf-hidden');
                             $('[data-action="dv-otp-verify"]').text($.mage.__('OTP Verified Successfully, Please select your installment plan!'));
                             $.each(response.tenure.TENURE_VM, function ( key, value ) {
-                                sliderText += '<div class="slide slider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + value.TENURE + '" data-valuint="'+ value.InterestRate +'" data-valuamount="'+ value.EMI +'"><span class="tenure">' + value.TENURE+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + value.EMI + '</span> <span class="emitext">'+$.mage.__('EGP/Month')+'</span><br><span class="interestrate">' + value.InterestRate + "% "+$.mage.__('interest')+"</span></div>";
+                                sliderText += '<div class="slide slider-tenure"  data-bind = "click: ValuPurchase" data-attr="' + _.escape(value.TENURE) + '" data-valuint="'+ _.escape(value.InterestRate) +'" data-valuamount="'+ _.escape(value.EMI) +'"><span class="tenure">' + _.escape(value.TENURE)+" " + $.mage.__('MONTHS')+'</span><br><span class="emi">' + _.escape(value.EMI) + '</span> <span class="emitext">'+$.mage.__('EGP/Month')+'</span><br><span class="interestrate">' + _.escape(value.InterestRate) + "% "+$.mage.__('interest')+"</span></div>";
                             });
                             $('[data-action="show-valu-slider"]').removeClass('_pf-hidden');
                             $('[data-action="widget-valu-grid"]').html(sliderText);

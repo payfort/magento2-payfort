@@ -14,6 +14,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Filesystem\DirectoryList as FileSystem;
 use Magento\Sales\Model\Order\Config;
 use Magento\Vault\Model\ResourceModel\PaymentToken;
+use Magento\Framework\Escaper;
 
 class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
 {
@@ -63,6 +64,11 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
     protected $_customerSession;
 
     /**
+     * @var Escaper
+     */
+    private $escaper;
+
+    /**
      * @param Context $context ,
      * @param Session $checkoutSession ,
      * @param Config $orderConfig ,
@@ -72,6 +78,7 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
      * @param FileSystem $fileSystem
      * @param PaymentToken $paymentToken
      * @param \Magento\Customer\Model\Session $customerSession
+     * @param Escaper $escaper
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -82,7 +89,8 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
         \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
         FileSystem $fileSystem,
         \Magento\Vault\Model\ResourceModel\PaymentToken $paymentToken,
-        \Magento\Customer\Model\Session $customerSession
+        \Magento\Customer\Model\Session $customerSession,
+        Escaper $escaper
     ) {
         parent::__construct($context);
         $this->_checkoutSession = $checkoutSession;
@@ -93,6 +101,7 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
         $this->_filesystem = $fileSystem;
         $this->_paymentToken = $paymentToken;
         $this->_customerSession = $customerSession;
+        $this->escaper = $escaper;
     }
     
     public function execute()
@@ -250,21 +259,25 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
                     
                 }
             }
-            $terms_url          = $response['installment_data'][ 'terms_and_condition_' . $this->_helper->getLanguage() ];
+            $terms_url          = $this->safeUrl($response['installment_data'][ 'terms_and_condition_' . $this->_helper->getLanguage() ]);
             $processing_content = $response['installment_data'][ 'processing_fees_message_' . $this->_helper->getLanguage() ];
             $issuer_text = '';
             if ($this->_helper->getConfig('payment/aps_installment/issuer_code') == '1') {
                 $issuer_text        = $response['installment_data'][ 'issuer_name_' . $this->_helper->getLanguage() ];
             }
-            $issuer_logo        = $response['installment_data'][ 'issuer_logo_' . $this->_helper->getLanguage() ];
+            $issuer_logo        = $this->safeUrl($response['installment_data'][ 'issuer_logo_' . $this->_helper->getLanguage() ]);
             $terms_text = '';
-            if ($this->_helper->getConfig('payment/aps_installment/bank_logo') == '1') {
-                $terms_text     .= "<img src='".$issuer_logo."' height='20px'/>";
+            if ($this->_helper->getConfig('payment/aps_installment/bank_logo') == '1' && $issuer_logo !== '') {
+                $terms_text     .= "<img src='".$this->escaper->escapeHtmlAttr($issuer_logo)."' height='20px'/>";
             }
-            $terms_text        .= __('I agree with the installment <a target="_blank" href="'.$terms_url.'">terms and condition</a> to proceed with the transaction');
+            if ($terms_url !== '') {
+                $terms_text    .= __('I agree with the installment <a target="_blank" href="%1">terms and condition</a> to proceed with the transaction', $this->escaper->escapeHtmlAttr($terms_url));
+            } else {
+                $terms_text    .= __('I agree with the installment terms and condition to proceed with the transaction');
+            }
             $plan_info          = '<input type="checkbox" name="installment_term" id="installment_term" required/>' . $terms_text;
             $plan_info         .= '<label class="aps_installment_terms_error aps_error"></label>';
-            $plan_info         .= '<p> ' . $processing_content . '</p>';
+            $plan_info         .= '<p> ' . $this->escaper->escapeHtml((string)$processing_content) . '</p>';
             $issuer_info = '';
             $dataArr['success']  = true;
             $dataArr['plansArr']      = $planArr;
@@ -280,6 +293,30 @@ class GetInstallmentPlans extends \Magento\Framework\App\Action\Action implement
         }
         return $dataArr;
     }
+
+    /**
+     * Return the URL only when it is an absolute http(s) URL, otherwise ''.
+     * Non-ASCII characters (e.g. Arabic path/query text) are percent-encoded first,
+     * because FILTER_VALIDATE_URL accepts ASCII only.
+     *
+     * @param mixed $url
+     * @return string
+     */
+    private function safeUrl($url): string
+    {
+        if (!is_string($url)) {
+            return '';
+        }
+        $url = preg_replace_callback('/[\x80-\xFF]/', function ($m) {
+            return rawurlencode($m[0]);
+        }, $url);
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            return '';
+        }
+        $scheme = strtolower((string)parse_url($url, PHP_URL_SCHEME));
+        return in_array($scheme, ['http', 'https'], true) ? $url : '';
+    }
+
     public function getCacheLifetime()
     {
         return null;

@@ -69,7 +69,9 @@
                             console.log('<?= $block->escapeHtml($block->getCancelUrl()); ?>');
                             jQuery("#div-pf-iframe").hide();
                             jQuery("#aps_merchant_page").remove();
-                            window.location = '<?= $block->escapeHtml($block->getCancelUrl()); ?>';
+                            require(['Amazonpaymentservices_Fort/js/action/post-redirect'], function (postRedirect) {
+                                postRedirect(<?= /* @noEscape */ json_encode($block->getCancelUrl()); ?>);
+                            });
                         },
                         iframeLoaded: function () {
                             jQuery('.pf-iframe-spin').hide();

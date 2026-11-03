@@ -23,6 +23,7 @@ define(
         'uiRegistry',
         'mage/utils/wrapper',
         'visa',
+        'mage/cookies'
     ],
     function (ko, $, Component, quote, _, fullScreenLoader, setPaymentInformationAction, placeOrderAction, additionalValidators, messageList, $t,customerData) {
         'use strict';
@@ -140,7 +141,7 @@ define(
                     url: window.checkoutConfig.payment.apsFort.aps_fort_visaco.response,
                     type: 'post',
                     context: this,
-                    data : {callid : visaData.callid},
+                    data : {form_key: $.mage.cookies.get('form_key'), callid : visaData.callid},
                     dataType: 'json',
                     showLoader: true,
                     success: function (response) {

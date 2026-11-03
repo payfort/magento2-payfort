@@ -232,7 +232,7 @@ define(
                         xhr.onerror = reject;
                         xhr.open('POST',window.checkoutConfig.payment.apsFort.aps_apple.appleValidation);
                         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                        xhr.send('valURL=' + valURL);
+                        xhr.send('valURL=' + valURL + '&form_key=' + encodeURIComponent($.mage.cookies.get('form_key')));
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
                         session.abort();
@@ -303,6 +303,7 @@ define(
                     $('<form id="'+formId+'" action="#" method="POST"></form>').appendTo('body');
                     var response = {};
                     response.data = JSON.stringify({ "data" : data});
+                    response.form_key = $.mage.cookies.get('form_key');
                     $.each(response, function (k, v) {
                         $('<input>').attr({
                             type: 'hidden',

@@ -16,10 +16,11 @@ define(
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
         'Magento_Customer/js/model/customer',
+        'Amazonpaymentservices_Fort/js/action/post-redirect',
         'mage/translate',
         'mage/cookies'
     ],
-    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customer) {
+    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customer, postRedirect) {
         'use strict';
         var self = '';
         var tabbyToken = 'newCard';
@@ -81,7 +82,7 @@ define(
                 if(tabbyToken == 'newCard') {
                     console.log('2');
                     var randomNum = new Date().getTime();
-                    $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_fort_tabby.redirectUrl+"?id="+randomNum);
+                    postRedirect(window.checkoutConfig.payment.apsFort.aps_fort_tabby.redirectUrl+"?id="+randomNum);
                 } else {
                     console.log('3');
                     console.log(window.checkoutConfig.payment.apsFort.aps_fort_tabby.ajaxUrlToken);

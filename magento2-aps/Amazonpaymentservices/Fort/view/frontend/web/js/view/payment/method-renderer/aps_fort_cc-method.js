@@ -16,9 +16,10 @@ define(
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
         'Magento_Customer/js/model/customer',
+        'Amazonpaymentservices_Fort/js/action/post-redirect',
         'mage/cookies'
     ],
-    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customer) {
+    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, customer, postRedirect) {
         'use strict';
         var vaultSelected = '';
         var self = '';
@@ -119,7 +120,7 @@ define(
             afterPlaceOrder : function () {
                 if (vaultSelected == 'newCard') {
                     var randomNum = new Date().getTime();
-                    $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_fort_cc.redirectUrl+"?id="+randomNum);
+                    postRedirect(window.checkoutConfig.payment.apsFort.aps_fort_cc.redirectUrl+"?id="+randomNum);
                 } else if (vaultSelected != 'newCard' && window.checkoutConfig.payment.apsFort.aps_fort_cc.integrationType == 'redirection') {
                     $.ajax({
                         url: window.checkoutConfig.payment.apsFort.aps_fort_vault.ajaxVaultUrl,

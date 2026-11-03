@@ -13,9 +13,6 @@
 namespace Amazonpaymentservices\Fort\Controller\Payment;
 
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 
 /**
@@ -27,8 +24,10 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
  * @version  GIT: @1.0.0@
  * @link     Amazonpaymentservices
  **/
-class Redirect extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
+class Redirect extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpPostActionInterface
 {
+    use \Amazonpaymentservices\Fort\Controller\FormKeyCsrfTrait;
+
     /** @var \Magento\Framework\View\Result\PageFactory  */
     protected $resultPageFactory;
 
@@ -38,17 +37,6 @@ class Redirect extends \Magento\Framework\App\Action\Action implements CsrfAware
     ) {
         $this->resultPageFactory = $resultPageFactory;
         parent::__construct($context);
-    }
-    
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-            return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
     }
     
     /**

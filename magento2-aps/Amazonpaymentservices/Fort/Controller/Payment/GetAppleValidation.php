@@ -7,9 +7,6 @@ use Amazonpaymentservices\Fort\Model\Payment;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Filesystem\File\ReadFactory;
 use Magento\Sales\Model\Order;
@@ -17,8 +14,10 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\App\Filesystem\DirectoryList as FileSystem;
 use Magento\Sales\Model\Order\Config;
 
-class GetAppleValidation extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
+class GetAppleValidation extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface, HttpPostActionInterface
 {
+    use \Amazonpaymentservices\Fort\Controller\FormKeyCsrfTrait;
+
     /**
      * @var \Magento\Checkout\Model\Session
      */
@@ -85,17 +84,6 @@ class GetAppleValidation extends \Magento\Framework\App\Action\Action implements
         $this->_resultJsonFactory  = $resultJsonFactory;
         $this->_filesystem = $fileSystem;
         $this->_driver = $driver;
-    }
-    
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-            return null;
-    }
-
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
     }
     
     public function execute()

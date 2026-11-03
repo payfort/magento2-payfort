@@ -4,24 +4,12 @@ namespace Amazonpaymentservices\Fort\Controller\Payment;
 
 use Amazonpaymentservices\Fort\Model\Config\Source\OrderOptions;
 use Magento\Framework\App\CsrfAwareActionInterface;
-use Magento\Framework\App\Request\InvalidRequestException;
-use Magento\Framework\App\RequestInterface;
-use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 
-class OrderCancel extends \Amazonpaymentservices\Fort\Controller\Checkout implements CsrfAwareActionInterface, HttpGetActionInterface, HttpPostActionInterface
+class OrderCancel extends \Amazonpaymentservices\Fort\Controller\Checkout implements CsrfAwareActionInterface, HttpPostActionInterface
 {
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
-        return null;
-    }
+    use \Amazonpaymentservices\Fort\Controller\FormKeyCsrfTrait;
 
-    public function validateForCsrf(RequestInterface $request): ?bool
-    {
-        return true;
-    }
-    
     public function execute()
     {
         $helper = $this->getHelper();

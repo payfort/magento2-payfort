@@ -96,13 +96,25 @@ class Paymentstatus
                 || $transactionCode === Data::PAYMENT_METHOD_PURCHASE_SUCCESS_STATUS)
         ) {
             $this->_helper->log('process order 2');
-            $this->_helper->handleSendingInvoice($order, $response);
+            $previousState = $order->getState();
+            $previousStatus = $order->getStatus();
+            // Same atomic claim as the redirect/webhook path, so only one writer invoices.
+            if (!$this->_helper->claimOrderForProcessing($order)) {
+                $this->_logger->debug('APS order already claimed by another request '.$order->getId());
+                return;
+            }
+            try {
+                $this->_helper->handleSendingInvoice($order, $response);
 
-            $order->setState($order::STATE_PROCESSING)->save();
-            $order->setStatus($order::STATE_PROCESSING)->save();
+                $order->setState($order::STATE_PROCESSING)->save();
+                $order->setStatus($order::STATE_PROCESSING)->save();
 
-            $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order status changed.', true);
-            $order->save();
+                $order->addStatusToHistory($order::STATE_PROCESSING, 'APS :: Order status changed.', true);
+                $order->save();
+            } catch (\Exception $e) {
+                $this->_helper->releaseOrderProcessingClaim($order, $previousState, $previousStatus);
+                throw $e;
+            }
             $this->_logger->debug('APS order status changed '.$order->getId());
         } elseif (
             ($response['status'] ?? '') === '12'

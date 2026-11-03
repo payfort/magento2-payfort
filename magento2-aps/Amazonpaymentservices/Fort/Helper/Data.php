@@ -2299,7 +2299,7 @@ class Data extends \Magento\Payment\Helper\Data
      * @param \Magento\Sales\Model\Order $order
      * @return bool True when this caller won the claim.
      */
-    private function claimOrderForProcessing($order): bool
+    public function claimOrderForProcessing($order): bool
     {
         try {
             $connection = $this->_connection->getConnection('sales');
@@ -2320,8 +2320,8 @@ class Data extends \Magento\Payment\Helper\Data
 
             return false;
         } catch (\Exception $e) {
-            $this->log('claimOrderForProcessing failed, proceeding without lock: '.$e->getMessage());
-            return true;
+            $this->log('claimOrderForProcessing failed, skipping order: '.$e->getMessage());
+            return false;
         }
     }
 
@@ -2329,22 +2329,24 @@ class Data extends \Magento\Payment\Helper\Data
      * Undo a processing claim after post-payment handling failed.
      *
      * @param \Magento\Sales\Model\Order $order
+     * @param string $state  State to restore
+     * @param string $status Status to restore
      * @return void
      */
-    private function releaseOrderProcessingClaim($order): void
+    public function releaseOrderProcessingClaim($order, $state = Order::STATE_NEW, $status = Order::STATE_NEW): void
     {
         try {
             $connection = $this->_connection->getConnection('sales');
             $connection->update(
                 $this->_connection->getTableName('sales_order', 'sales'),
-                ['state' => Order::STATE_NEW, 'status' => Order::STATE_NEW],
+                ['state' => $state, 'status' => $status],
                 [
                     'entity_id = ?' => (int)$order->getEntityId(),
                     'state = ?' => Order::STATE_PROCESSING,
                 ]
             );
-            $order->setState(Order::STATE_NEW);
-            $order->setStatus(Order::STATE_NEW);
+            $order->setState($state);
+            $order->setStatus($status);
         } catch (\Exception $e) {
             $this->log('releaseOrderProcessingClaim failed: '.$e->getMessage());
         }
@@ -3552,12 +3554,19 @@ class Data extends \Magento\Payment\Helper\Data
                 $payment->setAdditionalData(json_encode($this->filterParamsForPersistence($responseParams)));
                 $payment->save();
 
+                // Same atomic claim as processOrder()/cron, so a concurrent webhook cannot also invoice.
+                $previousState = $newOrder->getState();
+                $previousStatus = $newOrder->getStatus();
+                $claimed = $this->claimOrderForProcessing($newOrder);
                 try {
 
                     $this->log('Gerenating Invoice: '.$newOrder->getId(), $storeCode);
                     $this->log('OrderData:'.json_encode($this->sanitizeOrderDataForLog($newOrder->getData())), $storeCode);
 
-                    $invoice = $this->invoiceService->prepareInvoice($newOrder);
+                    if (!$claimed) {
+                        $this->log('Invoice skipped, order already claimed: '.$newOrder->getId(), $storeCode);
+                    }
+                    $invoice = $claimed ? $this->invoiceService->prepareInvoice($newOrder) : null;
                     if (!$invoice) {
                         $this->log('Invoice not generated', $storeCode);
                     } elseif (!$invoice->getTotalQty()) {
@@ -3574,6 +3583,9 @@ class Data extends \Magento\Payment\Helper\Data
 
                     }
                 } catch (\Exception $e) {
+                    if ($claimed) {
+                        $this->releaseOrderProcessingClaim($newOrder, $previousState, $previousStatus);
+                    }
                     $this->log("Failed in sending invoice:".$newOrder->getId(), $storeCode);
                     $this->log($e, $storeCode);
                     return false;

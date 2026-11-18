@@ -16,8 +16,9 @@ define(
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
         'mage/translate',
+        'Amazonpaymentservices_Fort/js/action/post-redirect'
     ],
-    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, ) {
+    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, $t, postRedirect) {
         'use strict';
         return Component.extend({
             defaults: {
@@ -47,7 +48,7 @@ define(
                 var hasQueryParams = redirectUrl.includes('?');
                 var delimiter = hasQueryParams ? '&' : '?';
                 var redirectUrlWithQuoteId = redirectUrl + delimiter + 'quoteId=' + encodeURIComponent(quoteId);
-                $.mage.redirect(redirectUrlWithQuoteId);
+                postRedirect(redirectUrlWithQuoteId);
             },
             isChecked: ko.computed(function () {
                 var checked = quote.paymentMethod() ? quote.paymentMethod().method : null;

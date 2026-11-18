@@ -2,13 +2,14 @@
 
 namespace Amazonpaymentservices\Fort\Controller\Subscription;
 
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\App\Action\Context;
 use Magento\Store\Model\StoreManagerInterface as StoreManager;
 
-class Cancel extends \Magento\Framework\App\Action\Action
+class Cancel extends \Magento\Framework\App\Action\Action implements HttpPostActionInterface
 {
     /**
      * @var \Magento\Framework\View\Result\PageFactory

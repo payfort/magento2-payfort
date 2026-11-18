@@ -15,8 +15,9 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
+        'Amazonpaymentservices_Fort/js/action/post-redirect'
     ],
-    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder) {
+    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, postRedirect) {
         'use strict';
         return Component.extend({
             defaults: {
@@ -42,7 +43,7 @@ define(
             
             afterPlaceOrder : function () {
                 var randomNum = new Date().getTime();
-                $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_installment.redirectUrl+"?id="+randomNum);
+                postRedirect(window.checkoutConfig.payment.apsFort.aps_installment.redirectUrl+"?id="+randomNum);
             }
         });
     }

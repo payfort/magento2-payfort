@@ -126,7 +126,8 @@
     require(
         [
             'domReady!',
-            'jquery'
+            'jquery',
+            'mage/cookies'
         ], 
         function(domReady, $) {
             var productPrice = 0;
@@ -249,7 +250,7 @@
                         xhr.onerror = reject;
                         xhr.open('POST','<?= /* @noEscape */ $block->getAppleValidationUrl(); ?>');
                         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-                        xhr.send('valURL=' + valURL);
+                        xhr.send('valURL=' + valURL + '&form_key=' + encodeURIComponent($.mage.cookies.get('form_key')));
                     }).catch(function (validationErr) {
                         // You should show an error to the user, e.g. 'Apple Pay failed to load.'
                         session.abort();
@@ -304,6 +305,7 @@
                                     url: '<?= /* @noEscape */ $block->validateAddress(); ?>',
                                     type: 'POST',
                                     data: {
+                                        form_key: $.mage.cookies.get('form_key'),
                                         addressObject
                                     },
                                     async: false,
@@ -377,6 +379,7 @@
                     var response = {};
                     response.data = JSON.stringify({ "data" : data});
                     response.shipData = JSON.stringify({ "shipData" : shipData});
+                    response.form_key = $.mage.cookies.get('form_key');
                     $.each(response, function (k, v) {
                         $('<input>').attr({
                             type: 'hidden',

@@ -15,8 +15,9 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/action/set-payment-information',
         'Magento_Checkout/js/action/place-order',
+        'Amazonpaymentservices_Fort/js/action/post-redirect'
     ],
-    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder) {
+    function (ko, $, Component, quote, fullScreenLoader, setPaymentInformationAction, placeOrder, postRedirect) {
         'use strict';
         return Component.extend({
             defaults: {
@@ -44,7 +45,7 @@ define(
             redirectAfterPlaceOrder: false,
             
             afterPlaceOrder : function () {
-                $.mage.redirect(window.checkoutConfig.payment.apsFort.aps_benefit.redirectUrl);
+                postRedirect(window.checkoutConfig.payment.apsFort.aps_benefit.redirectUrl);
             },
             isChecked: ko.computed(function () {
                 var checked = quote.paymentMethod() ? quote.paymentMethod().method : null;

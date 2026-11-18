@@ -67,7 +67,10 @@ if ($subscriptionOrderCount != '0') {
                                         <?php if ($orderStatus == 'Cancel') { ?>
                                             <a style = 'cursor: no-drop; color: #808080;'>Cancel Subscription</a>
                                         <?php } else { ?>
-                                            <a href = '<?= $block->escapeUrl($block->getCancelUrl($subscriptionOrder['id']))?>'>Cancel Subscription</a>
+                                            <form method="post" action="<?= $block->escapeUrl($block->getCancelUrl($subscriptionOrder['id'])) ?>" style="display:inline">
+                                                <?= $block->getBlockHtml('formkey') ?>
+                                                <button type="submit" class="action-link" style="background:none;border:0;padding:0;color:inherit;text-decoration:underline;cursor:pointer">Cancel Subscription</button>
+                                            </form>
                                         <?php } ?>
                                     </div>
                                 </td>
